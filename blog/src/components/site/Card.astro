@@ -1,0 +1,18 @@
+---
+import Thumb from './Thumb.astro';
+import { catName, type Post } from '../../lib/posts';
+interface Props { post: Post; variant?: 'pc' | 'fs' | 'big' }
+const { post, variant = 'pc' } = Astro.props;
+const d = post.data;
+const href = `/blog/${post.slug}`;
+const search = [d.title, d.summary, ...(d.keywords ?? [])].join(' ');
+---
+{variant === 'big' && (
+ <a class="feat-big" href={href} data-cat={d.cat}><Thumb title={d.thumbTitle} cat={d.cat} img={d.thumbImg} big /><span class="pc-c">{catName(d.cat)}</span><span class="fb-t">{d.title}</span><span class="fb-x">{d.summary}</span><span class="pc-d">{d.date}</span></a>
+)}
+{variant === 'fs' && (
+ <a class="fs" href={href} data-cat={d.cat}><Thumb title={d.thumbTitle} cat={d.cat} img={d.thumbImg} /><span><span class="pc-c">{catName(d.cat)}</span><span class="fs-t">{d.title}</span><span class="pc-d">{d.date}</span></span></a>
+)}
+{variant === 'pc' && (
+ <a class="pc" href={href} data-cat={d.cat} data-s={search}><Thumb title={d.thumbTitle} cat={d.cat} img={d.thumbImg} /><span class="pc-c">{catName(d.cat)}</span><span class="pc-t">{d.title}</span><span class="pc-d">{d.date}</span></a>
+)}

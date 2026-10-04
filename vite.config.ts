@@ -1,13 +1,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import Sitemap from 'vite-plugin-sitemap'
+import { readdirSync } from 'node:fs'
+
+// 블로그(Astro, blog/)는 루트 build 마지막에 dist/blog 로 빌드된다 — 사이트맵에 글 주소 포함
+const blogRoutes = ['/blog', ...['guide', 'question', 'check', 'law'].map((c) => `/blog/category/${c}`),
+  ...readdirSync('blog/src/content/blog').filter((f) => f.endsWith('.mdx')).map((f) => `/blog/${f.replace(/\.mdx$/, '')}`)]
 
 export default defineConfig({
   plugins: [
     react(),
     Sitemap({
       hostname: 'https://checker.krk.team',
-      dynamicRoutes: ['/', '/service', '/pricing', '/contact', '/guide/label', '/guide/rejection'],
+      dynamicRoutes: ['/', '/service', '/pricing', '/contact', ...blogRoutes],
       changefreq: 'weekly',
       lastmod: new Date(),
     }),
@@ -16,9 +21,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         // index.html · service.html · pricing.html · contact.html = public/ 정적 마케팅 페이지 (빌드 대상 아님)
-        main:              'app.html',
-        'guide-label':     'guide-label.html',
-        'guide-rejection': 'guide-rejection.html',
+        main: 'app.html',
       },
     },
   },

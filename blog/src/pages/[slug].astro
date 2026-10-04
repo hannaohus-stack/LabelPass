@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Thumb from '../components/site/Thumb.astro';
+import Card from '../components/site/Card.astro';
+import { getPosts, catNumbers, catName } from '../lib/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const nums = catNumbers(posts);
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post, posts, no: nums.get(post.slug) } }));
+}
+const { post, posts, no } = Astro.props;
+const d = post.data;
+const { Content } = await post.render();
+const same = posts.filter((p) => p.slug !== post.slug && p.data.cat === d.cat);
+const others = posts.filter((p) => p.slug !== post.slug && p.data.cat !== d.cat);
+const related = [...same, ...others].slice(0, 3);
+const jsonld = {
+  '@context': 'https://schema.org', '@type': 'BlogPosting',
+  headline: d.title, description: d.summary, datePublished: d.date.replace(/\./g, '-'),
+  inLanguage: 'ko', keywords: (d.keywords ?? []).join(', '),
+  author: { '@type': 'Organization', name: '라벨패스 LabelPass' },
+  publisher: { '@type': 'Organization', name: '라벨패스 LabelPass' },
+  mainEntityOfPage: new URL(`/blog/${post.slug}`, Astro.site).href,
+};
+---
+<Layout title={`${d.title} — 라벨패스 블로그`} description={d.summary} type="article" image={d.image}>
+<script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonld)} />
+<article>
+<header class="ph"><div class="wrap">
+ <nav class="crumb" aria-label="현재 위치"><a href="/blog">블로그</a><i>/</i><a href={`/blog/category/${d.cat}`}>{catName(d.cat)}</a></nav>
+ <div class="ph-in">
+  <span class="pc-c">{catName(d.cat)} #{no}</span>
+  <h1>{d.title}</h1>
+  <div class="meta"><b>라벨패스 에디터</b><i></i><span>{d.date}</span><i></i><span>{d.time}분 읽기</span></div>
+ </div>
+ <div class="ph-thumb"><Thumb title={d.thumbTitle} cat={d.cat} img={d.thumbImg} big /></div>
+</div></header>
+
+<div class="wrap art-wrap">
+ <div class="art" id="art">
+  <div class="sum"><b>한 줄 요약</b><p>{d.summary}</p></div>
+  <Content />
+  {d.keywords && <div class="tags">{d.keywords.map((k) => <a href={`/blog?q=${encodeURIComponent(k)}`}>#{k.replace(/\s+/g, '')}</a>)}</div>}
+ </div>
+ <aside class="share" aria-label="공유"><b>공유하기</b>
+  <button class="sh" type="button" id="copy"><svg viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>링크 복사</button>
+  <a class="sh" href="#kakao"><svg viewBox="0 0 24 24"><path d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z"/></svg>카톡 공유</a>
+ </aside>
+</div>
+</article>
+
+<section class="rel"><div class="wrap">
+ <div class="bsec-h"><h2>함께 보면 좋은 글</h2><a href="/blog">블로그 전체 →</a></div>
+ <div class="grid3">{related.map((p) => <Card post={p} />)}</div>
+</div></section>
+<div class="copied" id="copied" role="status" slot="scripts">링크를 복사했어요</div>
+<script is:inline slot="scripts">
+(function(){var c=document.getElementById('copied');document.getElementById('copy').addEventListener('click',function(){var done=function(){c.classList.add('on');setTimeout(function(){c.classList.remove('on')},1600)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done,done);else done()})})();
+</script>
+</Layout>

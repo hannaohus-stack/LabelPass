@@ -9,14 +9,14 @@
       "permanent": false
     },
     {
-      "source": "/blog",
-      "destination": "https://blog.krk.team",
-      "permanent": false
+      "source": "/guide/label",
+      "destination": "/blog/category/guide",
+      "permanent": true
     },
     {
-      "source": "/blog/:path*",
-      "destination": "https://blog.krk.team/:path*",
-      "permanent": false
+      "source": "/guide/rejection",
+      "destination": "/blog",
+      "permanent": true
     }
   ],
   "rewrites": [
@@ -33,12 +33,16 @@
       "destination": "/contact.html"
     },
     {
-      "source": "/guide/label",
-      "destination": "/guide-label.html"
+      "source": "/blog",
+      "destination": "/blog/index.html"
     },
     {
-      "source": "/guide/rejection",
-      "destination": "/guide-rejection.html"
+      "source": "/blog/category/:cat",
+      "destination": "/blog/category/:cat/index.html"
+    },
+    {
+      "source": "/blog/:slug",
+      "destination": "/blog/:slug/index.html"
     },
     {
       "source": "/(.*)",

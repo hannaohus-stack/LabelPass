@@ -1,5 +1,40 @@
 ---
-// src/pages/index.astro — Root redirect to /blog
+import Layout from '../layouts/Layout.astro';
+import Card from '../components/site/Card.astro';
+import { getPosts, CATS } from '../lib/posts';
+
+const posts = await getPosts();
+const [first, ...rest] = posts;
+const side = rest.slice(0, 3);
 ---
-<meta http-equiv="refresh" content="0; url=/blog" />
-<script>window.location.href = '/blog';</script>
+<Layout title="블로그 — 라벨패스 LabelPass" description="식품 라벨 표시 가이드, 라벨 질문, 체크리스트, 법규 소식을 쉽게 정리한 라벨패스 블로그.">
+<section class="b-head"><div class="wrap b-top">
+ <div><div class="kicker">LABELPASS BLOG</div><h1>라벨이 어려울 때, 여기부터</h1><p>표시 기준과 법규 소식을 쉽게 정리합니다.</p></div>
+ <label class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder="원산지, 알레르기, 소비기한…" aria-label="블로그 검색"></label>
+</div></section>
+<nav class="btabs" aria-label="카테고리"><div class="wrap" role="tablist"><button role="tab" aria-selected="true" data-k="all">전체</button>{CATS.map((c) => <button role="tab" aria-selected="false" data-k={c.k}>{c.name}</button>)}</div></nav>
+<div class="b-body"><div class="wrap">
+ <div id="home">
+  <section class="feat" aria-label="최신 글"><Card post={first} variant="big" /><div class="fside">{side.map((p) => <Card post={p} variant="fs" />)}</div></section>
+  {CATS.map((c) => (
+   <section class="bsec" data-sec={c.k}><div class="bsec-h"><h2>{c.name}</h2><a href={`/blog/category/${c.k}`}>더보기 <span aria-hidden="true">→</span></a></div><div class="grid3">{posts.filter((p) => p.data.cat === c.k).slice(0, 3).map((p) => <Card post={p} />)}</div></section>
+  ))}
+ </div>
+ <div class="grid3" id="filtered" hidden>{posts.map((p) => <Card post={p} />)}</div>
+ <p class="empty" id="empty">찾는 글이 아직 없어요. 카톡으로 질문을 남겨주시면 글로 정리해 드릴게요.</p>
+</div></div>
+<script is:inline slot="scripts">
+(function(){
+ var tabs=[].slice.call(document.querySelectorAll('.btabs button')),home=document.getElementById('home'),grid=document.getElementById('filtered'),cards=[].slice.call(grid.children),q=document.getElementById('q'),empty=document.getElementById('empty'),cur='all';
+ function apply(){var term=q.value.trim().toLowerCase();
+  if(cur==='all'&&!term){home.hidden=false;grid.hidden=true;empty.classList.remove('on');return}
+  home.hidden=true;grid.hidden=false;var n=0;
+  cards.forEach(function(c){var ok=(cur==='all'||c.dataset.cat===cur)&&(!term||(c.textContent+' '+(c.dataset.s||'')).toLowerCase().indexOf(term)>-1);c.hidden=!ok;if(ok)n++});
+  empty.classList.toggle('on',n===0)}
+ function pick(k){cur=k;tabs.forEach(function(x){x.setAttribute('aria-selected',x.dataset.k===k)});apply()}
+ tabs.forEach(function(t){t.addEventListener('click',function(){pick(t.dataset.k)})});
+ q.addEventListener('input',apply);
+ var u=new URLSearchParams(location.search);if(u.get('q')){q.value=u.get('q')}if(u.get('cat')){pick(u.get('cat'))}else{apply()}
+})();
+</script>
+</Layout>
