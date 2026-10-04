@@ -9,11 +9,10 @@ export function getStaticPaths() {
 const { cat } = Astro.props;
 const posts = (await getPosts()).filter((p) => p.data.cat === cat.k);
 ---
-<Layout title={`${cat.name} — 라벨패스 블로그`} description={`라벨패스 블로그 ${cat.name} 글 모음. 식품 라벨 표시 기준을 쉽게 정리합니다.`}>
+<Layout cat={cat.k} title={`${cat.name} — 라벨패스 블로그`} description={`라벨패스 블로그 ${cat.name} 글 모음. 식품 라벨 표시 기준을 쉽게 정리합니다.`}>
 <section class="b-head"><div class="wrap b-top">
  <div><div class="kicker">LABELPASS BLOG</div><h1>{cat.name}</h1><p>글 {posts.length}개</p></div>
 </div></section>
-<nav class="btabs" aria-label="카테고리"><div class="wrap"><a href="/blog"><button tabindex="-1" aria-selected="false">전체</button></a>{CATS.map((c) => <a href={`/blog/category/${c.k}`}><button tabindex="-1" aria-selected={c.k === cat.k ? 'true' : 'false'}>{c.name}</button></a>)}</div></nav>
 <div class="b-body"><div class="wrap">
  <div class="grid3">{posts.map((p) => <Card post={p} />)}</div>
 </div></div>

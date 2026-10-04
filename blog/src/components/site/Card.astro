@@ -1,10 +1,10 @@
 ---
 import Thumb from './Thumb.astro';
-import { catName, type Post } from '../../lib/posts';
+import { catName, type Post, link } from '../../lib/posts';
 interface Props { post: Post; variant?: 'pc' | 'fs' | 'big' }
 const { post, variant = 'pc' } = Astro.props;
 const d = post.data;
-const href = `/blog/${post.slug}`;
+const href = link(`/${post.slug}`);
 const search = [d.title, d.summary, ...(d.keywords ?? [])].join(' ');
 ---
 {variant === 'big' && (

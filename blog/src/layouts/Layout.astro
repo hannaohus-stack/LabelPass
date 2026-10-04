@@ -1,13 +1,16 @@
 ---
 import '../styles/site.css';
+import { CATS, SITE, link } from '../lib/posts';
 
 interface Props {
   title: string;
   description: string;
   type?: 'website' | 'article';
   image?: string;
+  /** 지금 보고 있는 카테고리 (상단 메뉴 강조) */
+  cat?: string;
 }
-const { title, description, type = 'website', image } = Astro.props;
+const { title, description, type = 'website', image, cat } = Astro.props;
 const canonical = new URL(Astro.url.pathname.replace(/\/$/, '') || '/', Astro.site).href;
 const ogImage = image ? new URL(image, Astro.site).href : undefined;
 const LOGO_W = '/site/LabelPass_Logo_Primary_White_v1.0.svg';
@@ -36,21 +39,14 @@ const LOGO_B = '/site/LabelPass_Logo_Primary_Blue_v1.0.svg';
 <script is:inline>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5QYQQ49EGR',{anonymize_ip:true});</script>
 <script is:inline>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","wwzyi71k5m");</script>
 </head>
-<body class="solid">
-<header class="nav scrolled" id="nav">
- <div class="wrap nav-in">
-  <a class="nav-logo" href="/" aria-label="라벨패스 홈"><img class="logo-w" src={LOGO_W} alt="LabelPass 라벨패스" width="102" height="40"><img class="logo-b" src={LOGO_B} alt="" width="102" height="40"></a>
-  <nav class="nav-menu" aria-label="주 메뉴">
-   <a href="/service">서비스</a>
-   <a href="/pricing">요금안내</a>
-   <a href="/blog" aria-current="page" style="color:var(--blue)">블로그</a>
+<body class="solid blog">
+<header class="bnav">
+ <div class="wrap bnav-in">
+  <a class="bnav-logo" href={link()} aria-label="라벨패스 블로그 홈"><img src={LOGO_B} alt="LabelPass 라벨패스" width="102" height="40"><span>BLOG</span></a>
+  <nav class="bnav-cats" aria-label="카테고리">
+   {CATS.map((c) => <a href={link(`/category/${c.k}`)} aria-current={cat === c.k ? 'page' : undefined}>{c.name}</a>)}
   </nav>
-  <div class="nav-util">
-   <a href="/login" style="margin-right:14px">로그인</a>
-   <a class="btn btn-sm btn-ghost" href="/contact">도입문의</a>
-   <a class="btn btn-blue btn-sm" href="/creator">무료 검사 시작</a>
-  </div>
-  <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false" id="navToggle"><span></span></button>
+  <a class="btn btn-blue btn-sm bnav-cta" href={`${SITE}/creator`}>무료 라벨 점검</a>
  </div>
 </header>
 
@@ -64,7 +60,7 @@ const LOGO_B = '/site/LabelPass_Logo_Primary_Blue_v1.0.svg';
   <p>라벨 사진만 보내주시면, 우리 제품에 맞는 검토 방법을 직접 안내해 드립니다.</p>
   <div class="bigcta-act">
    <a class="btn btn-white" href="#kakao">카톡으로 상담하기 <span aria-hidden="true">↗</span></a>
-   <a class="btn btn-wline" href="/contact">파트너 도입문의</a>
+   <a class="btn btn-wline" href={`${SITE}/contact`}>파트너 도입문의</a>
   </div>
  </div>
 </section>
@@ -74,7 +70,7 @@ const LOGO_B = '/site/LabelPass_Logo_Primary_Blue_v1.0.svg';
  <div class="wrap">
   <div class="foot-top">
    <img src={LOGO_B} alt="LabelPass 라벨패스" width="102" height="40">
-   <nav class="foot-links" aria-label="푸터 메뉴"><a href="/service">서비스</a><a href="/pricing">요금안내</a><a href="/blog">블로그</a><a href="/contact">도입문의</a></nav>
+   <nav class="foot-links" aria-label="푸터 메뉴"><a href={`${SITE}/service`}>서비스</a><a href={`${SITE}/pricing`}>요금안내</a><a href={link()}>블로그</a><a href={`${SITE}/contact`}>도입문의</a></nav>
   </div>
   <div class="foot-bottom">
    <div>
@@ -85,9 +81,6 @@ const LOGO_B = '/site/LabelPass_Logo_Primary_Blue_v1.0.svg';
   </div>
  </div>
 </footer>
-<script is:inline>
-(function(){var nav=document.getElementById('nav'),tg=document.getElementById('navToggle');tg.addEventListener('click',function(){var o=nav.classList.toggle('open');tg.setAttribute('aria-expanded',o)})})();
-</script>
 <slot name="scripts" />
 <script is:inline src="/site/policies.js" defer></script>
 </body>

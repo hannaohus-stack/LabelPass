@@ -2,7 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Thumb from '../components/site/Thumb.astro';
 import Card from '../components/site/Card.astro';
-import { getPosts, catNumbers, catName } from '../lib/posts';
+import { getPosts, catNumbers, catName, link } from '../lib/posts';
 
 export async function getStaticPaths() {
   const posts = await getPosts();
@@ -21,14 +21,14 @@ const jsonld = {
   inLanguage: 'ko', keywords: (d.keywords ?? []).join(', '),
   author: { '@type': 'Organization', name: '라벨패스 LabelPass' },
   publisher: { '@type': 'Organization', name: '라벨패스 LabelPass' },
-  mainEntityOfPage: new URL(`/blog/${post.slug}`, Astro.site).href,
+  mainEntityOfPage: new URL(link(`/${post.slug}`), Astro.site).href,
 };
 ---
-<Layout title={`${d.title} — 라벨패스 블로그`} description={d.summary} type="article" image={d.image}>
+<Layout cat={d.cat} title={`${d.title} — 라벨패스 블로그`} description={d.summary} type="article" image={d.image}>
 <script type="application/ld+json" slot="head" set:html={JSON.stringify(jsonld)} />
 <article>
 <header class="ph"><div class="wrap">
- <nav class="crumb" aria-label="현재 위치"><a href="/blog">블로그</a><i>/</i><a href={`/blog/category/${d.cat}`}>{catName(d.cat)}</a></nav>
+ <nav class="crumb" aria-label="현재 위치"><a href={link()}>블로그</a><i>/</i><a href={link(`/category/${d.cat}`)}>{catName(d.cat)}</a></nav>
  <div class="ph-in">
   <span class="pc-c">{catName(d.cat)} #{no}</span>
   <h1>{d.title}</h1>
@@ -41,7 +41,7 @@ const jsonld = {
  <div class="art" id="art">
   <div class="sum"><b>한 줄 요약</b><p>{d.summary}</p></div>
   <Content />
-  {d.keywords && <div class="tags">{d.keywords.map((k) => <a href={`/blog?q=${encodeURIComponent(k)}`}>#{k.replace(/\s+/g, '')}</a>)}</div>}
+  {d.keywords && <div class="tags">{d.keywords.map((k) => <a href={link(`/?q=${encodeURIComponent(k)}`)}>#{k.replace(/\s+/g, '')}</a>)}</div>}
  </div>
  <aside class="share" aria-label="공유"><b>공유하기</b>
   <button class="sh" type="button" id="copy"><svg viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>링크 복사</button>
@@ -51,7 +51,7 @@ const jsonld = {
 </article>
 
 <section class="rel"><div class="wrap">
- <div class="bsec-h"><h2>함께 보면 좋은 글</h2><a href="/blog">블로그 전체 →</a></div>
+ <div class="bsec-h"><h2>함께 보면 좋은 글</h2><a href={link()}>블로그 전체 →</a></div>
  <div class="grid3">{related.map((p) => <Card post={p} />)}</div>
 </div></section>
 <div class="copied" id="copied" role="status" slot="scripts">링크를 복사했어요</div>

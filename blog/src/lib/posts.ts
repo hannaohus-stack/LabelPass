@@ -1,6 +1,12 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 
 export type Post = CollectionEntry<'blog'>;
+
+/** 블로그 안 주소 — 지금은 labelpass.kr/blog, 분리 후 blog.labelpass.kr (astro base만 바꾸면 됨) */
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
+export const link = (path = '') => BASE + path || '/';
+/** 서비스 사이트(검사 앱 · 요금 · 문의) */
+export const SITE = 'https://labelpass.kr';
 export const CATS = [
   { k: 'guide', name: '표시 가이드' },
   { k: 'question', name: '라벨 질문' },

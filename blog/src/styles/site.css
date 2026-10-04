@@ -225,3 +225,22 @@ a:hover .fs-t,a:hover .pc-t,a:hover .fb-t{color:var(--blue)}
 .pc-n{font-weight:700;color:var(--ink-3);margin-left:6px}
 .cat-head{padding:140px 0 8px}
 @media (max-width:860px){.cat-head{padding:108px 0 8px}}
+/* ===== 블로그 상단 메뉴 (로고 · 카테고리 · 무료 라벨 점검) ===== */
+.bnav{position:fixed;left:0;right:0;top:0;z-index:20;background:rgba(255,255,255,.96);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line)}
+.bnav-in{display:flex;align-items:center;height:76px;gap:40px}
+.bnav-logo{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.bnav-logo img{height:40px;width:auto}
+.bnav-logo span{font-size:12px;font-weight:800;letter-spacing:.14em;color:var(--blue);background:var(--blue-50);border-radius:6px;padding:3px 7px}
+.bnav-cats{display:flex;gap:28px;font-weight:600;font-size:16px;color:var(--ink-2)}
+.bnav-cats a{white-space:nowrap}
+.bnav-cats a:hover{color:var(--navy)}
+.bnav-cats a[aria-current="page"]{color:var(--blue);font-weight:700}
+.bnav-cta{margin-left:auto;flex-shrink:0}
+@media (max-width:860px){
+ .bnav-in{flex-wrap:wrap;height:auto;gap:0 12px;padding-top:12px}
+ .bnav-logo img{height:32px}
+ .bnav-cats{order:3;width:100%;gap:22px;font-size:15px;overflow-x:auto;padding:12px 0;margin-top:8px;border-top:1px solid var(--line);scrollbar-width:none}
+ .bnav-cats::-webkit-scrollbar{display:none}
+ body.blog .b-head,body.blog .cat-head{padding-top:140px}
+ body.blog .ph{padding-top:136px}
+}
