@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --heritage-500: #002D72;
+    --breath-500:   #0CA4F9;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Pretendard Variable', 'Pretendard', system-ui, sans-serif;
+    color: #0A0A0B;
+    background: #F4F4F5;   /* SURFACE v2 — sys-100 */
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection      { background: #0CA4F9; color: #fff; }
+  ::-moz-selection { background: #0CA4F9; color: #fff; }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center gap-2 h-10 px-5 bg-breath-500 text-white
+           font-en font-medium text-[13px] tracking-[0.01em]
+           border-0 rounded-none transition-colors duration-150
+           hover:bg-breath-600 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  .btn-heritage {
+    @apply inline-flex items-center gap-2 h-10 px-5 bg-heritage-500 text-white
+           font-en font-medium text-[13px] tracking-[0.01em]
+           border-0 rounded-none transition-colors duration-150
+           hover:bg-heritage-600 disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+
+  /* btn-soft — 정보성/보조 액션 (다른 결제 수단, 규정 보기 등) */
+  .btn-soft {
+    @apply inline-flex items-center gap-2 h-10 px-5
+           font-en font-medium text-[13px] tracking-[0.01em]
+           border-0 rounded-none transition-colors duration-150
+           disabled:opacity-40 disabled:cursor-not-allowed;
+    background: #EAF6FE;
+    color: #002D72;
+  }
+  .btn-soft:hover { background: #C9E8FD; }
+
+  .btn-ghost {
+    @apply inline-flex items-center gap-2 h-10 px-5 bg-transparent
+           font-en font-medium text-[13px] tracking-[0.01em]
+           border border-ink rounded-none transition-colors duration-150
+           hover:bg-ink hover:text-white;
+  }
+
+  /* Dashboard Hero h1 그라데이션 텍스트 */
+  .gradient-text {
+    background: linear-gradient(120deg, #002D72 0%, #0CA4F9 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .input-field {
+    @apply h-10 w-full border border-[rgba(10,10,11,0.22)] px-[14px]
+           font-kr text-[13px] outline-none bg-white rounded-none
+           focus:border-breath-500 focus:ring-[3px] focus:ring-breath-500/15
+           placeholder:text-[rgba(10,10,11,0.35)];
+  }
+
+  .badge-ok      { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-breath-50  text-heritage-600    font-en text-[11px] font-medium tracking-[0.04em]; }
+  .badge-pass    { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#F0FDF4] text-[#15803D]       font-en text-[11px] font-medium tracking-[0.04em]; }
+  .badge-warn    { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFF3DC] text-[#8A5A00]       font-en text-[11px] font-medium tracking-[0.04em]; }
+  .badge-risk    { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#FFE6E6] text-[#B30000]       font-en text-[11px] font-medium tracking-[0.04em]; }
+  .badge-neutral { @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-sys-100  text-[rgba(10,10,11,0.65)] font-en text-[11px] font-medium tracking-[0.04em]; }
+}

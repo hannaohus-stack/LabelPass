@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>라벨패스 LabelPass — 식품 라벨, 법에 맞는지 10분 만에 확인하세요</title>
+<meta name="description" content="제품 정보와 원재료를 입력하면 17개 식품 표시 항목을 10분 만에 검토합니다. 무료 검토 결과를 먼저 확인하고 필요한 결과물을 선택하세요.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--amber:#C98200;--red:#E0413A;--r:20px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:#fff;font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+img{display:block;max-width:100%}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 24px;border-radius:12px;font-weight:700;font-size:16px;transition:background .15s,color .15s,border-color .15s}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#2547d6}
+.btn-line{border:1.5px solid var(--line);color:var(--navy);background:#fff}.btn-line:hover{border-color:var(--navy)}
+.btn-dark{background:var(--navy);color:#fff}.btn-dark:hover{background:#000}
+.btn-sm{height:40px;padding:0 16px;font-size:14px;border-radius:10px}
+.kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.04em;margin-bottom:14px}
+h1,h2,h3{margin:0;letter-spacing:-0.035em}
+h2{font-size:40px;line-height:1.3;font-weight:800}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;top:0;z-index:20;background:transparent;border-bottom:1px solid transparent;transition:background .25s,border-color .25s}
+.nav.scrolled,.nav.open{background:rgba(255,255,255,.96);backdrop-filter:saturate(1.4) blur(8px);border-bottom-color:var(--line)}
+.nav .logo-w{display:block}.nav .logo-b{display:none}
+.nav.scrolled .logo-w,.nav.open .logo-w{display:none}.nav.scrolled .logo-b,.nav.open .logo-b{display:block}
+.nav:not(.scrolled):not(.open) .nav-menu,.nav:not(.scrolled):not(.open) .nav-util{color:#fff}
+.nav:not(.scrolled):not(.open) .nav-menu a:hover,.nav:not(.scrolled):not(.open) .nav-util a:hover{color:#fff;opacity:.75}
+.nav:not(.scrolled):not(.open) .nav-util .btn-blue:hover{opacity:1}
+.nav:not(.scrolled):not(.open) .nav-toggle span{background:#fff;box-shadow:0 6px 0 #fff,0 -6px 0 #fff}
+.nav-in{display:flex;align-items:center;height:76px;gap:40px}
+.nav-logo img{height:40px;width:auto}
+.nav-menu{display:flex;gap:32px;font-weight:600;font-size:16px}
+.nav-menu a:hover,.nav-util a:hover{color:var(--blue)}
+.btn-ghost{background:transparent;border:1.5px solid #C9D0DC;color:var(--navy)}.btn-ghost:hover{border-color:var(--navy)}
+.nav:not(.scrolled):not(.open) .btn-ghost{border-color:rgba(255,255,255,.55);color:#fff}
+.nav:not(.scrolled):not(.open) .btn-ghost:hover{border-color:#fff;opacity:1}
+.nav-util{margin-left:auto;display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--ink-2)}
+.nav-toggle{display:none;margin-left:auto;width:40px;height:40px;border-radius:10px;align-items:center;justify-content:center}
+.nav-toggle span{display:block;width:20px;height:2px;background:var(--navy);box-shadow:0 6px 0 var(--navy),0 -6px 0 var(--navy)}
+
+/* hero */
+.hero{position:relative;min-height:max(100vh,680px);display:grid;place-items:center;text-align:center;color:#fff;overflow:hidden;background:#05070f}
+.hero-bg{position:absolute;inset:0;background:var(--hero-img,url("assets/hero_bg.jpg")) center/cover no-repeat;transform:scale(1.04)}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,5,14,.92) 0%,rgba(3,5,14,.78) 45%,rgba(10,22,80,.72) 100%),radial-gradient(80% 60% at 85% 100%,rgba(51,88,238,.45),transparent 70%)}
+.hero-in{position:relative;padding:120px 20px 96px}
+.rot{display:flex;align-items:center;justify-content:center;gap:16px;font-size:24px;font-weight:600;color:rgba(255,255,255,.92);margin-bottom:28px;letter-spacing:-0.02em}
+.rot .dash{width:28px;height:3px;background:var(--blue);border-radius:2px;flex-shrink:0}
+.rot-win{position:relative;display:inline-block;height:1.4em;overflow:hidden;text-align:left}
+.rot-win span{position:absolute;left:0;top:0;white-space:nowrap;transform:translateY(110%);opacity:0;transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s}
+.rot-win span.on{transform:none;opacity:1}
+.rot-win span.out{transform:translateY(-110%);opacity:0}
+.hero h1{font-size:76px;line-height:1.22;font-weight:800;letter-spacing:-0.04em}
+.hero-desc{margin:28px 0 48px;font-size:21px;color:rgba(255,255,255,.78)}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-white{background:#fff;color:var(--navy)}.btn-white:hover{background:#E9EDF7}
+/* facts */
+.facts{background:var(--soft);padding:112px 0;text-align:center}
+.facts h2{font-size:40px;line-height:1.35}
+.facts .btn{margin-top:32px;height:48px;padding:0 22px;font-size:15px}
+.facts-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1040px;margin:56px auto 0}
+.fact{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:36px 24px 40px}
+.fact-lb{display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600;color:var(--ink-2)}
+.fact-lb svg{width:20px;height:20px;stroke:var(--ink-2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fact b{display:block;margin-top:14px;font-size:52px;line-height:1.1;font-weight:800;letter-spacing:-0.04em;color:var(--navy)}
+.fact b small{font-size:.62em;font-weight:800;margin-left:2px}
+/* why */
+.why{position:relative;padding:128px 0;color:#fff;background:radial-gradient(70% 90% at 0% 0%,rgba(51,88,238,.38),transparent 60%),radial-gradient(50% 60% at 100% 100%,rgba(51,88,238,.16),transparent 70%),#111a2e;overflow:hidden}
+.why .kicker{color:#8FA8FF}
+.why-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:start;margin-bottom:64px}
+.why h2{font-size:44px;line-height:1.3}
+.why h2 em{font-style:normal;color:#8FA8FF}
+.why-sub{margin:20px 0 0;font-size:17px;color:rgba(255,255,255,.66)}
+.why-pts{display:grid;gap:28px;padding-top:34px}
+.why-pt h3{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:700}
+.why-pt h3 svg{width:24px;height:24px;stroke:#8FA8FF;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.why-pt p{margin:8px 0 0 34px;color:rgba(255,255,255,.62);font-size:16px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:32px 30px;display:flex;flex-direction:column}
+.card-ico{width:52px;height:52px;border-radius:14px;background:rgba(51,88,238,.22);border:1px solid rgba(143,168,255,.25);display:grid;place-items:center}
+.card-ico svg{width:24px;height:24px;stroke:#A9BCFF;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:21px;font-weight:700;margin:28px 0 12px}
+.card p{margin:0 0 28px;color:rgba(255,255,255,.62);font-size:15.5px;line-height:1.7}
+.card .go{margin-top:auto;font-size:15px;color:#fff}
+.card .go:hover{color:#A9BCFF}
+.laws{margin-top:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:26px 30px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:40px}
+.laws-h{display:flex;align-items:center;gap:16px;font-size:20px;font-weight:700;white-space:nowrap}
+.laws-h .card-ico{width:48px;height:48px}
+.marq{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marq-tr{display:flex;gap:10px;width:max-content;animation:marq 40s linear infinite}
+.marq:hover .marq-tr{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.law{display:flex;align-items:center;gap:10px;background:#fff;color:var(--navy);border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;white-space:nowrap}
+.law small{display:block;font-size:11px;font-weight:600;color:var(--ink-3);margin-top:1px}
+.law i{font-style:normal;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-50);border-radius:6px;padding:5px 6px}
+.why-note{margin:20px 0 0;font-size:13px;color:rgba(255,255,255,.45)}
+/* steps (modusign style) */
+.steps{padding:24px 0 136px}
+.steps-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:72px;align-items:start}
+.steps h2{margin-bottom:48px}
+.step-list{border-top:1px solid var(--line)}
+.step-btn{display:flex;align-items:center;gap:16px;width:100%;text-align:left;padding:28px 0;border-bottom:1px solid var(--line);font-size:26px;font-weight:800;letter-spacing:-0.035em;color:#C5CBD6;transition:color .2s}
+.step-btn .no{font-size:15px;font-weight:700;letter-spacing:0;min-width:28px;color:inherit}
+.step-btn:hover{color:var(--ink-3)}
+.step-btn{position:relative}
+.step-btn::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--blue)}
+.step-btn[aria-selected="true"]::after{animation:prog var(--dur,5s) linear forwards}
+.steps-paused .step-btn[aria-selected="true"]::after{animation-play-state:paused}
+@keyframes prog{to{width:100%}}
+.step-btn[aria-selected="true"]{color:var(--navy)}
+.step-btn[aria-selected="true"] .no{color:var(--blue)}
+.step-tag{font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-50);border-radius:999px;padding:3px 10px;letter-spacing:0}
+.step-panel{display:none}
+.step-panel.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stage{position:relative;background:var(--soft);border:1px solid var(--line);border-radius:24px;aspect-ratio:616/420;overflow:hidden}
+.app{position:absolute;left:12%;right:-1px;top:9%;bottom:-1px;background:#fff;border-radius:14px 0 0 0;box-shadow:0 1px 0 var(--line);border:1px solid var(--line);overflow:hidden}
+.app-bar{height:44px;background:var(--blue);display:flex;align-items:center;padding:0 18px;gap:10px;color:#fff;font-size:13px;font-weight:600}
+.app-bar img{height:20px;width:auto}
+.app-bar .crumb{margin-left:auto;opacity:.75;font-weight:500}
+.app-main{display:grid;grid-template-columns:132px minmax(0,1fr);height:calc(100% - 44px)}
+.app-side{border-right:1px solid var(--line);padding:18px 14px;font-size:12px;color:var(--ink-3);display:flex;flex-direction:column;gap:6px}
+.app-side span{padding:6px 8px;border-radius:7px}
+.app-side .cur{background:var(--blue-50);color:var(--blue);font-weight:700}
+.app-body{padding:20px 22px;font-size:13px}
+.app-title{font-size:16px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.demo{font-size:11px;font-weight:700;color:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.field{display:grid;grid-template-columns:84px 1fr;align-items:center;gap:10px;margin-bottom:9px}
+.field label{color:var(--ink-3);font-weight:600}
+.field .in{border:1px solid var(--line);border-radius:8px;height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--navy)}
+.tag{font-size:12px;background:var(--blue-50);color:var(--blue);border-radius:6px;padding:2px 7px;font-weight:600}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{border-radius:10px;padding:10px 12px;font-weight:700;font-size:12px}
+.stat b{display:block;font-size:24px;line-height:1.2;font-weight:800}
+.s-g{background:#E8F6EF;color:var(--green)}.s-a{background:#FFF4DC;color:var(--amber)}.s-r{background:#FDECEA;color:var(--red)}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 2px}
+.row .g{color:var(--green);font-weight:700}.row .a{color:var(--amber);font-weight:700}.row .r{color:var(--red);font-weight:700}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan{border:1.5px solid var(--line);border-radius:12px;padding:14px}
+.plan.sel{border-color:var(--blue);background:var(--blue-50)}
+.plan h4{margin:0 0 2px;font-size:14px}
+.plan .pr{font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.plan ul{margin:8px 0 0;padding-left:16px;color:var(--ink-2);font-size:12px;line-height:1.6}
+.paybtn{margin-top:12px;height:38px;border-radius:9px;background:var(--blue);color:#fff;font-weight:700;display:grid;place-items:center}
+.file{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:7px}
+.file .ext{font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-50);border-radius:6px;padding:3px 6px;min-width:38px;text-align:center}
+.file .dl{margin-left:auto;color:var(--ink-3);font-weight:700}
+.float{position:absolute;left:3%;bottom:8%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 12px 30px rgba(24,33,54,.12);font-size:13px;width:36%;max-width:220px}
+.float b{display:block;font-size:14px;margin-bottom:4px}
+.float .mut{color:var(--ink-3);font-size:12px}
+.step-desc{margin:28px 0 18px;font-size:17px;color:var(--ink-2);line-height:1.7}
+.go{font-weight:700;font-size:16px;display:inline-flex;gap:6px;align-items:center}
+.go:hover{color:var(--blue)}
+
+/* help cards */
+.help{background:var(--soft);padding:112px 0}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.help-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:40px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.help-card h3{font-size:24px;font-weight:800;margin-bottom:8px}
+.help-card p{margin:0;color:var(--ink-2)}
+.help-card .btn{flex-shrink:0;min-width:140px}
+
+/* more */
+.more{padding:128px 0 120px}
+.more h2{margin-bottom:56px}
+.more-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) 48px;gap:40px;align-items:start;padding:40px 0;border-top:1px solid var(--line)}
+.more-row:last-child{border-bottom:1px solid var(--line)}
+.more-row h3{display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800}
+.more-row h3 svg{width:28px;height:28px;stroke:var(--navy);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.more-row p{margin:0;font-size:17px;color:var(--ink-2);line-height:1.75}
+.more-badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:14px;font-weight:600;color:var(--blue);background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;padding:8px 14px}
+.more-go{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--navy);display:grid;place-items:center;transition:background .15s,color .15s}
+.more-go svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.more-row:hover .more-go{background:var(--navy);color:#fff}
+
+/* big cta */
+.bigcta{position:relative;background:var(--blue);color:#fff;text-align:center;padding:144px 0;overflow:hidden}
+.bigcta-arrow{position:absolute;right:-60px;bottom:-120px;width:520px;height:520px;fill:rgba(255,255,255,.08)}
+.bigcta-arrow.l{left:-140px;top:-160px;right:auto;bottom:auto;width:360px;height:360px;transform:rotate(180deg);fill:rgba(255,255,255,.05)}
+.bigcta .kicker{color:rgba(255,255,255,.8)}
+.bigcta h2{position:relative;font-size:60px;line-height:1.25}
+.bigcta p{position:relative;margin:24px 0 44px;font-size:20px;color:rgba(255,255,255,.82)}
+.bigcta-act{position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.bigcta .btn{height:60px;padding:0 32px;font-size:17px}
+.btn-wline{border:1.5px solid rgba(255,255,255,.7);color:#fff}.btn-wline:hover{background:rgba(255,255,255,.1);border-color:#fff}
+
+/* footer */
+.footer{padding:56px 0 64px;font-size:14px;color:var(--ink-2)}
+.foot-top{display:flex;justify-content:space-between;gap:40px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.foot-top img{height:40px;width:auto}
+.foot-links{display:flex;gap:28px;font-weight:600;color:var(--navy);flex-wrap:wrap}
+.foot-bottom{display:flex;justify-content:space-between;gap:40px;padding-top:28px;flex-wrap:wrap}
+.foot-legal{display:flex;gap:18px;font-weight:600;color:var(--navy);margin-bottom:12px}
+.foot-info{line-height:1.8;color:var(--ink-3)}
+.foot-sns{display:flex;gap:10px;align-items:flex-start}
+.foot-sns a{width:40px;height:40px;border-radius:50%;background:#EEF0F4;color:#8A94A8;display:grid;place-items:center;transition:background .15s,color .15s}
+.foot-sns a:hover{background:#E1E5EC;color:var(--navy)}
+.foot-sns svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* responsive */
+@media (max-width:1024px){
+ .hero h1{font-size:56px}
+ .steps-grid{gap:48px}
+}
+@media (max-width:860px){
+ .wrap{padding:0 20px}
+ .nav-menu,.nav-util{display:none}
+ .nav-toggle{display:flex}
+ .nav.open .nav-menu,.nav.open .nav-util{display:flex}
+ .nav.open .nav-in{flex-wrap:wrap;height:auto;padding:16px 0 20px;row-gap:16px}
+ .nav.open .nav-menu{order:3;width:100%;flex-direction:column;gap:14px}
+ .nav.open .nav-util{order:4;width:100%;margin:0;flex-wrap:wrap}
+ .hero{min-height:max(88vh,560px)}
+ .rot{font-size:17px;gap:10px}
+ .rot .dash{width:18px}
+ .steps-grid,.help-grid{grid-template-columns:1fr}
+ .hero h1{font-size:40px}
+ .hero-in{padding:104px 4px 72px}
+ .hero-desc{font-size:17px;margin:20px 0 36px}
+ h2{font-size:30px}
+ .facts{padding:80px 0}
+ .facts h2{font-size:26px}
+ .facts-in{grid-template-columns:1fr;gap:12px;margin-top:40px}
+ .fact{padding:24px}
+ .fact b{font-size:40px;margin-top:8px}
+ .why{padding:88px 0}
+ .why-top{grid-template-columns:1fr;gap:32px;margin-bottom:40px}
+ .why h2{font-size:30px}
+ .why-pts{padding-top:0}
+ .cards{grid-template-columns:1fr}
+ .laws{grid-template-columns:1fr;gap:20px;padding:24px}
+ .steps{padding:0 0 96px}
+ .steps h2{margin-bottom:28px}
+ .step-btn{font-size:21px;padding:20px 0}
+ .app-body{padding:14px 16px;font-size:12px}
+ .float{display:none}
+ .stage{aspect-ratio:4/3.4}
+ .app{left:6%}
+ .app-main{grid-template-columns:1fr}
+ .app-side{display:none}
+ .card{padding:26px 24px}
+ .card h3{margin:20px 0 8px}
+ .help{padding:72px 0}
+ .more{padding:88px 0}
+ .more h2{margin-bottom:32px}
+ .more-row{grid-template-columns:minmax(0,1fr) 44px;gap:16px 20px;padding:28px 0}
+ .more-row h3{font-size:22px}
+ .more-row .more-txt{grid-column:1/-1;grid-row:2}
+ .more-row .more-go{grid-column:2;grid-row:1}
+ .bigcta{padding:96px 0}
+ .bigcta h2{font-size:36px}
+ .bigcta p{font-size:17px}
+ .bigcta-arrow{width:300px;height:300px;right:-80px;bottom:-90px}
+ .bigcta .btn{height:54px}
+ .help-card{flex-direction:column;align-items:flex-start;padding:28px}
+ .foot-top,.foot-bottom{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){.marq-tr{animation:none!important;flex-wrap:wrap;width:auto}.marq-tr .dup{display:none}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="nav" id="nav">
+ <div class="wrap nav-in">
+  <a class="nav-logo" href="/" aria-label="라벨패스 홈"><img class="logo-w" src="assets/LabelPass_Logo_Primary_White_v1.0.svg" alt="LabelPass 라벨패스" width="102" height="40"><img class="logo-b" src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="" width="102" height="40"></a>
+  <nav class="nav-menu" aria-label="주 메뉴">
+   <a href="/service">서비스</a>
+   <a href="/pricing">요금안내</a>
+   <a href="/blog">블로그</a>
+  </nav>
+  <div class="nav-util">
+   <a href="/login" style="margin-right:14px">로그인</a>
+   <a class="btn btn-sm btn-ghost" href="/contact">도입문의</a>
+   <a class="btn btn-blue btn-sm" href="/check">무료 검사 시작</a>
+  </div>
+  <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false" id="navToggle"><span></span></button>
+ </div>
+</header>
+
+<main>
+<!-- 1 HERO -->
+<section class="hero">
+ <div class="hero-bg" aria-hidden="true"></div>
+ <div class="hero-ov" aria-hidden="true"></div>
+ <div class="hero-in">
+  <p class="rot"><span>라벨이 필요한 모든 제품</span><span class="dash" aria-hidden="true"></span><span class="rot-win" id="rot" aria-live="polite"><span class="on">잼 · 소스 · 장류</span><span>떡류</span><span>디저트 · 베이커리</span><span>차 · 음료</span><span>일반 건강식품</span></span></p>
+  <h1>출시 전,<br>라벨부터 확인하세요</h1>
+  <p class="hero-desc">17개 표시 항목을 10분 만에 검토합니다.</p>
+  <div class="hero-actions">
+   <a class="btn btn-white" href="/contact">도입문의</a>
+   <a class="btn btn-blue" href="/check">무료 검사 시작</a>
+  </div>
+ </div>
+</section>
+
+<!-- 2 FACTS -->
+<section class="facts" aria-labelledby="facts-h">
+ <div class="wrap">
+  <h2 id="facts-h">출시 전 확인할 표시 항목,<br>라벨패스가 빠짐없이 검토합니다</h2>
+  <a class="btn btn-dark" href="/service">서비스 자세히 보기 <span aria-hidden="true">→</span></a>
+  <div class="facts-in">
+   <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>자동 검토 항목</div><b>17<small>개</small></b></div>
+   <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>입력부터 결과까지</div><b>10<small>분</small></b></div>
+   <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>제품별 1회 결제</div><b>9,900<small>원~</small></b></div>
+  </div>
+ </div>
+</section>
+
+<!-- 3 WHY -->
+<section class="why" aria-labelledby="why-h">
+ <div class="wrap">
+  <div class="why-top">
+   <div>
+    <div class="kicker">WHY LABELPASS</div>
+    <h2 id="why-h">확인은 <em>더 빠르게</em>,<br>놓치는 항목은 <em>없게</em></h2>
+    <p class="why-sub">혼자 찾기엔 어렵고, 맡기기엔 오래 걸리는 라벨 확인을 10분으로.</p>
+   </div>
+   <div class="why-pts">
+    <div class="why-pt"><h3><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>며칠 걸리던 확인을 10분으로</h3><p>대행에 맡기면 2~3일, 라벨패스는 입력부터 결과까지 10분입니다.</p></div>
+    <div class="why-pt"><h3><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0-4-4m4 4 4-4"/><path d="M4 17v3h16v-3"/></svg>결과는 바로 쓰는 파일로</h3><p>라벨 PDF·PNG와 항목별 텍스트를 받아 인쇄와 신고에 바로 씁니다.</p></div>
+   </div>
+  </div>
+  <div class="cards">
+   <div class="card"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 2 0 0 0 6 0zM19 7l-3 6a3 2 0 0 0 6 0z"/></svg></div><h3>현행 법령 기준 검토</h3><p>식품 표시·광고 법령과 식약처 고시, 원산지·분리배출 기준에 근거해 각 항목을 확인합니다.</p><a class="go" href="/service">검토 기준 보기 <span aria-hidden="true">→</span></a></div>
+   <div class="card"><div class="card-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5M8 17h3"/><path d="m14 16 1.5 1.5L18 15"/></svg></div><h3>17개 항목 자동 판정</h3><p>원재료·알레르기·원산지·영양강조·분리배출까지, 17개 검토 규칙이 입력값을 통과·주의·위반으로 판정합니다.</p><a class="go" href="/service">17개 항목 보기 <span aria-hidden="true">→</span></a></div>
+   <div class="card"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg></div><h3>근거가 남는 리포트</h3><p>전문 검토는 항목마다 관련 조항·과태료·수정 방법을 정리해, 단속에 대비한 기록으로 남깁니다.</p><a class="go" href="/pricing">전문 검토 보기 <span aria-hidden="true">→</span></a></div>
+  </div>
+  <div class="laws">
+   <div class="laws-h"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>검토 기준 법령 · 고시</div>
+   <div class="marq"><div class="marq-tr"><div class="law"><i>표시광고법</i><span>식품 등의 표시·광고에 관한 법률</span></div><div class="law"><i>시행규칙</i><span>같은 법 시행규칙 · 알레르기 별표</span></div><div class="law"><i>고시</i><span>식품등의 표시기준</span></div><div class="law"><i>원산지</i><span>농수산물의 원산지 표시 등에 관한 법률</span></div><div class="law"><i>분리배출</i><span>자원재활용법 · 분리배출 표시 지침</span></div><div class="law"><i>식품위생법</i><span>영업 유형 · 품목제조보고</span></div><div class="law dup" aria-hidden="true"><i>표시광고법</i><span>식품 등의 표시·광고에 관한 법률</span></div><div class="law dup" aria-hidden="true"><i>시행규칙</i><span>같은 법 시행규칙 · 알레르기 별표</span></div><div class="law dup" aria-hidden="true"><i>고시</i><span>식품등의 표시기준</span></div><div class="law dup" aria-hidden="true"><i>원산지</i><span>농수산물의 원산지 표시 등에 관한 법률</span></div><div class="law dup" aria-hidden="true"><i>분리배출</i><span>자원재활용법 · 분리배출 표시 지침</span></div><div class="law dup" aria-hidden="true"><i>식품위생법</i><span>영업 유형 · 품목제조보고</span></div></div></div>
+  </div>
+  <p class="why-note">검토 결과는 입력 정보를 바탕으로 한 검토 도구의 결과이며, 법적 적합성을 보증하지 않습니다.</p>
+ </div>
+</section>
+
+<!-- 4 STEPS -->
+<section class="steps" id="how">
+ <div class="wrap steps-grid">
+  <div>
+   <div class="kicker">HOW IT WORKS</div>
+   <h2>입력부터 라벨 파일까지<br>한 번에 이어집니다</h2>
+   <div class="step-list" role="tablist" aria-label="이용 단계">
+    <button class="step-btn" role="tab" id="t1" aria-controls="p1" aria-selected="true"><span class="no">01</span>제품 정보 입력</button>
+    <button class="step-btn" role="tab" id="t2" aria-controls="p2" aria-selected="false" tabindex="-1"><span class="no">02</span>무료 검토 결과 <span class="step-tag">무료</span></button>
+    <button class="step-btn" role="tab" id="t3" aria-controls="p3" aria-selected="false" tabindex="-1"><span class="no">03</span>결과물 받기</button>
+   </div>
+  </div>
+
+  <div>
+   <div class="step-panel on" role="tabpanel" id="p1" aria-labelledby="t1">
+    <div class="stage">
+     <div class="app"><div class="app-bar"><img src="assets/LabelPass_Logo_Primary_White_v1.0.svg" alt=""><span class="crumb">STEP 1 · 정보 입력</span></div>
+      <div class="app-main"><div class="app-side"><span class="cur">1. 정보 입력</span><span class="">2. 검토 결과</span><span class="">3. 결과물</span></div><div class="app-body"><div class="app-title">제품 정보 <span class="demo">예시</span></div>
+       <div class="field"><label>제품명</label><div class="in">딸기잼</div></div>
+       <div class="field"><label>식품유형</label><div class="in">잼류</div></div>
+       <div class="field"><label>원재료</label><div class="in"><span class="tag">딸기 60%</span><span class="tag">설탕</span><span class="tag">펙틴</span></div></div>
+       <div class="field"><label>포장재</label><div class="in"><span class="tag">유리병</span><span class="tag">금속 뚜껑</span></div></div>
+      </div></div></div>
+     <div class="float"><b>원재료 자동완성</b><span class="mut">자주 쓰는 원재료를 골라 빠르게 입력</span></div>
+    </div>
+    <p class="step-desc">식품유형, 원재료, 포장재를 입력합니다.<br>자주 쓰는 원재료는 자동완성으로 고를 수 있습니다.</p>
+    <a class="go" href="/check">무료 검사 시작 <span aria-hidden="true">→</span></a>
+   </div>
+
+   <div class="step-panel" role="tabpanel" id="p2" aria-labelledby="t2" hidden>
+    <div class="stage">
+     <div class="app"><div class="app-bar"><img src="assets/LabelPass_Logo_Primary_White_v1.0.svg" alt=""><span class="crumb">STEP 2 · 검토 결과</span></div>
+      <div class="app-main"><div class="app-side"><span class="">1. 정보 입력</span><span class="cur">2. 검토 결과</span><span class="">3. 결과물</span></div><div class="app-body"><div class="app-title">딸기잼 표시사항 검토 <span class="demo">예시</span></div>
+       <div class="stat3"><div class="stat s-g">통과<b>12</b></div><div class="stat s-a">주의<b>3</b></div><div class="stat s-r">위반<b>2</b></div></div>
+       <div class="row"><span>제품명</span><span class="g">통과</span></div>
+       <div class="row"><span>원재료명 표시</span><span class="a">주의</span></div>
+       <div class="row"><span>알레르기 표시</span><span class="r">위반</span></div>
+      </div></div></div>
+     <div class="float"><b>17개 항목 요약</b><span class="mut">통과 · 주의 · 위반 개수는 무료로 확인</span></div>
+    </div>
+    <p class="step-desc">17개 항목의 통과·주의·위반 개수를 무료로 먼저 확인합니다.<br>결과를 보고 필요한 서비스를 고르면 됩니다.</p>
+    <a class="go" href="/check">무료로 확인하기 <span aria-hidden="true">→</span></a>
+   </div>
+
+
+   <div class="step-panel" role="tabpanel" id="p3" aria-labelledby="t3" hidden>
+    <div class="stage">
+     <div class="app"><div class="app-bar"><img src="assets/LabelPass_Logo_Primary_White_v1.0.svg" alt=""><span class="crumb">STEP 3 · 결과물</span></div>
+      <div class="app-main"><div class="app-side"><span class="">1. 정보 입력</span><span class="">2. 검토 결과</span><span class="cur">3. 결과물</span></div><div class="app-body"><div class="app-title">결과물 <span class="demo">전문 예시</span></div>
+       <div class="file"><span class="ext">PDF</span>라벨 파일<span class="dl">↓</span></div>
+       <div class="file"><span class="ext">PNG</span>라벨 이미지<span class="dl">↓</span></div>
+       <div class="file"><span class="ext">PDF</span>검토 리포트<span class="dl">↓</span></div>
+       <div class="file"><span class="ext">ZIP</span>분리배출 마크<span class="dl">↓</span></div>
+       <div class="file"><span class="ext">PDF</span>정부24 신고 가이드<span class="dl">↓</span></div>
+      </div></div></div>
+     <div class="float"><b>마이페이지 1년 보관</b><span class="mut">언제든 다시 내려받기</span></div>
+    </div>
+    <p class="step-desc">라벨 파일과 텍스트를 바로 받습니다. 전문은 검토 리포트, 신고 가이드,<br>분리배출 마크와 30일 내 수정본 재검토 1회를 함께 드립니다.</p>
+    <a class="go" href="/service">서비스 자세히 보기 <span aria-hidden="true">→</span></a>
+   </div>
+  </div>
+ </div>
+</section>
+
+<!-- 5 HELP CARDS -->
+<section class="help">
+ <div class="wrap help-grid">
+  <div class="help-card"><div><h3>라벨 사진으로 문의하기</h3><p>입력이 어렵다면 카톡으로 라벨 사진을 보내주세요.</p></div><a class="btn btn-dark" href="#kakao">카톡 문의</a></div>
+  <div class="help-card"><div><h3>파트너 도입문의</h3><p>디자이너·인쇄소·에이전시라면 함께 쓰는 방법을 안내해 드립니다.</p></div><a class="btn btn-dark" href="/contact">도입문의</a></div>
+ </div>
+</section>
+
+<!-- 6 MORE -->
+<section class="more" aria-labelledby="more-h">
+ <div class="wrap">
+  <h2 id="more-h">라벨패스를 더 다양하게 활용해 보세요</h2>
+  <a class="more-row" href="/contact">
+   <h3><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>파트너와 함께 쓰기</h3>
+   <div class="more-txt"><p>디자이너·인쇄소·에이전시라면 고객 라벨을 납품 전에 확인하세요.<br>공유주방·창업 교육기관과도 함께 운영할 수 있습니다.</p><span class="more-badge">도입문의로 함께 쓰는 방법을 안내해 드립니다</span></div>
+   <span class="more-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  </a>
+  <a class="more-row" href="/blog">
+   <h3><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6M8 11h6"/></svg>표시 가이드 · 법규 소식</h3>
+   <div class="more-txt"><p>원산지·알레르기·영양강조처럼 자주 헷갈리는 표시 기준을 주제별로 정리했습니다.<br>바뀐 기준은 법규 소식으로 알려드립니다.</p><span class="more-badge">표시 가이드 · 라벨 질문 · 라벨 체크 · 법규 소식</span></div>
+   <span class="more-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+  </a>
+ </div>
+</section>
+
+<!-- 7 BIG CTA -->
+<section class="bigcta" aria-labelledby="cta-h">
+ <svg class="bigcta-arrow" viewBox="0 0 100 100" aria-hidden="true"><polygon points="0,0 100,0 100,100 72,100 72,47.80 19.80,100 0,80.20 52.20,28 0,28"/></svg>
+ <div class="wrap">
+  <div class="kicker">TALK TO US</div>
+  <h2 id="cta-h">라벨 확인이 처음이라면,<br>먼저 상담부터 받아보세요</h2>
+  <p>라벨 사진만 보내주시면, 우리 제품에 맞는 검토 방법을 직접 안내해 드립니다.</p>
+  <div class="bigcta-act">
+   <a class="btn btn-white" href="#kakao">카톡으로 상담하기 <span aria-hidden="true">↗</span></a>
+   <a class="btn btn-wline" href="/contact">파트너 도입문의</a>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer class="footer">
+ <div class="wrap">
+  <div class="foot-top">
+   <img src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스" width="102" height="40">
+   <nav class="foot-links" aria-label="푸터 메뉴"><a href="/service">서비스</a><a href="/pricing">요금안내</a><a href="/blog">블로그</a><a href="/contact">도입문의</a></nav>
+  </div>
+  <div class="foot-bottom">
+   <div>
+    <div class="foot-legal"><a href="/terms">이용약관</a><a href="/privacy"><b>개인정보처리방침</b></a><a href="/refund">환불정책</a></div>
+    <div class="foot-info">[상호] · 대표 [이름] · 사업자등록번호 [번호] · 통신판매업 [번호]<br>[주소] · 고객센터 카톡 [채널명]<br>검토 결과는 입력 정보를 바탕으로 한 검토 도구의 결과이며, 법적 적합성을 보증하지 않습니다.<br>© 2026 LabelPass</div>
+   </div>
+   <div class="foot-sns"><a href="#naver" aria-label="네이버 블로그"><svg viewBox="0 0 24 24"><path d="M6.5 5.5h3.6l3.8 6V5.5h3.6v13h-3.6l-3.8-6v6H6.5z" fill="currentColor" stroke="none"/></svg></a><a href="https://instagram.com/labelpass.kr" aria-label="인스타그램"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".6" fill="currentColor"/></svg></a><a href="#youtube" aria-label="유튜브"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></svg></a><a href="#kakao" aria-label="카카오톡"><svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z"/></svg></a></div>
+  </div>
+ </div>
+</footer>
+
+<script>
+(function(){
+ var nav=document.getElementById('nav');
+ addEventListener('scroll',function(){nav.classList.toggle('scrolled',scrollY>8)},{passive:true});
+ var tg=document.getElementById('navToggle');
+ tg.addEventListener('click',function(){var o=nav.classList.toggle('open');tg.setAttribute('aria-expanded',o);tg.setAttribute('aria-label',o?'메뉴 닫기':'메뉴 열기')});
+ var rot=document.getElementById('rot'),rw=[].slice.call(rot.children),ri=0;
+ function fit(){var m=0;rw.forEach(function(e){m=Math.max(m,e.offsetWidth)});rot.style.width=m+'px'}
+ fit();addEventListener('resize',fit);if(document.fonts)document.fonts.ready.then(fit);
+ setInterval(function(){var c=rw[ri];c.classList.remove('on');c.classList.add('out');ri=(ri+1)%rw.length;var n=rw[ri];n.classList.remove('out');void n.offsetWidth;n.classList.add('on');setTimeout(function(){c.classList.remove('out')},650)},2400);
+ var tabs=[].slice.call(document.querySelectorAll('.step-btn'));
+ function sel(i,focus){cur=i;tabs.forEach(function(t,j){var on=i===j;t.setAttribute('aria-selected',false);if(on){void t.offsetWidth;t.setAttribute('aria-selected',true)}t.tabIndex=on?0:-1;var p=document.getElementById(t.getAttribute('aria-controls'));p.hidden=!on;p.classList.toggle('on',on)});if(focus)tabs[i].focus()}
+ var cur=0,timer,DUR=5000,box=document.getElementById('how');
+ function play(){clearInterval(timer);if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;timer=setInterval(function(){sel((cur+1)%tabs.length)},DUR)}
+ function restart(i){tabs[i].style.animation='none';void tabs[i].offsetWidth;tabs[i].style.animation=''}
+ box.addEventListener('mouseenter',function(){clearInterval(timer);box.classList.add('steps-paused')});
+ box.addEventListener('mouseleave',function(){box.classList.remove('steps-paused');sel(cur);play()});
+ play();
+ tabs.forEach(function(t,i){
+  t.addEventListener('click',function(){sel(i);play()});
+  t.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowDown'||k==='ArrowRight'){e.preventDefault();sel((i+1)%tabs.length,true)}if(k==='ArrowUp'||k==='ArrowLeft'){e.preventDefault();sel((i+tabs.length-1)%tabs.length,true)}});
+ });
+})();
+</script>
+<script src="assets/policies.js" defer></script>
+</body>
+</html>
