@@ -1,6 +1,6 @@
 /**
  * AuthShell — 인증 페이지 공통 레이아웃
- * 배경 #F4F4F5, 중앙 카드, KRK 로고
+ * 배경 #F4F4F5, 중앙 카드, 라벨패스 로고
  */
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../lib/useAuth'
@@ -23,7 +23,7 @@ export default function AuthShell({ crumb, crumbColor = '#002D72', children }: P
         onClick={() => navigate(session ? '/dashboard' : '/')}
         className="mb-8 hover:opacity-70 transition-opacity"
       >
-        <img src="/krk-checker-logo.png" alt="KRK Checker" style={{ height: 16, display: 'block' }} />
+        <img src="/site/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스" style={{ height: 30, width: 'auto', display: 'block' }} />
       </button>
 
       {/* 카드 */}

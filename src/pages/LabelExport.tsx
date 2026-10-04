@@ -1,3 +1,4 @@
+import LogoLockup from '../components/LogoLockup'
 import { useState } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import { FileDown, Loader2, ChevronLeft, CheckCircle2, AlertTriangle, AlertCircle } from 'lucide-react'
@@ -86,7 +87,7 @@ function generateHtml(
 <html lang="ko">
 <head>
   <meta charset="UTF-8"/>
-  <title>KRK 법규 검토 보고서 — ${metadata.productName}</title>
+  <title>라벨패스 법규 검토 보고서 — ${metadata.productName}</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/variable/pretendardvariable.css"/>
   <style>
     @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css');
@@ -145,7 +146,7 @@ function generateHtml(
 
 <!-- 인쇄 버튼 (화면 전용) -->
 <div class="no-print" style="position:sticky;top:0;z-index:99;background:#002D72;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;">
-  <span style="color:#fff;font-size:13px;font-weight:600;letter-spacing:0.12em;">KRK 법규 검토 보고서</span>
+  <span style="color:#fff;font-size:13px;font-weight:600;letter-spacing:0.12em;">라벨패스 법규 검토 보고서</span>
   <button onclick="window.print()" style="background:#0CA4F9;color:#fff;border:none;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.04em;">
     PDF 저장
   </button>
@@ -157,7 +158,7 @@ function generateHtml(
   <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px;">
     <div>
       <div style="font-size:15px;font-weight:800;letter-spacing:0.18em;margin-bottom:8px;">
-        krk<span style="color:#0CA4F9;">.</span>team
+        LABELPASS 라벨패스
       </div>
       <div style="font-size:22px;font-weight:500;letter-spacing:-0.02em;">법규 검토 보고서</div>
     </div>
@@ -258,7 +259,7 @@ function generateHtml(
   <div style="border-top:1px solid rgba(10,10,11,0.1);padding-top:14px;font-size:9.5px;color:rgba(10,10,11,0.3);line-height:1.6;">
     이 보고서는 입력된 정보를 바탕으로 한 참고용 분석이며 법적 효력이 없습니다.
     정확한 법규 해석은 관할 지자체 또는 식품의약품안전처에 문의하세요.
-    krk.team — Zero Risk, Pure Success.
+    labelpass.kr
   </div>
 
 </div>
@@ -277,7 +278,7 @@ function exportToPDF(ingredients: Ingredient[], metadata: Metadata): void {
   const dateStr  = new Date().toISOString().slice(0, 10).replace(/-/g, '')
   const a = document.createElement('a')
   a.href = url
-  a.download = `KRK_법규검토_${safeName}_${dateStr}.html`
+  a.download = `LabelPass_법규검토_${safeName}_${dateStr}.html`
   document.body.appendChild(a); a.click(); document.body.removeChild(a)
   setTimeout(() => URL.revokeObjectURL(url), 5_000)
 }
@@ -324,8 +325,7 @@ export default function LabelExport() {
           onClick={() => navigate('/')}
           className="flex items-baseline gap-[5px] hover:opacity-70 transition-opacity"
         >
-          <span style={{ fontFamily: "Georgia, 'Times New Roman', serif" }} className="font-bold text-[15px] tracking-[0.04em] text-[#0A0A0B]">krk</span>
-          <span className="font-en font-light text-[15px] tracking-[0.14em] text-[#0A0A0B]">check</span>
+          <LogoLockup />
         </button>
         <div className="hidden md:flex items-center gap-0 font-en text-[11px] tracking-[0.1em] uppercase">
           {[
@@ -461,7 +461,7 @@ export default function LabelExport() {
         {/* 하단 면책 문구 */}
         <footer className="border-t border-[rgba(10,10,11,0.06)] px-6 py-5 text-center">
           <p className="font-en text-[11px] text-[rgba(10,10,11,0.3)] leading-[1.6]">
-            krk.team이 제공하는 검토 결과 및 과태료 금액은 참고용 정보이며, 법적 효력이 없습니다.
+            라벨패스가 제공하는 검토 결과 및 과태료 금액은 참고용 정보이며, 법적 효력이 없습니다.
             정확한 법규 해석은 관할 지자체 또는 식약처에 문의하세요.
           </p>
         </footer>

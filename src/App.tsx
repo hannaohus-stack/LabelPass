@@ -16,8 +16,6 @@ const EmailVerify = lazy(() => import('./pages/auth/EmailVerify'))
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const AuthCallback = lazy(() => import('./pages/auth/AuthCallback'))
-const Privacy = lazy(() => import('./pages/Privacy'))
-const Terms = lazy(() => import('./pages/Terms'))
 const BetaApply = lazy(() => import('./pages/beta/BetaApply'))
 const BetaNps = lazy(() => import('./pages/beta/BetaNps'))
 
@@ -70,8 +68,9 @@ export default function App() {
         <Route path="/" element={<HardNav to="/" />} />
 
         {/* 법적 페이지 (공개) */}
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms"   element={<Terms />} />
+        <Route path="/privacy" element={<HardNav to="/#privacy" />} />
+        <Route path="/terms"   element={<HardNav to="/#terms" />} />
+        <Route path="/refund"  element={<HardNav to="/#refund" />} />
 
         {/* SEO 공개 페이지 */}
         <Route path="/pricing"          element={<HardNav to="/pricing" />} />

@@ -1,5 +1,5 @@
 /**
- * Dashboard — krk check v2
+ * Dashboard — 라벨패스 마이페이지
  * /  경로 (ProtectedRoute 필요 — Sprint 3 Auth 구현 후 적용)
  *
  * Supabase: payments + drafts 테이블 (Sprint 3-A 이후 실제 쿼리로 교체)
@@ -581,7 +581,7 @@ export default function Dashboard() {
       {/* ── 푸터 ─────────────────────────────────────────────────────────────── */}
       <footer className="border-t border-[rgba(10,10,11,0.08)] px-6 py-5 text-center">
         <p className="font-en text-[11px] text-[rgba(10,10,11,0.3)] leading-[1.6]">
-          krk.team이 제공하는 결과는 참고용이며 법적 효력이 없습니다.
+          라벨패스가 제공하는 결과는 참고용이며 법적 효력이 없습니다.
         </p>
       </footer>
 

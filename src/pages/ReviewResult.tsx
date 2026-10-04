@@ -1010,7 +1010,7 @@ export function LegacyReviewResult() {
         {/* 하단 면책 문구 */}
         <footer className="border-t border-[rgba(10,10,11,0.06)] px-6 py-5 text-center">
           <p className="font-en text-[11px] text-[rgba(10,10,11,0.3)] leading-[1.6]">
-            krk.team이 제공하는 검토 결과 및 과태료 금액은 참고용 정보이며, 법적 효력이 없습니다.
+            라벨패스가 제공하는 검토 결과 및 과태료 금액은 참고용 정보이며, 법적 효력이 없습니다.
             정확한 법규 해석은 관할 지자체 또는 식약처에 문의하세요.
           </p>
         </footer>
@@ -1054,7 +1054,7 @@ function StickyNavB() {
         Free Review Result
       </span>
       <span className="font-en text-[11px] text-[rgba(10,10,11,0.4)] uppercase tracking-[0.08em]">
-        krk.team/review
+        labelpass.kr/review
       </span>
     </nav>
   )
@@ -1316,7 +1316,7 @@ function IntegratedPackageCardB({ ingredients, metadata, creatorData }: {
           {meta.cta}
         </button>
         <div className="mt-3.5 pt-3 border-t border-[rgba(10,10,11,0.08)] text-[11px] text-[rgba(10,10,11,0.4)] leading-[1.5]">
-          KRK 검토 결과는 자율 점검 참고 자료이며, 식약처 공식 인증이 아닙니다.
+          라벨패스 검토 결과는 자율 점검 참고 자료이며, 식약처 공식 인증이 아닙니다.
         </div>
       </div>
     </aside>
@@ -1365,7 +1365,7 @@ function NoticePanelB() {
     <div className="mt-6 p-[18px] border border-[rgba(10,10,11,0.08)] bg-white">
       <h3 className="m-0 mb-2 text-[13.5px] font-semibold tracking-[-0.005em]">중요 안내</h3>
       <p className="m-0 text-[12px] text-[rgba(10,10,11,0.65)] leading-[1.6]">
-        KRK의 검토 결과는 입력한 정보를 기준으로 한 자율 점검 참고 자료이며, 식약처 또는 관할 기관의 공식 인증이 아닙니다.
+        라벨패스의 검토 결과는 입력한 정보를 기준으로 한 자율 점검 참고 자료이며, 식약처 또는 관할 기관의 공식 인증이 아닙니다.
       </p>
     </div>
   )

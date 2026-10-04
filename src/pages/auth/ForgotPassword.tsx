@@ -61,7 +61,7 @@ export default function ForgotPassword() {
             <p className="font-en text-[13px] text-[rgba(10,10,11,0.5)] mt-1">{email}</p>
           </div>
           <div className="flex flex-col gap-3">
-            {['받은편지함에서 krk.team 발송 이메일을 확인하세요.','이메일 내 링크를 클릭해 새 비밀번호를 설정하세요.','링크는 24시간 동안 유효합니다.']
+            {['받은편지함에서 라벨패스가 보낸 이메일을 확인하세요.','이메일 내 링크를 클릭해 새 비밀번호를 설정하세요.','링크는 24시간 동안 유효합니다.']
               .map((t, i) => (
                 <div key={i} className="flex items-start gap-3">
                   <span className="font-en text-[11px] font-bold text-heritage-500 flex-shrink-0 mt-0.5 tabular-nums">0{i+1}</span>

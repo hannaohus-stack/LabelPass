@@ -1,5 +1,5 @@
 // generateReportPDF.ts — PDF ② 정부24 신고 입력 가이드 (v5)
-// 파일명: KRK_신고입력가이드_{productName}_{YYYYMMDD}.pdf
+// 파일명: LabelPass_신고입력가이드_{productName}_{YYYYMMDD}.pdf
 // v5 변경: tier 파라미터 추가, 사업자 유형 분기(D-2-6), packagingMaterials 연결, 검토번호 연결
 
 import type { CreatorData } from '../pages/creator/types'
@@ -73,7 +73,7 @@ const BUSINESS_GUIDE: Record<string, BizGuide> = {
 export async function createReportPDFArtifact(data: CreatorData, _tier: ServiceTier = 'tier2'): Promise<DownloadablePdfArtifact> {
   const dateStr   = new Date().toISOString().slice(0, 10).replace(/-/g, '')
   const safeName  = safePdfName(data.productName)
-  const filename  = `KRK_신고입력가이드_${safeName}_${dateStr}.pdf`
+  const filename  = `LabelPass_신고입력가이드_${safeName}_${dateStr}.pdf`
   const reviewId  = generateReviewId()
 
   const officialCategory = data.categories.length > 0
@@ -134,7 +134,7 @@ export async function createReportPDFArtifact(data: CreatorData, _tier: ServiceT
     ctx.fillRect(0, 0, 794, 68)
     ctx.fillStyle = '#fff'
     ctx.font = '700 15px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('KRK CHECKER · PDF-02 입력 가이드', 54, 42)
+    ctx.fillText('LABELPASS · PDF-02 입력 가이드', 54, 42)
     ctx.font = '11px "Apple SD Gothic Neo", system-ui'
     ctx.fillText(new Date().toLocaleDateString('ko-KR'), 655, 42)
     ctx.fillStyle = PDF_COLORS.faint
@@ -207,8 +207,8 @@ export async function createReportPDFArtifact(data: CreatorData, _tier: ServiceT
     })
     ctx.fillStyle = PDF_COLORS.faint
     ctx.font = '10px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('본 가이드는 krk.team 자동 작성 참고 자료입니다. 실제 신고는 정부24(gov.kr)에서 직접 진행하세요.', 54, 1032)
-    ctx.fillText('krk.team', 680, 1032)
+    ctx.fillText('본 가이드는 라벨패스 자동 작성 참고 자료입니다. 실제 신고는 정부24(gov.kr)에서 직접 진행하세요.', 54, 1032)
+    ctx.fillText('labelpass.kr', 680, 1032)
   })
 
   const rowHtml = tableRows.map(([label, value]) => `
@@ -223,7 +223,7 @@ export async function createReportPDFArtifact(data: CreatorData, _tier: ServiceT
     <section style="width:794px;min-height:1123px;box-sizing:border-box;background:#fff;color:${PDF_COLORS.ink};
       font-family:Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;padding:0;">
       <div style="height:68px;background:${PDF_COLORS.heritage};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 54px;box-sizing:border-box;">
-        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">KRK CHECKER · PDF-02 입력 가이드</div>
+        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">LABELPASS · PDF-02 입력 가이드</div>
         <div style="font-size:11px;opacity:.8;">${escapePdfHtml(new Date().toLocaleDateString('ko-KR'))}</div>
       </div>
       <div style="padding:34px 54px 0;box-sizing:border-box;">
@@ -252,7 +252,7 @@ export async function createReportPDFArtifact(data: CreatorData, _tier: ServiceT
           위 표의 내용은 식품위생법 제37조 및 동법 시행규칙 관련 신고 화면 입력을 돕기 위한 참고 자료입니다. 관할 지자체 요청 항목은 별도로 확인하세요.
         </div>
         <div style="border-top:1px solid ${PDF_COLORS.hairline};margin-top:26px;padding-top:12px;display:flex;justify-content:space-between;font-size:10px;color:${PDF_COLORS.faint};">
-          <span>본 가이드는 krk.team 자동 작성 참고 자료입니다. 실제 신고는 정부24(gov.kr)에서 직접 진행하세요.</span><span>krk.team</span>
+          <span>본 가이드는 라벨패스 자동 작성 참고 자료입니다. 실제 신고는 정부24(gov.kr)에서 직접 진행하세요.</span><span>labelpass.kr</span>
         </div>
       </div>
     </section>`
@@ -353,7 +353,7 @@ export async function createReportPDFArtifact(data: CreatorData, _tier: ServiceT
     { size: 8, color: PDF_COLORS.faint, maxLines: 3 },
   )
 
-  drawPdfFooter(doc, '본 가이드는 krk.team 자동 작성 참고 자료입니다. 실제 신고는 정부24(gov.kr)에서 직접 진행하세요.')
+  drawPdfFooter(doc, '본 가이드는 라벨패스 자동 작성 참고 자료입니다. 실제 신고는 정부24(gov.kr)에서 직접 진행하세요.')
   return saveDocAsArtifact(doc, filename)
 }
 

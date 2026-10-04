@@ -151,7 +151,7 @@ function CreatorHeader({ current, onHome }: { current: number; onHome: () => voi
       </button>
       <StepProgress current={current} />
       <div className="hidden font-en text-[11px] uppercase tracking-[0.14em] text-[rgba(10,10,11,0.4)] md:block">
-        krk.team/new — Step {current} / 4
+        labelpass.kr/creator — Step {current} / 4
       </div>
       <div className="md:hidden font-en text-[11px] uppercase tracking-[0.14em] text-[rgba(10,10,11,0.4)]">
         {current}/4

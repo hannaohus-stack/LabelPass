@@ -46,7 +46,7 @@ export default function Login() {
 
         <div>
           <h1 className="font-kr font-semibold text-[22px] text-ink tracking-[-0.018em]">로그인</h1>
-          <p className="font-kr text-[13px] text-[rgba(10,10,11,0.55)] mt-1">krk check에 오신 것을 환영합니다.</p>
+          <p className="font-kr text-[13px] text-[rgba(10,10,11,0.55)] mt-1">라벨패스에 오신 것을 환영합니다.</p>
         </div>
 
         <KakaoBtn />

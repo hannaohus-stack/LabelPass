@@ -63,7 +63,7 @@ export default function EmailVerify() {
         {status !== 'error' && (
           <div className="flex flex-col gap-3">
             {[
-              '받은편지함에서 krk.team 발송 이메일을 확인하세요.',
+              '받은편지함에서 라벨패스가 보낸 이메일을 확인하세요.',
               '이메일 내 인증 링크를 클릭하세요.',
               '인증 완료 후 로그인이 가능합니다.',
             ].map((text, i) => (

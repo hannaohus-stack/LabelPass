@@ -60,7 +60,7 @@ export default function Signup() {
 
         <div>
           <h1 className="font-kr font-semibold text-[22px] text-ink tracking-[-0.018em]">회원가입</h1>
-          <p className="font-kr text-[13px] text-[rgba(10,10,11,0.55)] mt-1">krk check를 시작해보세요.</p>
+          <p className="font-kr text-[13px] text-[rgba(10,10,11,0.55)] mt-1">라벨패스를 시작해 보세요.</p>
         </div>
 
         <KakaoBtn />

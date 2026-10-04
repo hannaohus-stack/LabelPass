@@ -1,9 +1,9 @@
 // generateReviewId.ts — 검토번호 자동 발급 (D-2-7)
-// 형식: KRK-YYYYMMDD-XXXX (XXXX = 4자리 랜덤 대문자+숫자)
+// 형식: LP-YYYYMMDD-XXXX (XXXX = 4자리 랜덤 대문자+숫자)
 
 /**
- * KRK-YYYYMMDD-XXXX 형식 검토번호 생성
- * @example "KRK-20260521-A3F9"
+ * LP-YYYYMMDD-XXXX 형식 검토번호 생성 (2026-10 이전 발급분은 KRK-)
+ * @example "LP-20261004-A3F9"
  */
 export function generateReviewId(): string {
   const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '')
@@ -11,5 +11,5 @@ export function generateReviewId(): string {
   const suffix  = Array.from({ length: 4 }, () =>
     chars[Math.floor(Math.random() * chars.length)]
   ).join('')
-  return `KRK-${dateStr}-${suffix}`
+  return `LP-${dateStr}-${suffix}`
 }

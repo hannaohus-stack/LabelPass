@@ -40,7 +40,7 @@ const SERVICES: Record<ServiceType, {
       { id: 'label-pdf', name: '라벨 PDF', use: '인쇄용 · A4', icon: <Tag size={16} /> },
       { id: 'label-png', name: '라벨 PNG', use: '웹 · 스마트스토어', icon: <FileArchive size={16} /> },
       { id: 'report-guide', name: '품목제조보고 입력 가이드', use: '정부24 참고용', icon: <ClipboardList size={16} /> },
-      { id: 'review-report', name: 'krk 라벨 검토 리포트', use: '자율 점검 기록', icon: <FileText size={16} /> },
+      { id: 'review-report', name: '라벨패스 검토 리포트', use: '자율 점검 기록', icon: <FileText size={16} /> },
       { id: 'recycling', name: '분리배출 마크 ZIP', use: '환경부 공식 도안', icon: <Recycle size={16} /> },
     ],
     copyItems: ['원재료명 · 함량', '알레르기 유발물질', '식품유형', '제품명 · 영문'],
@@ -129,7 +129,7 @@ function createLabelPngBlob(data: CreatorData): Promise<Blob> {
 
     ctx.fillStyle = '#FFFFFF'
     ctx.font = '700 72px system-ui, sans-serif'
-    ctx.fillText('KRK CHECKER', 260, 340)
+    ctx.fillText('LABELPASS', 260, 340)
 
     ctx.fillStyle = '#0A0A0B'
     ctx.font = '700 190px system-ui, sans-serif'
@@ -165,7 +165,7 @@ function createLabelPngBlob(data: CreatorData): Promise<Blob> {
     ctx.font = '500 48px system-ui, sans-serif'
     ctx.fillStyle = 'rgba(10,10,11,0.55)'
     ctx.fillText(`제조원 ${data.manufacturer || '-'}`, 260, 2600)
-    ctx.fillText('본 이미지는 KRK 라벨 PNG 미리보기 산출물입니다.', 260, 2700)
+    ctx.fillText('본 이미지는 라벨패스 라벨 PNG 미리보기 산출물입니다.', 260, 2700)
 
     canvas.toBlob(blob => {
       if (blob) resolve(blob)
@@ -374,7 +374,7 @@ export default function PaymentComplete() {
           if (isTossRedirect) sessionStorage.removeItem('krk_payment_state')
           const service = parsed.service ?? tierToService(parsed.tier)
           recordPayment({
-            orderId: orderId ?? `KRK-FAIL-${Date.now()}`,
+            orderId: orderId ?? `LP-FAIL-${Date.now()}`,
             paymentKey: paymentKey ?? undefined,
             amount: SERVICES[service].price,
             tier: serviceToTier(service),
@@ -463,7 +463,7 @@ export default function PaymentComplete() {
   }
   const handleDownloadLabelPng = async () => {
     const blob = await createLabelPngBlob(creatorData)
-    downloadBlob(blob, `KRK_라벨_${safeFilenamePart(metadata.productName)}.png`)
+    downloadBlob(blob, `LabelPass_라벨_${safeFilenamePart(metadata.productName)}.png`)
   }
 
   const handleDownloadRecyclingZip = async () => {
@@ -487,7 +487,7 @@ export default function PaymentComplete() {
       }))
 
       const blob = await zip.generateAsync({ type: 'blob' })
-      downloadBlob(blob, `KRK_recycling_marks_${safeFilenamePart(metadata.productName)}.zip`)
+      downloadBlob(blob, `LabelPass_분리배출마크_${safeFilenamePart(metadata.productName)}.zip`)
     } catch (e) {
       console.error('[RecyclingZip] 생성 실패:', e)
       alert('ZIP 생성 중 오류가 발생했습니다.')
@@ -550,7 +550,7 @@ export default function PaymentComplete() {
       }
 
       const blob = await zip.generateAsync({ type: 'blob' })
-      downloadBlob(blob, `KRK_${service === 'pro' ? 'professional_guide' : 'basic_label_package'}_${safeName}_${dateStr}.zip`)
+      downloadBlob(blob, `LabelPass_${service === 'pro' ? '전문' : '기본'}_${safeName}_${dateStr}.zip`)
     } catch (e) {
       console.error('[DownloadAllZip] 생성 실패:', e)
       alert('전체 다운로드 ZIP 생성 중 오류가 발생했습니다.')

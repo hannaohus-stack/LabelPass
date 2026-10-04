@@ -69,7 +69,7 @@ export default function BetaNps() {
             감사해요!
           </h2>
           <p style={{ fontSize: 14, color: SOFT_INK, marginBottom: 32, lineHeight: 1.6 }}>
-            소중한 의견이 KRK CHECKER를<br />더 좋게 만들어요 💚
+            소중한 의견이 라벨패스를<br />더 좋게 만들어요 💚
           </p>
 
           <div style={{
@@ -116,7 +116,7 @@ export default function BetaNps() {
           </div>
 
           <p style={{ fontSize: 12.5, color: 'rgba(10,10,11,0.4)', lineHeight: 1.6 }}>
-            KRK CHECKER가 더 좋아질 수 있도록<br />
+            라벨패스가 더 좋아질 수 있도록<br />
             함께해주셔서 감사합니다 ☺️
           </p>
         </div>
@@ -134,13 +134,13 @@ export default function BetaNps() {
             3분 베타 후기 설문
           </h1>
           <p style={{ fontSize: 13, color: SOFT_INK, lineHeight: 1.6 }}>
-            솔직한 의견이 KRK를 만들어요<br />
+            솔직한 의견이 라벨패스를 만들어요<br />
             제출 즉시 50% 평생 할인 코드 드려요 🎁
           </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <FieldGroup label="1. KRK CHECKER를 동료 제조사에게 추천할 가능성은?" error={errors.npsScore}>
+          <FieldGroup label="1. 라벨패스를 동료 제조사에게 추천할 가능성은?" error={errors.npsScore}>
             <NpsButtons value={npsScore} onChange={setNpsScore} />
             {npsScore !== null && (
               <p style={{ fontSize: 12, color: SOFT_INK, marginTop: 8, textAlign: 'center' }}>

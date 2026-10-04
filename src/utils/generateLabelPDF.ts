@@ -1,5 +1,5 @@
 // generateLabelPDF.ts — PDF ① 식품 라벨 (v5)
-// 다운로드 파일명: KRK_라벨_{productName}_{YYYYMMDD}.pdf
+// 다운로드 파일명: LabelPass_라벨_{productName}_{YYYYMMDD}.pdf
 // A4 1장 — 전면 라벨(좌) + 후면 라벨(우) 나란히, 크롭 마크 포함
 // v5: 법규 GAP 수정 — 열량병기(GAP1), 1399 독립표시(GAP4), 인쇄단위 pt/mm(GAP5), packagingMaterials(GAP6)
 
@@ -323,7 +323,7 @@ void buildBackLabel
 export async function createLabelPDFArtifact(data: CreatorData): Promise<DownloadablePdfArtifact> {
   const dateStr    = new Date().toISOString().slice(0, 10).replace(/-/g, '')
   const safeName   = safePdfName(data.productName)
-  const filename   = `KRK_라벨_${safeName}_${dateStr}.pdf`
+  const filename   = `LabelPass_라벨_${safeName}_${dateStr}.pdf`
   const officialLabelCategory = data.categories.length > 0
     ? CATEGORY_OFFICIAL[data.categories[0]] ?? data.categories[0]
     : '식품'
@@ -364,7 +364,7 @@ export async function createLabelPDFArtifact(data: CreatorData): Promise<Downloa
     ctx.fillRect(0, 0, 794, 68)
     ctx.fillStyle = '#fff'
     ctx.font = '700 15px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('KRK CHECKER · PDF-01', 54, 42)
+    ctx.fillText('LABELPASS · PDF-01', 54, 42)
     ctx.font = '11px "Apple SD Gothic Neo", system-ui'
     ctx.fillText(new Date().toLocaleDateString('ko-KR'), 650, 42)
 
@@ -408,7 +408,7 @@ export async function createLabelPDFArtifact(data: CreatorData): Promise<Downloa
     ctx.fillStyle = '#77777B'
     ctx.font = '10px "Apple SD Gothic Neo", system-ui'
     ctx.fillText((data.manufacturer || 'MANUFACTURER').toUpperCase(), frontX + 20, labelY + 30)
-    ctx.fillText('KRK · PDF-01', frontX + 210, labelY + 30)
+    ctx.fillText('LABELPASS · PDF-01', frontX + 210, labelY + 30)
     ctx.fillStyle = HERITAGE
     ctx.fillRect(frontX + 20, labelY + 50, 150, 26)
     ctx.fillStyle = '#fff'
@@ -513,14 +513,14 @@ export async function createLabelPDFArtifact(data: CreatorData): Promise<Downloa
     drawCanvasText(ctx, '용기 재질과 냉장/상온 환경에서 라벨 번짐 여부를 확인하세요.', 280, 788, 180, 17, 3)
     drawCanvasText(ctx, '본 라벨은 입력값 기반 자동 생성 초안이며, 최종 표시는 사업자가 확인해야 합니다.', 506, 788, 190, 17, 3)
     ctx.fillText('식품 라벨 인쇄용 · 표시 기준 참고 산출물', 54, 1032)
-    ctx.fillText('krk.team', 680, 1032)
+    ctx.fillText('labelpass.kr', 680, 1032)
   })
 
   const html = `
     <section style="width:794px;height:1123px;box-sizing:border-box;background:#fff;color:${INK};
       font-family:Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;padding:0;">
       <div style="height:68px;background:${HERITAGE};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 54px;box-sizing:border-box;">
-        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">KRK CHECKER · PDF-01</div>
+        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">LABELPASS · PDF-01</div>
         <div style="font-size:11px;opacity:.8;">${new Date().toLocaleDateString('ko-KR')}</div>
       </div>
       <div style="padding:34px 54px 0;box-sizing:border-box;">
@@ -540,7 +540,7 @@ export async function createLabelPDFArtifact(data: CreatorData): Promise<Downloa
             <span style="position:absolute;left:-16px;bottom:-1px;width:10px;border-top:1px solid #9A9AA0;"></span><span style="position:absolute;left:-1px;bottom:-16px;height:10px;border-left:1px solid #9A9AA0;"></span>
             <span style="position:absolute;right:-16px;bottom:-1px;width:10px;border-top:1px solid #9A9AA0;"></span><span style="position:absolute;right:-1px;bottom:-16px;height:10px;border-left:1px solid #9A9AA0;"></span>
             <div style="display:flex;justify-content:space-between;font-size:10px;color:${FAINT};letter-spacing:.18em;text-transform:uppercase;">
-              <span>${escapePdfHtml(data.manufacturer || 'MANUFACTURER')}</span><span>KRK · PDF-01</span>
+              <span>${escapePdfHtml(data.manufacturer || 'MANUFACTURER')}</span><span>LABELPASS · PDF-01</span>
             </div>
             <div style="display:inline-block;background:${HERITAGE};color:#fff;font-size:11px;font-weight:700;padding:5px 10px;margin-top:18px;">식품유형 · ${escapePdfHtml(officialLabelCategory)}</div>
             <h2 style="font-size:36px;line-height:1.1;letter-spacing:-.03em;margin:24px 0 8px;word-break:keep-all;">${escapePdfHtml(data.productName || '제품명')}</h2>
@@ -583,7 +583,7 @@ export async function createLabelPDFArtifact(data: CreatorData): Promise<Downloa
           <div><b style="display:block;color:${INK};font-size:12px;margin-bottom:4px;">법적 고지</b>본 라벨은 입력값 기반 자동 생성 초안이며, 최종 표시는 사업자가 확인해야 합니다.</div>
         </div>
         <div style="border-top:1px solid ${HAIRLINE};margin-top:42px;padding-top:12px;display:flex;justify-content:space-between;font-size:10px;color:${FAINT};">
-          <span>식품 라벨 인쇄용 · 표시 기준 참고 산출물</span><span>krk.team</span>
+          <span>식품 라벨 인쇄용 · 표시 기준 참고 산출물</span><span>labelpass.kr</span>
         </div>
       </div>
     </section>`
@@ -650,7 +650,7 @@ export async function createLabelPDFArtifact(data: CreatorData): Promise<Downloa
   doc.setTextColor(PDF_COLORS.faint)
   doc.setFontSize(6.5)
   doc.text((data.manufacturer || 'MANUFACTURER').toUpperCase(), frontX + 5, frontY + 7)
-  doc.text('KRK · PDF-01', frontX + frontW - 31, frontY + 7)
+  doc.text('LABELPASS · PDF-01', frontX + frontW - 31, frontY + 7)
   doc.setFillColor(PDF_COLORS.heritage)
   doc.rect(frontX + 5, frontY + 12, 45, 7, 'F')
   doc.setTextColor(255, 255, 255)

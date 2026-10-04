@@ -99,7 +99,7 @@ function FrontLabel({ data }: { data: CreatorData }) {
             {data.productName || '제품명'}
           </h3>
           <p className="mt-2 font-en text-[11px] font-semibold uppercase tracking-[0.14em] text-[rgba(10,10,11,0.42)]">
-            KRK CHECKER LABEL PREVIEW
+            LABELPASS LABEL PREVIEW
           </p>
         </div>
 

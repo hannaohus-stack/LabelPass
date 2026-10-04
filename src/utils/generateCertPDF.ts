@@ -1,5 +1,5 @@
 // generateCertPDF.ts — PDF ③ 라벨 검토 리포트 (v5)
-// 파일명: KRK_라벨검토리포트_{productName}_{YYYYMMDD}.pdf
+// 파일명: LabelPass_검토리포트_{productName}_{YYYYMMDD}.pdf
 // v5 변경: 서비스별 상세 안내 분기, suggestion + penaltyRange 출력, 검토번호 D-2-7 연결
 
 import type { CreatorData } from '../pages/creator/types'
@@ -39,7 +39,7 @@ const PRN_VIOL  = '#B30000'
 export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier = 'tier2'): Promise<DownloadablePdfArtifact> {
   const dateStr   = new Date().toISOString().slice(0, 10).replace(/-/g, '')
   const safeName  = safePdfName(data.productName)
-  const filename  = `KRK_라벨검토리포트_${safeName}_${dateStr}.pdf`
+  const filename  = `LabelPass_검토리포트_${safeName}_${dateStr}.pdf`
   const reviewId  = generateReviewId()
   const isTier2   = tier === 'tier2'
 
@@ -93,7 +93,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     ctx.fillRect(0, 0, 794, 68)
     ctx.fillStyle = '#fff'
     ctx.font = '700 15px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('KRK CHECKER · PDF-03 · 자율 점검 기록', 54, 42)
+    ctx.fillText('LABELPASS · PDF-03 · 자율 점검 기록', 54, 42)
     ctx.font = '11px "Apple SD Gothic Neo", system-ui'
     ctx.fillText(today.slice(0, 12), 650, 42)
 
@@ -102,7 +102,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     ctx.fillText('LABEL REVIEW REPORT — SELF-AUDIT RECORD', 54, 104)
     ctx.fillStyle = PDF_COLORS.ink
     ctx.font = '700 31px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('krk 라벨 검토 리포트', 54, 162)
+    ctx.fillText('라벨패스 검토 리포트', 54, 162)
     ctx.fillStyle = PDF_COLORS.faint
     ctx.font = '14px "Apple SD Gothic Neo", system-ui'
     ctx.fillText('사업자 자율 점검 기록', 54, 198)
@@ -124,7 +124,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     ctx.fillText('중요 안내 — 반드시 읽어주세요', 78, 254)
     ctx.fillStyle = PDF_COLORS.ink
     ctx.font = '12px "Apple SD Gothic Neo", system-ui'
-    drawCanvasText(ctx, '본 리포트는 krk.team 시스템이 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.', 78, 282, 630, 18, 2)
+    drawCanvasText(ctx, '본 리포트는 라벨패스가 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.', 78, 282, 630, 18, 2)
     ctx.fillStyle = PDF_COLORS.faint
     ctx.font = '11px "Apple SD Gothic Neo", system-ui'
     ctx.fillText('1. 공식 인증서가 아닙니다.     2. 법적 효력이 없습니다.', 78, 314)
@@ -184,8 +184,8 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     })
     ctx.fillStyle = PDF_COLORS.faint
     ctx.font = '10px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText(`krk 라벨 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${reviewId}`, 54, 1032)
-    ctx.fillText('krk.team', 680, 1032)
+    ctx.fillText(`라벨패스 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${reviewId}`, 54, 1032)
+    ctx.fillText('labelpass.kr', 680, 1032)
   })
 
   const resultRows = results.map((result, index) => {
@@ -218,14 +218,14 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     <section style="width:794px;height:1123px;overflow:hidden;box-sizing:border-box;background:#fff;color:${PDF_COLORS.ink};
       font-family:Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;padding:0;">
       <div style="height:68px;background:${PDF_COLORS.heritage};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 54px;box-sizing:border-box;">
-        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">KRK CHECKER · PDF-03 · 자율 점검 기록</div>
+        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">LABELPASS · PDF-03 · 자율 점검 기록</div>
         <div style="font-size:11px;opacity:.8;">${escapePdfHtml(today.slice(0, 12))}</div>
       </div>
       <div style="padding:34px 54px 0;box-sizing:border-box;">
         <div style="display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:22px;">
           <div>
             <div style="font-size:12px;letter-spacing:.08em;color:${PDF_COLORS.faint};">LABEL REVIEW REPORT — SELF-AUDIT RECORD</div>
-            <h1 style="margin:8px 0 4px;font-size:31px;letter-spacing:-.025em;">krk 라벨 검토 리포트</h1>
+            <h1 style="margin:8px 0 4px;font-size:31px;letter-spacing:-.025em;">라벨패스 검토 리포트</h1>
             <div style="font-size:14px;color:${PDF_COLORS.faint};">사업자 자율 점검 기록</div>
           </div>
           <div style="border:1px solid ${PDF_COLORS.heritage};padding:12px 14px;min-width:164px;">
@@ -235,7 +235,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
         </div>
         <div style="border:2px solid ${PDF_COLORS.alert};border-left-width:6px;background:${PDF_COLORS.alertBg};padding:16px 18px;margin-bottom:18px;">
           <div style="font-weight:700;font-size:15px;color:${PDF_COLORS.alert};margin-bottom:8px;">중요 안내 — 반드시 읽어주세요</div>
-          <div style="font-size:12px;line-height:1.65;">본 리포트는 krk.team 시스템이 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.</div>
+          <div style="font-size:12px;line-height:1.65;">본 리포트는 라벨패스가 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:10px;font-size:11.5px;color:${PDF_COLORS.faint};">
             <div>1. 공식 인증서가 아닙니다.</div><div>2. 법적 효력이 없습니다.</div>
             <div>3. 최종 책임은 사업자에게 있습니다.</div><div>4. 판매 전 재검토가 필요합니다.</div>
@@ -257,7 +257,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
         <div style="font-size:15px;font-weight:700;color:${PDF_COLORS.heritage};margin-bottom:10px;">점검 항목 결과 · 총 ${results.length}건</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">${resultRows}</div>
         <div style="border-top:1px solid ${PDF_COLORS.hairline};padding-top:12px;display:flex;justify-content:space-between;font-size:10px;color:${PDF_COLORS.faint};">
-          <span>krk 라벨 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${escapePdfHtml(reviewId)}</span><span>krk.team</span>
+          <span>라벨패스 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${escapePdfHtml(reviewId)}</span><span>labelpass.kr</span>
         </div>
       </div>
     </section>`
@@ -272,7 +272,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
   doc.text('LABEL REVIEW REPORT — SELF-AUDIT RECORD', 14, 33)
   doc.setTextColor(PDF_COLORS.ink)
   doc.setFontSize(21)
-  doc.text('krk 라벨 검토 리포트', 14, 45)
+  doc.text('라벨패스 검토 리포트', 14, 45)
   doc.setFontSize(10)
   doc.setTextColor(PDF_COLORS.faint)
   doc.text('사업자 자율 점검 기록', 14, 53)
@@ -296,7 +296,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
   doc.setTextColor(PDF_COLORS.ink)
   addWrappedText(
     doc,
-    '본 리포트는 krk.team 시스템이 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.',
+    '본 리포트는 라벨패스가 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.',
     19,
     83,
     172,
@@ -380,7 +380,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     }
   })
 
-  drawPdfFooter(doc, `krk 라벨 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${reviewId}`)
+  drawPdfFooter(doc, `라벨패스 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${reviewId}`)
   return saveDocAsArtifact(doc, filename)
 }
 

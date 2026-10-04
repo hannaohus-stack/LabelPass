@@ -43,7 +43,7 @@ const SERVICES: Record<ServiceType, {
       { name: '라벨 PDF', use: '인쇄용 · A4' },
       { name: '라벨 PNG', use: '웹 · 스마트스토어' },
       { name: '품목제조보고 입력 가이드', use: '정부24 참고용' },
-      { name: 'krk 라벨 검토 리포트', use: '자율 점검 기록' },
+      { name: '라벨패스 검토 리포트', use: '자율 점검 기록' },
       { name: '분리배출 마크 ZIP', use: '환경부 공식 도안' },
     ],
     copyItems: ['원재료명 · 함량', '알레르기 유발물질', '식품유형', '제품명 · 영문'],
