@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>로그인 · 회원가입 — 라벨패스 LabelPass</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--red:#E0413A;--kakao:#FEE500}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:#fff;font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+img{display:block;max-width:100%}
+
+/* review toolbar (시안 전용) */
+.rv{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;display:flex;gap:4px;background:var(--navy);padding:5px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.rv a{white-space:nowrap;color:rgba(255,255,255,.7);font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px}
+.rv a.on{background:#fff;color:var(--navy)}
+
+/* layout */
+.auth{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;overflow:hidden;color:#fff;background:#05070f;display:flex;flex-direction:column;justify-content:space-between;padding:40px 56px 48px}
+.side-bg{position:absolute;inset:0;background:url("assets/hero_bg.jpg") center/cover no-repeat}
+.side-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,5,14,.88) 0%,rgba(3,5,14,.7) 50%,rgba(10,22,80,.78) 100%),radial-gradient(80% 60% at 90% 100%,rgba(51,88,238,.5),transparent 70%)}
+.side>:not(.side-bg):not(.side-ov){position:relative}
+.side-logo img{height:40px;width:auto}
+.side h2{margin:0;font-size:40px;line-height:1.3;font-weight:800;letter-spacing:-0.04em}
+.side p{margin:18px 0 0;font-size:17px;color:rgba(255,255,255,.72)}
+.pts{list-style:none;margin:36px 0 0;padding:0;display:grid;gap:12px}
+.pts li{display:flex;align-items:center;gap:12px;font-size:16px;font-weight:600;color:rgba(255,255,255,.9)}
+.pts i{width:28px;height:28px;border-radius:50%;background:rgba(51,88,238,.35);border:1px solid rgba(143,168,255,.4);display:grid;place-items:center;flex-shrink:0}
+.pts i svg{width:14px;height:14px;stroke:#BFD0FF;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.side-foot{font-size:13px;color:rgba(255,255,255,.45)}
+
+.main{display:flex;flex-direction:column;min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center;height:76px;padding:0 40px}
+.top .m-logo{display:none}
+.top .m-logo img{height:34px;width:auto}
+.top .back{display:inline-flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:var(--ink-2)}
+.top .back:hover{color:var(--navy)}
+.top .back svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.form-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:24px 40px 64px}
+.card{width:100%;max-width:420px}
+.kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.04em;margin-bottom:12px}
+h1{margin:0;font-size:34px;line-height:1.3;font-weight:800;letter-spacing:-0.04em}
+.sub{margin:10px 0 0;font-size:16px;color:var(--ink-2)}
+
+/* gate banner (검토 결과 보기 전 로그인) */
+.gate{display:flex;gap:14px;align-items:center;background:var(--blue-50);border:1px solid var(--blue-100);border-radius:16px;padding:16px 18px;margin:0 0 28px}
+.gate .ic{width:44px;height:44px;border-radius:12px;background:var(--blue);display:grid;place-items:center;flex-shrink:0}
+.gate .ic svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.gate b{display:block;font-size:15px}
+.gate span{font-size:14px;color:var(--ink-2)}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;border-radius:12px;font-weight:700;font-size:16px;transition:background .15s,border-color .15s}
+.btn-kakao{background:var(--kakao);color:#191600;margin-top:32px}
+.btn-kakao:hover{background:#F4DC00}
+.btn-kakao svg{width:20px;height:20px}
+.btn-blue{background:var(--blue);color:#fff;margin-top:8px}
+.btn-blue:hover{background:#2547d6}
+.btn-blue:disabled{background:#C9D3F8;cursor:not-allowed}
+.or{display:flex;align-items:center;gap:14px;margin:24px 0;font-size:13px;font-weight:600;color:var(--ink-3)}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+
+.fl{margin-bottom:16px}
+.fl label{display:block;font-size:14px;font-weight:700;margin-bottom:8px}
+.in{position:relative}
+.in input{width:100%;height:52px;border:1.5px solid var(--line);border-radius:12px;padding:0 16px;font:inherit;font-size:16px;color:var(--navy);background:#fff;outline:0;transition:border-color .15s,box-shadow .15s}
+.in input::placeholder{color:#A8B0C0}
+.in input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-50)}
+.in .eye{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:36px;height:36px;border-radius:8px;display:grid;place-items:center;color:var(--ink-3)}
+.in .eye svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fl.bad input{border-color:var(--red)}
+.err{display:none;margin-top:6px;font-size:13px;font-weight:600;color:var(--red)}
+.fl.bad .err{display:block}
+.hint{margin-top:6px;font-size:13px;color:var(--ink-3)}
+.row-r{display:flex;justify-content:flex-end;margin:-4px 0 20px}
+.row-r a{font-size:14px;font-weight:600;color:var(--ink-2)}
+.row-r a:hover{color:var(--blue)}
+
+/* 약관 동의 */
+.agree{border:1.5px solid var(--line);border-radius:14px;margin:8px 0 20px;overflow:hidden}
+.ag{display:flex;align-items:center;gap:12px;padding:14px 16px;font-size:15px;cursor:pointer}
+.ag.all{background:var(--soft);font-weight:800}
+.ag+.ag{border-top:1px solid var(--line)}
+.ag input{position:absolute;opacity:0;pointer-events:none}
+.ag .bx{width:22px;height:22px;border-radius:6px;border:2px solid #C9D0DC;display:grid;place-items:center;flex-shrink:0;transition:all .15s}
+.ag .bx svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.ag input:checked+.bx{background:var(--blue);border-color:var(--blue)}
+.ag input:checked+.bx svg{opacity:1}
+.ag input:focus-visible+.bx{box-shadow:0 0 0 3px var(--blue-100)}
+.ag .req{color:var(--blue);font-weight:700}
+.ag .opt{color:var(--ink-3);font-weight:700}
+.ag .view{margin-left:auto;font-size:13px;font-weight:600;color:var(--ink-3);text-decoration:underline;text-underline-offset:2px}
+.ag .view:hover{color:var(--navy)}
+
+.switch{margin-top:28px;text-align:center;font-size:15px;color:var(--ink-2)}
+.switch a{font-weight:700;color:var(--blue);margin-left:6px}
+.note{margin-top:20px;text-align:center;font-size:13px;color:var(--ink-3)}
+
+.view-sec{display:none}
+.view-sec.on{display:block}
+
+@media (max-width:960px){
+ .auth{grid-template-columns:1fr}
+ .side{display:none}
+ .top{padding:0 20px;height:64px;border-bottom:1px solid var(--line)}
+ .top .m-logo{display:block}
+ .form-wrap{align-items:flex-start;padding:32px 20px 96px}
+ h1{font-size:28px}
+}
+</style>
+</head>
+<body>
+
+<div class="auth">
+ <aside class="side" aria-hidden="true">
+  <div class="side-bg"></div><div class="side-ov"></div>
+  <a class="side-logo" href="/"><img src="assets/LabelPass_Logo_Primary_White_v1.0.svg" alt=""></a>
+  <div>
+   <h2>내 라벨, 법에 맞는지<br>10분 만에 확인하세요</h2>
+   <p>제품 정보와 원재료를 입력하면<br>17개 표시 항목을 근거 법령과 함께 검토합니다.</p>
+   <ul class="pts">
+    <li><i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i>무료 검토 결과 먼저 확인</li>
+    <li><i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i>제품별 1회 결제 · 구독 없음</li>
+    <li><i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></i>결과는 마이페이지에 1년 보관</li>
+   </ul>
+  </div>
+  <div class="side-foot">검토 결과는 입력 정보를 바탕으로 한 검토 도구의 결과이며, 법적 적합성을 보증하지 않습니다.</div>
+ </aside>
+
+ <div class="main">
+  <header class="top">
+   <a class="m-logo" href="/" aria-label="라벨패스 홈"><img src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스"></a>
+   <a class="back" href="/"><svg viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>홈으로</a>
+  </header>
+
+  <div class="form-wrap">
+   <!-- ===== 로그인 ===== -->
+   <section class="card view-sec" id="v-login" aria-labelledby="h-login">
+    <div class="gate" id="gate" hidden>
+     <div class="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+     <div><b>입력 완료 · 검토 결과가 준비됐어요</b><span>로그인하면 바로 결과를 볼 수 있어요. 입력한 내용은 그대로 이어집니다.</span></div>
+    </div>
+    <div class="kicker">LOGIN</div>
+    <h1 id="h-login">로그인</h1>
+    <p class="sub">라벨패스에 오신 것을 환영합니다.</p>
+    <button class="btn btn-kakao" type="button"><svg viewBox="0 0 24 24"><path fill="#191600" d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z"/></svg>카카오로 3초 만에 시작하기</button>
+    <div class="or">또는 이메일로 로그인</div>
+    <form novalidate onsubmit="return false">
+     <div class="fl"><label for="l-em">이메일</label><div class="in"><input id="l-em" type="email" autocomplete="email" placeholder="name@company.com"></div><p class="err">이메일 주소를 확인해 주세요.</p></div>
+     <div class="fl"><label for="l-pw">비밀번호</label><div class="in"><input id="l-pw" type="password" autocomplete="current-password" placeholder="비밀번호"><button class="eye" type="button" aria-label="비밀번호 보기"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+     <div class="row-r"><a href="/forgot-password">비밀번호를 잊으셨나요?</a></div>
+     <button class="btn btn-blue" type="submit">로그인</button>
+    </form>
+    <p class="switch">아직 계정이 없나요?<a href="#signup">회원가입</a></p>
+   </section>
+
+   <!-- ===== 회원가입 ===== -->
+   <section class="card view-sec" id="v-signup" aria-labelledby="h-signup">
+    <div class="kicker">SIGN UP</div>
+    <h1 id="h-signup">회원가입</h1>
+    <p class="sub">가입하고 무료 검토 결과를 확인하세요.</p>
+    <button class="btn btn-kakao" type="button"><svg viewBox="0 0 24 24"><path fill="#191600" d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z"/></svg>카카오로 3초 만에 시작하기</button>
+    <div class="or">또는 이메일로 가입</div>
+    <form novalidate onsubmit="return false" id="sform">
+     <div class="fl"><label for="s-em">이메일</label><div class="in"><input id="s-em" type="email" autocomplete="email" placeholder="name@company.com"></div><p class="err">이메일 주소를 확인해 주세요.</p></div>
+     <div class="fl"><label for="s-pw">비밀번호</label><div class="in"><input id="s-pw" type="password" autocomplete="new-password" placeholder="8자 이상"><button class="eye" type="button" aria-label="비밀번호 보기"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></button></div><p class="hint">영문 · 숫자를 섞어 8자 이상</p></div>
+     <div class="fl bad"><label for="s-pw2">비밀번호 확인</label><div class="in"><input id="s-pw2" type="password" autocomplete="new-password" placeholder="비밀번호를 한 번 더 입력" value="12345"></div><p class="err">비밀번호가 일치하지 않아요.</p></div>
+     <div class="agree" role="group" aria-label="약관 동의">
+      <label class="ag all"><input type="checkbox" id="ag-all"><span class="bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span>전체 동의</label>
+      <label class="ag"><input type="checkbox" class="ag-i" data-req><span class="bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span><span class="req">[필수]</span> 이용약관</span><a class="view" href="/terms">보기</a></label>
+      <label class="ag"><input type="checkbox" class="ag-i" data-req><span class="bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span><span class="req">[필수]</span> 개인정보 수집 · 이용</span><a class="view" href="/privacy">보기</a></label>
+     </div>
+     <button class="btn btn-blue" type="submit" id="s-btn" disabled>가입하기</button>
+    </form>
+    <p class="switch">이미 계정이 있나요?<a href="#login">로그인</a></p>
+    <p class="note">가입 후 이메일 인증 링크를 보내드려요.</p>
+   </section>
+  </div>
+ </div>
+</div>
+
+<nav class="rv" aria-label="시안 화면 전환"><a href="#login">로그인</a><a href="#gate">결과 전 로그인</a><a href="#signup">회원가입</a></nav>
+
+<script>
+(function(){
+ var L=document.getElementById('v-login'),S=document.getElementById('v-signup'),G=document.getElementById('gate'),tabs=[].slice.call(document.querySelectorAll('.rv a'));
+ function show(){var h=location.hash.slice(1)||'login';L.classList.toggle('on',h!=='signup');S.classList.toggle('on',h==='signup');G.hidden=h!=='gate';tabs.forEach(function(t){t.classList.toggle('on',t.getAttribute('href')==='#'+h)});window.scrollTo(0,0)}
+ window.addEventListener('hashchange',show);show();
+ [].forEach.call(document.querySelectorAll('.eye'),function(b){b.addEventListener('click',function(){var i=b.previousElementSibling;i.type=i.type==='password'?'text':'password'})});
+ var all=document.getElementById('ag-all'),items=[].slice.call(document.querySelectorAll('.ag-i')),btn=document.getElementById('s-btn');
+ function sync(){var ok=items.every(function(i){return i.checked});all.checked=ok;btn.disabled=!ok}
+ all.addEventListener('change',function(){items.forEach(function(i){i.checked=all.checked});sync()});
+ items.forEach(function(i){i.addEventListener('change',sync)});
+})();
+</script>
+<script src="assets/policies.js" defer></script>
+</body>
+</html>
