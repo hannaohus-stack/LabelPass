@@ -6,7 +6,6 @@ import { useAuth } from './lib/useAuth'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const ReviewResult = lazy(() => import('./pages/ReviewResult'))
-const LabelExport = lazy(() => import('./pages/LabelExport'))
 const Creator = lazy(() => import('./pages/creator/Creator'))
 const Payment = lazy(() => import('./pages/Payment'))
 const PaymentComplete = lazy(() => import('./pages/PaymentComplete'))
@@ -95,8 +94,8 @@ export default function App() {
         <Route path="/creator" element={<Creator />} />
         <Route path="/review"
           element={<ProtectedRoute><ReviewResult /></ProtectedRoute>} />
-        <Route path="/export"
-          element={<ProtectedRoute><LabelExport /></ProtectedRoute>} />
+        {/* 옛 내보내기 화면 → 마이페이지(결과 · 파일) */}
+        <Route path="/export" element={<Navigate to="/dashboard" replace />} />
         <Route path="/payment"
           element={<ProtectedRoute><Payment /></ProtectedRoute>} />
         <Route path="/payment/complete"
