@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무료 검사 — 라벨패스 LabelPass</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--green-50:#E8F6EF;--amber:#C98200;--amber-50:#FFF4DC;--red:#E0413A;--red-50:#FDECEA;--r:20px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:var(--soft);font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+img{display:block;max-width:100%}
+input,select,textarea{font:inherit;color:var(--navy)}
+
+/* 시안 전용 툴바 */
+.rv{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:60;display:flex;gap:4px;background:var(--navy);padding:5px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.rv a{white-space:nowrap;color:rgba(255,255,255,.7);font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px}
+.rv a.on{background:#fff;color:var(--navy)}
+
+/* ── 앱 헤더 (공통) ── */
+.ah{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+.ah-in{max-width:1240px;margin:0 auto;padding:0 32px;height:68px;display:flex;align-items:center;gap:32px}
+.ah-logo img{height:34px;width:auto}
+.flow{display:flex;align-items:center;gap:6px;margin:0 auto;font-size:14px;font-weight:700;color:var(--ink-3)}
+.flow li{display:flex;align-items:center;gap:8px;list-style:none}
+.flow ol{display:flex;gap:6px;margin:0;padding:0}
+.flow .n{width:24px;height:24px;border-radius:50%;border:1.5px solid #C9D0DC;display:grid;place-items:center;font-size:12px}
+.flow li.cur{color:var(--navy)}
+.flow li.cur .n{background:var(--blue);border-color:var(--blue);color:#fff}
+.flow li+li::before{content:"";width:28px;height:1.5px;background:var(--line);margin-right:6px}
+.ah-util{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.ah-util a{padding:8px 12px;border-radius:10px}
+.ah-util a:hover{background:var(--soft);color:var(--navy)}
+
+/* ── 페이지 ── */
+.page{max-width:1240px;margin:0 auto;padding:36px 32px 160px}
+.ph{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:24px}
+.ph .kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.04em;margin-bottom:8px}
+.ph h1{margin:0;font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-0.04em}
+.ph p{margin:8px 0 0;color:var(--ink-2)}
+.saved{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.saved i{width:7px;height:7px;border-radius:50%;background:var(--green)}
+
+/* 하위 단계 탭 */
+.sub{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:28px}
+.sub a{display:flex;flex-direction:column;gap:2px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 16px;font-size:13px;font-weight:700;color:var(--ink-3)}
+.sub a b{font-size:16px;color:var(--ink-2)}
+.sub a.done{border-color:var(--blue-100)}
+.sub a.done b::after{content:" ✓";color:var(--green)}
+.sub a.cur{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-50)}
+.sub a.cur b{color:var(--navy)}
+.sub a.cur span{color:var(--blue)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:28px 30px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.card .desc{margin:0 0 22px;font-size:14px;color:var(--ink-3)}
+.fl{margin-bottom:20px}
+.fl:last-child{margin-bottom:0}
+.fl>label,.fl>.lb{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;margin-bottom:8px}
+.req{color:var(--blue)}
+.opt{font-size:12px;font-weight:700;color:var(--ink-3);background:var(--soft);border-radius:6px;padding:1px 6px}
+.tip{margin-left:auto;font-size:13px;font-weight:600;color:var(--ink-3)}
+.in{width:100%;height:50px;border:1.5px solid var(--line);border-radius:12px;padding:0 14px;font-size:16px;background:#fff;outline:0;transition:border-color .15s,box-shadow .15s}
+.in:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-50)}
+.in::placeholder{color:#A8B0C0}
+textarea.in{height:88px;padding:12px 14px;resize:vertical}
+select.in{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A94A8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center/20px no-repeat;padding-right:40px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.unit{display:flex;gap:8px}
+.unit .in{flex:1}
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:4px;gap:4px;width:100%}
+.seg button{flex:1;height:42px;border-radius:9px;font-size:15px;font-weight:700;color:var(--ink-3)}
+.seg button.on{background:#fff;color:var(--navy);box-shadow:0 1px 3px rgba(24,33,54,.12)}
+.seg.sm{width:auto}.seg.sm button{padding:0 14px;height:42px;flex:none}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:#fff;font-size:15px;font-weight:600;color:var(--ink-2)}
+.chip:hover{border-color:#C9D0DC}
+.chip.on{border-color:var(--blue);background:var(--blue-50);color:var(--blue)}
+.chip.on::before{content:"✓ "}
+.help{margin-top:8px;font-size:13px;color:var(--ink-3)}
+.callout{display:flex;gap:10px;background:var(--blue-50);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink-2);margin-top:10px}
+.callout b{color:var(--navy)}
+
+/* 원재료 표 */
+.ing{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.ing-h,.ing-r{display:grid;grid-template-columns:28px minmax(0,1.6fr) 110px minmax(0,1fr) 40px;gap:10px;align-items:center;padding:0 12px}
+.ing-h{height:42px;background:var(--soft);font-size:13px;font-weight:700;color:var(--ink-3)}
+.ing-r{min-height:64px;border-top:1px solid var(--line)}
+.ing-r .no{font-size:13px;font-weight:700;color:var(--ink-3);text-align:center}
+.ing-r .in{height:44px;font-size:15px}
+.ing-r .nm{position:relative}
+.ing-r .badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:800;border-radius:6px;padding:3px 7px}
+.b-al{background:var(--red-50);color:var(--red)}
+.b-cp{background:var(--amber-50);color:var(--amber)}
+.del{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--ink-3)}
+.del:hover{background:var(--soft);color:var(--red)}
+.del svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.add{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;height:52px;border-top:1px dashed #C9D0DC;font-size:15px;font-weight:700;color:var(--blue);background:#fff}
+.add:hover{background:var(--blue-50)}
+.det{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.det div{border-radius:14px;padding:14px 16px;font-size:14px}
+.det b{display:block;font-size:13px;margin-bottom:4px}
+.det .al{background:var(--red-50)}.det .al b{color:var(--red)}
+.det .cp{background:var(--amber-50)}.det .cp b{color:var(--amber)}
+.det strong{font-size:16px}
+.pk-g{margin-bottom:14px}.pk-g:last-child{margin-bottom:0}
+.pk-g h3{margin:0 0 8px;font-size:13px;font-weight:700;color:var(--ink-3)}
+
+/* 영양 */
+.diag{border:1.5px solid var(--blue-100);background:linear-gradient(180deg,var(--blue-50),#fff 60%)}
+.q{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 0;border-top:1px solid var(--line);font-size:15px}
+.q:first-of-type{border-top:0}
+.q .seg{width:auto}
+.q .seg button{height:36px;padding:0 16px;flex:none;font-size:14px}
+.result{display:flex;align-items:center;gap:10px;background:var(--green-50);color:var(--green);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:700;margin-top:14px}
+.nut{width:100%;border-collapse:collapse}
+.nut td{padding:8px 0;border-top:1px solid var(--line);font-size:15px}
+.nut tr:first-child td{border-top:0}
+.nut td:first-child{font-weight:700;width:46%}
+.nut .ind td:first-child{padding-left:18px;font-weight:600;color:var(--ink-2)}
+.nut .in{height:42px;text-align:right}
+.nut .u{width:52px;padding-left:8px;font-size:14px;color:var(--ink-3)}
+
+/* 오른쪽 미리보기 */
+.pv{position:sticky;top:96px}
+.pv-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.pv-h{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);font-size:14px;font-weight:800}
+.pv-h span{font-size:12px;font-weight:700;color:var(--ink-3)}
+.lab{margin:18px;border:2px solid var(--navy);border-radius:4px;font-size:12px;line-height:1.55}
+.lab .t{background:var(--navy);color:#fff;font-weight:800;padding:6px 10px;font-size:13px}
+.lab dl{margin:0}
+.lab .r{display:grid;grid-template-columns:76px 1fr;border-top:1px solid #C9D0DC}
+.lab dt{background:#F7F8FB;padding:6px 8px;font-weight:700}
+.lab dd{margin:0;padding:6px 8px}
+.lab .al{color:var(--red);font-weight:700}
+.lab .empty{color:#B0B8C8}
+.pv-st{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 18px 18px}
+.pv-st div{border-radius:12px;padding:10px 12px;font-size:12px;font-weight:700}
+.pv-st b{display:block;font-size:20px;line-height:1.2}
+.s-r{background:var(--red-50);color:var(--red)}.s-a{background:var(--amber-50);color:var(--amber)}.s-g{background:var(--green-50);color:var(--green)}
+.pv-note{margin:12px 4px 0;font-size:12px;color:var(--ink-3)}
+
+/* 4단계 확인 */
+.chk-sec{border-top:1px solid var(--line);padding:16px 0}
+.chk-sec:first-of-type{border-top:0;padding-top:0}
+.chk-sec .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.chk-sec h3{margin:0;font-size:16px;font-weight:800}
+.chk-sec .edit{font-size:14px;font-weight:700;color:var(--blue)}
+.kv{display:grid;grid-template-columns:120px 1fr;gap:4px 12px;font-size:15px}
+.kv dt{color:var(--ink-3)}.kv dd{margin:0}
+.warn{display:flex;gap:10px;align-items:flex-start;background:var(--amber-50);border-radius:12px;padding:12px 14px;font-size:14px;margin-top:10px}
+.warn b{color:var(--amber)}
+.big-lab .lab{margin:20px;font-size:13px}
+
+/* 하단 액션 바 */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);border-top:1px solid var(--line)}
+.bar-in{max-width:1240px;margin:0 auto;padding:14px 32px;display:flex;align-items:center;gap:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 24px;border-radius:12px;font-weight:700;font-size:16px}
+.btn-line{border:1.5px solid var(--line);background:#fff}.btn-line:hover{border-color:var(--navy)}
+.btn-blue{background:var(--blue);color:#fff;min-width:200px}.btn-blue:hover{background:#2547d6}
+.bar .left{font-size:14px;color:var(--ink-3);margin-right:auto}
+.bar .left b{color:var(--navy)}
+.m-pv{display:none}
+
+.view{display:none}.view.on{display:block}
+
+@media (max-width:1024px){
+ .grid{grid-template-columns:1fr}
+ .pv{display:none}
+ .m-pv{display:inline-flex}
+ .flow ol li:not(.cur) span.t{display:none}
+}
+@media (max-width:720px){
+ .ah-in{padding:0 16px;gap:12px;height:60px}
+ .ah-logo img{height:30px}
+ .flow{font-size:13px}.flow li+li::before{width:12px}
+ .ah-util a:first-child{display:none}
+ .page{padding:24px 16px 170px}
+ .ph{flex-direction:column;align-items:flex-start;gap:8px}.ph h1{font-size:26px}
+ .sub{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .sub a{padding:10px 8px;font-size:11px}.sub a b{font-size:13px}
+ .card{padding:22px 18px}
+ .two{grid-template-columns:1fr}
+ .ing-h{display:none}
+ .ing-r{grid-template-columns:minmax(0,1fr) 92px 36px;padding:10px 12px;gap:8px}
+ .ing-r .no{display:none}
+ .ing-r .org{grid-column:1/3}
+ .det{grid-template-columns:1fr}
+ .q{flex-direction:column;align-items:flex-start;gap:8px}
+ .kv{grid-template-columns:96px 1fr}
+ .bar-in{padding:12px 16px;flex-wrap:wrap}
+ .bar .left{width:100%;margin:0}
+ .bar .btn{flex:1;padding:0 12px}
+ .btn-blue{min-width:0}
+ .rv{bottom:150px}
+ .nx-t{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="ah">
+ <div class="ah-in">
+  <a class="ah-logo" href="/" aria-label="라벨패스 홈"><img src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스"></a>
+  <nav class="flow" aria-label="진행 단계"><ol>
+   <li class="cur"><span class="n">1</span><span class="t">입력</span></li>
+   <li><span class="n">2</span><span class="t">검토 결과</span></li>
+   <li><span class="n">3</span><span class="t">결제</span></li>
+   <li><span class="n">4</span><span class="t">결과</span></li>
+  </ol></nav>
+  <div class="ah-util"><a href="/dashboard">마이페이지</a><a href="/login">로그인</a></div>
+ </div>
+</header>
+
+<main class="page">
+ <div class="ph">
+  <div><div class="kicker">무료 검사</div><h1 id="pt">제품 정보를 입력해 주세요</h1><p id="pd">라벨에 들어갈 기본 정보예요. 모르는 칸은 비워 두고 다음으로 넘어가도 돼요.</p></div>
+  <div class="saved"><i></i>자동 저장됨 · 방금</div>
+ </div>
+
+ <nav class="sub" aria-label="입력 단계">
+  <a href="#s1" data-s="1"><span>STEP 1</span><b>제품 정보</b></a>
+  <a href="#s2" data-s="2"><span>STEP 2</span><b>원재료 · 포장재</b></a>
+  <a href="#s3" data-s="3"><span>STEP 3</span><b>영양성분</b></a>
+  <a href="#s4" data-s="4"><span>STEP 4</span><b>확인</b></a>
+ </nav>
+
+ <!-- ================= STEP 1 ================= -->
+ <section class="view" id="v1">
+  <div class="grid"><div>
+   <div class="card">
+    <h2>기본 정보</h2><p class="desc">제품명과 카테고리로 검토 기준이 정해져요.</p>
+    <div class="fl"><label for="pn">제품명 <span class="req">*</span></label><input class="in" id="pn" value="수제 딸기잼"></div>
+    <div class="fl"><div class="lb">식품 카테고리 <span class="req">*</span><span class="tip">여러 개 선택 가능</span></div>
+     <div class="chips"><button class="chip on">잼류</button><button class="chip">소스류</button><button class="chip">장류</button><button class="chip">떡류</button><button class="chip">디저트 · 베이커리</button><button class="chip">차 · 음료</button><button class="chip">건강식품(일반)</button></div>
+    </div>
+    <div class="fl"><label for="tw">내용량 <span class="req">*</span></label><div class="unit"><input class="in" id="tw" value="240" inputmode="decimal"><div class="seg sm"><button class="on">g</button><button>mL</button></div></div></div>
+   </div>
+   <div class="card">
+    <h2>영업 정보</h2><p class="desc">영업 종류에 따라 표시해야 할 항목이 달라져요.</p>
+    <div class="fl"><div class="lb">영업 종류 <span class="req">*</span></div><div class="seg"><button class="on">식품제조 · 가공업</button><button>즉석판매제조 · 가공업</button></div></div>
+    <div class="fl"><div class="lb">영업 시설 <span class="req">*</span></div><div class="seg"><button class="on">단독 주방</button><button>공유 주방</button></div>
+     <div class="callout"><span>💡</span><span><b>공유 주방</b>이면 알레르기 혼입 가능성 표시까지 함께 확인해요.</span></div></div>
+    <div class="two">
+     <div class="fl"><label for="mf">제조원 <span class="req">*</span></label><input class="in" id="mf" value="딸기공방"></div>
+     <div class="fl"><label for="ma">제조원 소재지</label><input class="in" id="ma" placeholder="도로명 주소"></div>
+    </div>
+    <div class="fl"><div class="lb">품목제조보고번호</div><div class="unit"><div class="seg sm"><button class="on">있음</button><button>없음 · 신청 필요</button></div><input class="in" placeholder="예: 20260123456-001"></div></div>
+   </div>
+   <div class="card">
+    <h2>표시 정보</h2><p class="desc">보관방법과 소비기한은 라벨 필수 항목이에요.</p>
+    <div class="two">
+     <div class="fl"><label for="st">보관방법 <span class="req">*</span></label><select class="in" id="st"><option>냉장 보관 (0~10℃)</option><option>실온 보관 (1~35℃)</option><option>냉동 보관 (-18℃ 이하)</option><option>서늘하고 건조한 곳 보관</option><option>직사광선을 피하여 보관</option></select></div>
+     <div class="fl"><label for="ex">소비기한 <span class="req">*</span></label><input class="in" id="ex" type="date" value="2027-01-31"></div>
+    </div>
+    <div class="fl"><label for="cl">라벨 · 상세페이지 강조 문구 <span class="opt">선택</span></label><textarea class="in" id="cl" placeholder="예: 무가당, 국내산 딸기 100%, 수제">국내산 딸기 100%, 무가당</textarea><p class="help">'무가당' · '100%' 같은 표현은 추가로 지켜야 할 기준이 있어 함께 검토해요.</p></div>
+   </div>
+  </div>
+  <aside class="pv" aria-label="라벨 미리보기"></aside></div>
+ </section>
+
+ <!-- ================= STEP 2 ================= -->
+ <section class="view" id="v2">
+  <div class="grid"><div>
+   <div class="card">
+    <h2>원재료</h2><p class="desc">배합량을 입력하면 많은 순서대로 자동 정렬돼요. 알레르기 · 복합원재료는 자동으로 찾아요.</p>
+    <div class="ing">
+     <div class="ing-h"><span>#</span><span>원재료명</span><span>배합량(g)</span><span>원산지</span><span></span></div>
+     <div class="ing-r"><span class="no">1</span><div class="nm"><input class="in" value="딸기"></div><input class="in" value="150" inputmode="decimal"><input class="in org" value="국산"><button class="del" aria-label="삭제"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+     <div class="ing-r"><span class="no">2</span><div class="nm"><input class="in" value="유기농 원당"></div><input class="in" value="70" inputmode="decimal"><input class="in org" value="브라질산"><button class="del" aria-label="삭제"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+     <div class="ing-r"><span class="no">3</span><div class="nm"><input class="in" value="레몬즙"><span class="badge b-cp">복합원재료?</span></div><input class="in" value="15" inputmode="decimal"><input class="in org" placeholder="원산지"><button class="del" aria-label="삭제"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+     <div class="ing-r"><span class="no">4</span><div class="nm"><input class="in" value="버터"><span class="badge b-al">알레르기</span></div><input class="in" value="5" inputmode="decimal"><input class="in org" value="뉴질랜드산"><button class="del" aria-label="삭제"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button></div>
+     <button class="add">＋ 원재료 추가</button>
+    </div>
+    <div class="det">
+     <div class="al"><b>알레르기 유발물질</b><strong>우유</strong> — 라벨에 별도 표시돼요</div>
+     <div class="cp"><b>복합원재료 확인</b><strong>레몬즙</strong> — 첨가물이 들어 있다면 함께 적어 주세요</div>
+    </div>
+   </div>
+   <div class="card">
+    <h2>포장재</h2><p class="desc">분리배출 마크를 정하는 데 쓰여요. 용기 · 뚜껑 · 라벨을 모두 골라 주세요.</p>
+    <div class="pk-g"><h3>플라스틱</h3><div class="chips"><button class="chip">페트(PET)</button><button class="chip">HDPE</button><button class="chip">PVC</button><button class="chip">LDPE</button><button class="chip on">PP</button><button class="chip">PS</button><button class="chip">OTHER</button></div></div>
+    <div class="pk-g"><h3>기타 재질</h3><div class="chips"><button class="chip on">유리</button><button class="chip">철</button><button class="chip">알루미늄</button><button class="chip">종이팩</button><button class="chip">멸균팩</button><button class="chip">골판지</button><button class="chip">일반 종이</button><button class="chip">비닐류</button><button class="chip">스티로폼</button></div></div>
+   </div>
+  </div>
+  <aside class="pv" aria-label="라벨 미리보기"></aside></div>
+ </section>
+
+ <!-- ================= STEP 3 ================= -->
+ <section class="view" id="v3">
+  <div class="grid"><div>
+   <div class="card diag">
+    <h2>영양성분 표시 면제 확인</h2><p class="desc">세 가지 모두 '예'라면 영양성분 표시를 생략할 수 있어요.</p>
+    <div class="q"><span>연 매출액이 120억 원 미만인가요?</span><div class="seg"><button class="on">예</button><button>아니오</button></div></div>
+    <div class="q"><span>저칼로리 · 무가당 같은 영양강조 표시가 없나요?</span><div class="seg"><button>예</button><button class="on">아니오</button></div></div>
+    <div class="q"><span>건강기능식품 · 특수영양식품이 아닌가요?</span><div class="seg"><button class="on">예</button><button>아니오</button></div></div>
+    <div class="result" style="background:var(--amber-50);color:var(--amber)">⚠ '무가당' 강조 표시가 있어 영양성분 표시가 필요해요</div>
+   </div>
+   <div class="card">
+    <h2>영양성분</h2><p class="desc">시험성적서나 영양성분 계산값을 옮겨 적어 주세요.</p>
+    <div class="fl"><label for="sv">1회 제공량 · 기준량</label><div class="unit"><input class="in" id="sv" value="20" inputmode="decimal"><div class="seg sm"><button class="on">g</button><button>mL</button></div></div></div>
+    <table class="nut">
+     <tr><td>열량</td><td><input class="in" value="48"></td><td class="u">kcal</td></tr>
+     <tr><td>탄수화물</td><td><input class="in" value="12"></td><td class="u">g</td></tr>
+     <tr class="ind"><td>당류</td><td><input class="in" value="9"></td><td class="u">g</td></tr>
+     <tr><td>단백질</td><td><input class="in" value="0"></td><td class="u">g</td></tr>
+     <tr><td>지방</td><td><input class="in" value="0.3"></td><td class="u">g</td></tr>
+     <tr class="ind"><td>포화지방</td><td><input class="in" value="0.2"></td><td class="u">g</td></tr>
+     <tr class="ind"><td>트랜스지방</td><td><input class="in" value="0"></td><td class="u">g</td></tr>
+     <tr class="ind"><td>콜레스테롤</td><td><input class="in" value="1"></td><td class="u">mg</td></tr>
+     <tr><td>나트륨</td><td><input class="in" value="5"></td><td class="u">mg</td></tr>
+    </table>
+   </div>
+  </div>
+  <aside class="pv" aria-label="라벨 미리보기"></aside></div>
+ </section>
+
+ <!-- ================= STEP 4 ================= -->
+ <section class="view" id="v4">
+  <div class="grid"><div>
+   <div class="card">
+    <h2>입력 내용 확인</h2><p class="desc">검토는 이 내용 그대로 진행돼요. 고칠 곳이 있으면 '수정'을 눌러 주세요.</p>
+    <div class="chk-sec"><div class="hd"><h3>제품 정보</h3><a class="edit" href="#s1">수정</a></div>
+     <dl class="kv"><dt>제품명</dt><dd>수제 딸기잼 · 잼류 · 240g</dd><dt>영업</dt><dd>식품제조 · 가공업 · 단독 주방</dd><dt>제조원</dt><dd>딸기공방</dd><dt>보관 · 소비기한</dt><dd>냉장 보관 (0~10℃) · 2027.01.31</dd><dt>강조 문구</dt><dd>국내산 딸기 100%, 무가당</dd></dl>
+     <div class="warn"><span>⚠</span><span><b>제조원 소재지</b>가 비어 있어요. 라벨 필수 항목이라 검토 결과에서 '수정 필요'로 표시돼요.</span></div>
+    </div>
+    <div class="chk-sec"><div class="hd"><h3>원재료 · 포장재</h3><a class="edit" href="#s2">수정</a></div>
+     <dl class="kv"><dt>원재료</dt><dd>딸기(국산), 유기농 원당(브라질산), 레몬즙, 버터(뉴질랜드산)</dd><dt>알레르기</dt><dd>우유</dd><dt>포장재</dt><dd>유리, PP</dd></dl>
+    </div>
+    <div class="chk-sec"><div class="hd"><h3>영양성분</h3><a class="edit" href="#s3">수정</a></div>
+     <dl class="kv"><dt>표시</dt><dd>필요 (강조 표시 있음)</dd><dt>1회 제공량</dt><dd>20g · 48kcal</dd></dl>
+    </div>
+   </div>
+  </div>
+  <aside class="pv big-lab" aria-label="라벨 미리보기"></aside></div>
+ </section>
+</main>
+
+<div class="bar"><div class="bar-in">
+ <span class="left" id="bl">필수 항목 <b>8 / 9</b> 입력됨</span>
+ <button class="btn btn-line m-pv">미리보기</button>
+ <a class="btn btn-line" id="prev" href="#s1">이전</a>
+ <a class="btn btn-blue" id="next" href="#s2">다음 : 원재료 · 포장재 →</a>
+</div></div>
+
+<template id="pv-tpl">
+ <div class="pv-card">
+  <div class="pv-h">라벨 미리보기<span>입력하는 대로 바뀌어요</span></div>
+  <div class="lab">
+   <div class="t">수제 딸기잼</div>
+   <dl>
+    <div class="r"><dt>식품유형</dt><dd>잼류</dd></div>
+    <div class="r"><dt>내용량</dt><dd>240g</dd></div>
+    <div class="r"><dt>원재료명</dt><dd>딸기(국산) 62.5%, 유기농 원당(브라질산), 레몬즙, 버터(뉴질랜드산)</dd></div>
+    <div class="r"><dt>알레르기</dt><dd class="al">우유 함유</dd></div>
+    <div class="r"><dt>소비기한</dt><dd>2027.01.31까지</dd></div>
+    <div class="r"><dt>보관방법</dt><dd>냉장 보관 (0~10℃)</dd></div>
+    <div class="r"><dt>제조원</dt><dd>딸기공방 · <span class="empty">소재지 입력 필요</span></dd></div>
+    <div class="r"><dt>분리배출</dt><dd>유리 · 뚜껑 PP</dd></div>
+   </dl>
+  </div>
+  <div class="pv-st"><div class="s-r"><b>1</b>수정 필요</div><div class="s-a"><b>2</b>확인 권장</div><div class="s-g"><b>14</b>확인 완료</div></div>
+ </div>
+ <p class="pv-note">입력 상태만 미리 본 거예요. 17개 항목 검토는 다음 단계에서 진행돼요.</p>
+</template>
+
+<nav class="rv" aria-label="시안 화면 전환"><a href="#s1">STEP 1</a><a href="#s2">STEP 2</a><a href="#s3">STEP 3</a><a href="#s4">STEP 4</a></nav>
+
+<script>
+(function(){
+ var tpl=document.getElementById('pv-tpl');
+ [].forEach.call(document.querySelectorAll('.pv'),function(p){p.appendChild(tpl.content.cloneNode(true))});
+ var T={1:['제품 정보를 입력해 주세요','라벨에 들어갈 기본 정보예요. 모르는 칸은 비워 두고 다음으로 넘어가도 돼요.'],2:['원재료와 포장재를 알려 주세요','원재료 순서 · 알레르기 · 분리배출 마크를 여기서 정해요.'],3:['영양성분을 확인해요','면제 대상인지 먼저 확인하고, 필요하면 값을 입력해요.'],4:['입력한 내용을 확인해 주세요','확인 후 17개 항목 무료 검토를 시작해요.']};
+ var N={1:'다음<span class="nx-t"> : 원재료 · 포장재</span> →',2:'다음<span class="nx-t"> : 영양성분</span> →',3:'다음<span class="nx-t"> : 확인</span> →',4:'무료 검토 결과 보기 →'};
+ function show(){var s=+(location.hash.replace('#s','')||1);if(!(s>=1&&s<=4))s=1;
+  for(var i=1;i<=4;i++)document.getElementById('v'+i).classList.toggle('on',i===s);
+  [].forEach.call(document.querySelectorAll('.sub a'),function(a){var k=+a.dataset.s;a.className=k===s?'cur':(k<s?'done':'')});
+  [].forEach.call(document.querySelectorAll('.rv a'),function(a){a.classList.toggle('on',a.getAttribute('href')==='#s'+s)});
+  document.getElementById('pt').textContent=T[s][0];document.getElementById('pd').textContent=T[s][1];
+  var nx=document.getElementById('next');nx.innerHTML=N[s];nx.href=s<4?'#s'+(s+1):'app_auth_v1.0.html#gate';
+  var pv=document.getElementById('prev');pv.style.visibility=s>1?'visible':'hidden';pv.href='#s'+(s-1);
+  document.getElementById('bl').innerHTML=s===4?'필수 항목 <b>1개</b> 비어 있어요 · 그대로 검토할 수 있어요':'필수 항목 <b>8 / 9</b> 입력됨';
+  window.scrollTo(0,0)}
+ window.addEventListener('hashchange',show);show();
+ [].forEach.call(document.querySelectorAll('.chips .chip'),function(c){c.addEventListener('click',function(){c.classList.toggle('on')})});
+ [].forEach.call(document.querySelectorAll('.seg'),function(g){[].forEach.call(g.children,function(b){b.addEventListener('click',function(){[].forEach.call(g.children,function(x){x.classList.toggle('on',x===b)})})})});
+})();
+</script>
+<script src="assets/policies.js" defer></script>
+</body>
+</html>
