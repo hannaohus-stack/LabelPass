@@ -5,6 +5,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { takeRememberedNext } from '../../lib/next'
 
 export default function AuthCallback() {
   const navigate  = useNavigate()
@@ -14,9 +15,9 @@ export default function AuthCallback() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       if (navigated.current) return
       if (session) {
-        // 세션 확인 즉시 대시보드로
+        // 세션 확인 즉시 돌아갈 곳(없으면 마이페이지)으로
         navigated.current = true
-        navigate('/dashboard', { replace: true })
+        navigate(takeRememberedNext() ?? '/dashboard', { replace: true })
       }
       // session 없으면 기다림 — PKCE 코드 교환 완료 후 SIGNED_IN 발화 대기
     })
@@ -36,8 +37,8 @@ export default function AuthCallback() {
   }, [navigate])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#F4F4F5]">
-      <div className="h-6 w-6 animate-spin rounded-full border-2 border-[#002D72] border-t-transparent" />
+    <div className="lp" style={{ display: 'grid', placeItems: 'center', color: 'var(--blue)' }}>
+      <span className="lp-spin" style={{ width: 28, height: 28 }} aria-label="로그인 처리 중" />
     </div>
   )
 }

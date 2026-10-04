@@ -30,8 +30,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // 세션 확인 중 — 빈 화면 (flash 방지)
   if (loading) return null
 
-  // 미인증 → 로그인
-  if (!session) return <Navigate to="/login" replace />
+  // 미인증 → 로그인 (로그인 후 원래 화면으로 돌아옴)
+  if (!session) {
+    const here = window.location.pathname + window.location.search
+    return <Navigate to={`/login?next=${encodeURIComponent(here)}`} replace />
+  }
 
   return <>{children}</>
 }
@@ -88,8 +91,8 @@ export default function App() {
         {/* 보호된 라우트 */}
         <Route path="/dashboard"
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/creator"
-          element={<ProtectedRoute><Creator /></ProtectedRoute>} />
+        {/* 무료 검사 입력은 로그인 없이 — 결과 보기 직전에 로그인 */}
+        <Route path="/creator" element={<Creator />} />
         <Route path="/review"
           element={<ProtectedRoute><ReviewResult /></ProtectedRoute>} />
         <Route path="/export"

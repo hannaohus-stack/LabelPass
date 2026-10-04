@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import LogoLockup from '../../components/LogoLockup'
+import AppHeader from '../../components/lp/AppHeader'
+import LabelPreview from './LabelPreview'
+import { useAuth } from '../../lib/useAuth'
+import { PENDING_REVIEW_KEY } from '../../lib/next'
 import { INITIAL_DATA, isStep1Complete, isStep2Complete, type CreatorData } from './types'
 import type { Ingredient } from '../../utils/parsing'
 import type { Metadata } from '../ReviewResult'
@@ -14,36 +16,16 @@ import Step4_Preview, { hasBlockingPreviewIssues } from './Step4_Preview'
 
 const STEPS = [
   { id: 1, label: '제품 정보' },
-  { id: 2, label: '원재료'   },
+  { id: 2, label: '원재료 · 포장재' },
   { id: 3, label: '영양성분' },
-  { id: 4, label: '미리보기' },
+  { id: 4, label: '확인' },
 ]
 
 const STEP_META = [
-  {
-    label: '제품 정보',
-    title: '제품 정보를 입력해 주세요',
-    desc: '검토할 제품의 기본 정보와 식품 카테고리를 선택해 주세요. 카테고리는 복수 선택 가능합니다.',
-    next: '다음 — 원재료 정보',
-  },
-  {
-    label: '원재료 정보',
-    title: '원재료를 입력해 주세요',
-    desc: '라벨에 표시될 원재료명과 중량을 입력하면 알레르기와 복합원재료를 자동으로 감지합니다.',
-    next: '다음 — 영양성분',
-  },
-  {
-    label: '영양성분',
-    title: '영양성분 정보를 입력해 주세요',
-    desc: '소규모 제조업 면제 가능성을 확인하거나 분석 수치를 직접 입력하세요.',
-    next: '다음 — 라벨 미리보기',
-  },
-  {
-    label: '라벨 미리보기',
-    title: '라벨을 미리 확인해 주세요',
-    desc: '입력한 정보가 실제 라벨 구조에 어떻게 배치되는지 확인합니다.',
-    next: '확인하고 검토 결과 보기',
-  },
+  { title: '제품 정보를 입력해 주세요', desc: '라벨에 들어갈 기본 정보예요. * 표시는 꼭 채워야 다음으로 넘어갈 수 있어요.', next: '원재료 · 포장재' },
+  { title: '원재료와 포장재를 알려 주세요', desc: '원재료 순서 · 알레르기 · 분리배출 마크를 여기서 정해요.', next: '영양성분' },
+  { title: '영양성분을 확인해요', desc: '면제 대상인지 먼저 확인하고, 필요하면 값을 입력해요.', next: '확인' },
+  { title: '입력한 내용을 확인해 주세요', desc: '확인 후 17개 항목 무료 검토를 시작해요.', next: '' },
 ]
 
 const CREATOR_DRAFT_KEY = 'krk_creator_draft_v1'
@@ -114,91 +96,29 @@ function convertToCheckerState(data: CreatorData): { ingredients: Ingredient[]; 
   }
 }
 
-function StepProgress({ current }: { current: number }) {
-  return (
-    <div className="flex items-center gap-1.5" aria-label={`Step ${current} of ${STEPS.length}`}>
-      {STEPS.map(stepItem => {
-        const active = stepItem.id === current
-        const done = stepItem.id < current
-        return (
-          <span
-            key={stepItem.id}
-            className={`h-[3px] transition-all duration-200 ${active ? 'w-7' : 'w-3.5'} ${
-              active || done ? 'bg-heritage-500' : 'bg-[rgba(10,10,11,0.12)]'
-            }`}
-          />
-        )
-      })}
-    </div>
-  )
+const NUTR_KEYS = ['calories', 'totalCarbs', 'sugar', 'protein', 'totalFat', 'saturatedFat', 'transFat', 'cholesterol', 'sodium'] as const
+
+function stepComplete(step: number, data: CreatorData): boolean {
+  if (step === 1) return isStep1Complete(data)
+  if (step === 2) return isStep2Complete(data)
+  if (step === 3) return data.nutritionExempted || NUTR_KEYS.every(k => data[k].trim() !== '')
+  if (step === 4) return !hasBlockingPreviewIssues(data)
+  return true
 }
 
-function StepCrumb({ current }: { current: number }) {
-  const meta = STEP_META[current - 1]
-  return (
-    <div className="inline-flex items-center gap-2.5 font-en text-[10.5px] font-medium uppercase tracking-[0.16em] text-heritage-500">
-      <span className="h-px w-[18px] bg-heritage-500" />
-      <span className="font-kr font-semibold tracking-[0.04em] text-ink">{meta.label}</span>
-    </div>
-  )
-}
-
-function CreatorHeader({ current, onHome }: { current: number; onHome: () => void }) {
-  return (
-    <header className="sticky top-0 z-40 flex items-center justify-between border-b border-[rgba(10,10,11,0.08)] bg-white/75 px-5 py-[18px] backdrop-blur-[18px] md:px-14">
-      <button onClick={onHome} className="hover:opacity-70 transition-opacity">
-        <LogoLockup />
-      </button>
-      <StepProgress current={current} />
-      <div className="hidden font-en text-[11px] uppercase tracking-[0.14em] text-[rgba(10,10,11,0.4)] md:block">
-        labelpass.kr/creator — Step {current} / 4
-      </div>
-      <div className="md:hidden font-en text-[11px] uppercase tracking-[0.14em] text-[rgba(10,10,11,0.4)]">
-        {current}/4
-      </div>
-    </header>
-  )
-}
-
-function CreatorFooter({
-  current,
-  canGoNext,
-  onPrev,
-  onNext,
-}: {
-  current: number
-  canGoNext: boolean
-  onPrev: () => void
-  onNext: () => void
-}) {
-  const nextLabel = !canGoNext
-    ? current === 2
-      ? '원재료 1개 이상 필요'
-      : current === 4
-      ? '필수 항목 수정 필요'
-      : STEP_META[current - 1].next
-    : STEP_META[current - 1].next
-  return (
-    <footer className="sticky bottom-0 z-30 border-t border-[rgba(10,10,11,0.08)] bg-white px-5 py-4 md:px-14">
-      <div className="flex flex-col-reverse gap-3 md:flex-row md:items-center md:justify-between">
-        <button
-          onClick={onPrev}
-          className="inline-flex h-11 items-center justify-center gap-2 border border-[rgba(10,10,11,0.15)] px-5 font-kr text-[13px] font-medium text-ink transition-colors hover:bg-ink hover:text-white md:w-auto"
-        >
-          <ChevronLeft size={14} />
-          {current === 1 ? '홈으로' : '이전 단계'}
-        </button>
-        <button
-          onClick={onNext}
-          disabled={!canGoNext}
-          className="inline-flex h-12 items-center justify-center gap-2 bg-breath-500 px-6 font-kr text-[13px] font-semibold text-white transition-colors hover:bg-breath-600 disabled:cursor-not-allowed disabled:bg-[rgba(10,10,11,0.18)] md:w-auto"
-        >
-          {nextLabel}
-          <ChevronRight size={14} />
-        </button>
-      </div>
-    </footer>
-  )
+function barText(step: number, data: CreatorData) {
+  if (step === 1) {
+    const req = [data.productName.trim(), data.categories.length, data.businessType, data.facilityType,
+      data.totalWeight.trim() && parseFloat(data.totalWeight) > 0, data.manufacturer.trim(), data.storage, data.expiryDate]
+    return <>필수 항목 <b>{req.filter(Boolean).length} / {req.length}</b> 입력됨</>
+  }
+  if (step === 2) return <>원재료 <b>{data.ingredients.filter(i => i.name.trim()).length}개</b> · 포장재 <b>{(data.packagingMaterials ?? []).length}개</b></>
+  if (step === 3) return data.nutritionExempted
+    ? <><b>영양성분 표시 면제</b> 적용</>
+    : <>영양성분 <b>{NUTR_KEYS.filter(k => data[k].trim() !== '').length} / 9</b> 입력됨</>
+  return hasBlockingPreviewIssues(data)
+    ? <>꼭 채워야 할 항목이 남아 있어요 · <b>수정</b>을 눌러 채워 주세요</>
+    : <><b>입력 완료</b> · 17개 항목 무료 검토를 시작할 수 있어요</>
 }
 
 // ─── 메인 페이지 ───────────────────────────────────────────────────────────────
@@ -206,6 +126,8 @@ function CreatorFooter({
 export default function Creator() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { session } = useAuth()
+  const [showSheet, setShowSheet] = useState(false)
 
   // Checker → Creator 연결 시 사전 입력 데이터 적용
   const prefill = (location.state as { prefill?: Partial<CreatorData> } | null)?.prefill
@@ -235,19 +157,21 @@ export default function Creator() {
     setShowDraftPrompt(false)
   }
 
+  const goTo = (n: number) => { setStep(n); window.scrollTo(0, 0) }
   const goNext = () => {
     if (step === STEPS.length) {
-      navigate('/review', { state: { ...convertToCheckerState(data), creatorData: data } })
+      const reviewState = { ...convertToCheckerState(data), creatorData: data }
+      // 로그인 후 결과 화면에서 다시 쓸 수 있게 보관 (결과 전 로그인)
+      try { sessionStorage.setItem(PENDING_REVIEW_KEY, JSON.stringify(reviewState)) } catch { /* 무시 */ }
+      if (session) navigate('/review', { state: reviewState })
+      else navigate('/login?next=%2Freview&gate=1')
       return
     }
-    setStep(s => Math.min(s + 1, STEPS.length))
+    goTo(Math.min(step + 1, STEPS.length))
   }
-  const goPrev = () => {
-    if (step === 1) {
-      sessionStorage.removeItem(CREATOR_DRAFT_KEY)
-      navigate('/dashboard')
-    } else setStep(s => s - 1)
-  }
+  const goPrev = () => { if (step > 1) goTo(step - 1) }
+  /** 하단 단계 바: 앞 단계가 모두 채워진 단계까지만 이동 가능 */
+  const canReach = (n: number) => Array.from({ length: n - 1 }, (_, i) => i + 1).every(k => stepComplete(k, data))
   useEffect(() => {
     if (showDraftPrompt) return
     try {
@@ -257,67 +181,74 @@ export default function Creator() {
     }
   }, [step, data, showDraftPrompt])
 
-  // Step별 validation
-  const canGoNext = (() => {
-    if (step === 1) return isStep1Complete(data)
-    if (step === 2) return isStep2Complete(data)
-    if (step === 3) {
-      // 면제 적용 시 통과
-      if (data.nutritionExempted) return true
-      // 의무 9개 항목 모두 입력 필요 (식품등의 표시기준 2024년 개정)
-      const nutrKeys = ['calories','totalCarbs','sugar','protein','totalFat','saturatedFat','transFat','cholesterol','sodium'] as const
-      return nutrKeys.every(k => data[k].trim() !== '')
-    }
-    if (step === 4) return !hasBlockingPreviewIssues(data)
-    return true
-  })()
+  const canGoNext = stepComplete(step, data)
+
+  const meta = STEP_META[step - 1]
+  const nextLabel = step === STEPS.length
+    ? (canGoNext ? '무료 검토 결과 보기 →' : '필수 항목을 채워 주세요')
+    : canGoNext ? <>다음<span className="lp-nx-t"> : {meta.next}</span> →</> : step === 2 ? '원재료를 1개 이상 입력해 주세요' : '필수 항목을 채워 주세요'
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5] font-kr text-ink">
-      <CreatorHeader current={step} onHome={() => navigate('/dashboard')} />
+    <div className="lp">
+      <AppHeader mode="flow" current={1} />
+
       {showDraftPrompt && draft && (
-        <div className="fixed left-1/2 top-[82px] z-50 w-[calc(100%-32px)] max-w-[560px] -translate-x-1/2 border border-heritage-500 bg-white p-4 shadow-[0_18px_60px_rgba(10,10,11,0.16)]">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="font-kr text-[13px] font-semibold text-ink">이전 작업을 이어서 하시겠습니까?</p>
-              <p className="mt-0.5 font-kr text-[12px] text-[rgba(10,10,11,0.52)]">
-                {draft.data.productName || '이름 없는 제품'} · Step {draft.step}/4
-              </p>
-            </div>
-            <div className="flex gap-2">
-              <button onClick={discardDraft} className="h-9 border border-[rgba(10,10,11,0.15)] px-3 font-kr text-[12px] text-ink">
-                새로 시작
-              </button>
-              <button onClick={restoreDraft} className="h-9 bg-heritage-500 px-3 font-kr text-[12px] font-semibold text-white">
-                이어서 하기
-              </button>
-            </div>
+        <div className="lp-draft" role="dialog" aria-label="이전 작업 이어서 하기">
+          <div><b>이전에 입력하던 내용이 있어요</b><span>{draft.data.productName || '이름 없는 제품'} · STEP {draft.step}</span></div>
+          <div className="acts">
+            <button type="button" className="lp-btn lp-btn-line lp-btn-sm" onClick={discardDraft}>새로 시작</button>
+            <button type="button" className="lp-btn lp-btn-blue lp-btn-sm" onClick={restoreDraft}>이어서 하기</button>
           </div>
         </div>
       )}
 
-      <main className="min-h-[calc(100vh-145px)]">
-        <div className="mx-auto w-full max-w-[920px] px-5 py-8 md:px-0 md:py-10">
-          <div className="mb-8">
-            <StepCrumb current={step} />
-            <h1 className="mt-4 font-kr text-[24px] font-semibold leading-[1.22] tracking-normal text-ink md:text-[28px]">
-              {STEP_META[step - 1].title}
-            </h1>
-            <p className="mt-2 font-kr text-[13px] leading-[1.65] text-[rgba(10,10,11,0.52)]">
-              {STEP_META[step - 1].desc}
-            </p>
+      <main className="lp-page" style={{ paddingBottom: 180 }}>
+        <div className="lp-ph">
+          <div>
+            <div className="lp-kicker">무료 검사</div>
+            <h1 className="lp-h1">{meta.title}</h1>
+            <p className="lp-sub">{meta.desc}</p>
           </div>
+          <div className="lp-saved"><i />이 기기에 자동 저장돼요</div>
+        </div>
 
+        <div className="lp-grid">
           <div>
             {step === 1 && <Step1_ProductInfo data={data} onChange={update} />}
             {step === 2 && <Step2_Ingredients data={data} onChange={update} />}
             {step === 3 && <Step3_Nutrition   data={data} onChange={update} />}
-            {step === 4 && <Step4_Preview     data={data} onGoToStep={setStep} />}
+            {step === 4 && <Step4_Preview     data={data} onGoToStep={goTo} />}
           </div>
+          <aside className="lp-pv lp-pv-col" aria-label="라벨 미리보기"><LabelPreview data={data} /></aside>
         </div>
       </main>
 
-      <CreatorFooter current={step} canGoNext={canGoNext} onPrev={goPrev} onNext={goNext} />
+      <nav className="lp-stepbar" aria-label="입력 단계">
+        {STEPS.map(st => (
+          <button key={st.id} type="button" className={st.id === step ? 'on' : ''} aria-current={st.id === step ? 'step' : undefined}
+            disabled={st.id !== step && !canReach(st.id)} onClick={() => goTo(st.id)}>
+            STEP {st.id}<small>{st.label}</small>
+          </button>
+        ))}
+      </nav>
+
+      <div className="lp-bar">
+        <div className="lp-bar-in">
+          <span className="left">{barText(step, data)}</span>
+          <button type="button" className="lp-btn lp-btn-line lp-m-only" onClick={() => setShowSheet(true)}>미리보기</button>
+          {step > 1 && <button type="button" className="lp-btn lp-btn-line" onClick={goPrev}>이전</button>}
+          <button type="button" className="lp-btn lp-btn-blue" onClick={goNext} disabled={!canGoNext}>{nextLabel}</button>
+        </div>
+      </div>
+
+      {showSheet && (
+        <div className="lp-sheet" role="dialog" aria-label="라벨 미리보기" onClick={e => { if (e.target === e.currentTarget) setShowSheet(false) }}>
+          <div>
+            <button type="button" className="close" onClick={() => setShowSheet(false)}>닫기 ✕</button>
+            <LabelPreview data={data} />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,31 +1,43 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import AuthShell from './AuthShell'
-import { AuthField, AuthSubmitBtn, KakaoBtn, AuthDivider, AuthErrorBanner } from './AuthComponents'
+import { AuthTitle, GateBanner, AuthField, AuthSubmitBtn, KakaoBtn, AuthDivider, AuthErrorBanner } from './AuthComponents'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/useAuth'
+import { safeNext, rememberNext } from '../../lib/next'
+
+const BoxIcon = () => (
+  <span className="lp-bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+)
 
 export default function Signup() {
   const navigate = useNavigate()
+  const [params] = useSearchParams()
   const { session, loading: authLoading } = useAuth()
+  const next = safeNext(params.get('next'))
+  const gate = params.get('gate') === '1'
+  const qs = next ? `?next=${encodeURIComponent(next)}${gate ? '&gate=1' : ''}` : ''
 
   const [email,   setEmail]   = useState('')
   const [pw,      setPw]      = useState('')
   const [pwConf,  setPwConf]  = useState('')
-  const [terms,   setTerms]   = useState(false)
+  const [agTerms, setAgTerms] = useState(false)
+  const [agPriv,  setAgPriv]  = useState(false)
   const [loading, setLoading] = useState(false)
   const [serverErr, setServerErr] = useState('')
-
   const [errors, setErrors] = useState({ email: '', pw: '', pwConf: '', terms: '' })
 
-  if (!authLoading && session) return <Navigate to="/dashboard" replace />
+  if (!authLoading && session) return <Navigate to={next ?? '/dashboard'} replace />
+
+  const allAgreed = agTerms && agPriv
+  const setAll = (v: boolean) => { setAgTerms(v); setAgPriv(v); setErrors(p => ({ ...p, terms: '' })) }
 
   const validate = () => {
     const e = { email: '', pw: '', pwConf: '', terms: '' }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = '올바른 이메일 주소를 입력해주세요.'
-    if (pw.length < 8) e.pw = '비밀번호는 8자 이상이어야 합니다.'
-    if (pw !== pwConf)  e.pwConf = '비밀번호가 일치하지 않습니다.'
-    if (!terms)         e.terms = '필수 약관에 동의해주세요.'
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) e.email = '이메일 주소를 확인해 주세요.'
+    if (pw.length < 8) e.pw = '비밀번호는 8자 이상이어야 해요.'
+    if (pw !== pwConf)  e.pwConf = '비밀번호가 일치하지 않아요.'
+    if (!allAgreed)     e.terms = '필수 약관에 동의해 주세요.'
     setErrors(e)
     return !Object.values(e).some(Boolean)
   }
@@ -35,70 +47,55 @@ export default function Signup() {
     setServerErr('')
     if (!validate()) return
     setLoading(true)
-    const { data, error } = await supabase.auth.signUp({ email, password: pw })
+    const emailRedirectTo = `${window.location.origin}/auth/callback`
+    const { data, error } = await supabase.auth.signUp({ email, password: pw, options: { emailRedirectTo } })
     setLoading(false)
     if (error) {
       if (error.message.includes('already registered') || error.message.includes('already been registered')) {
-        setErrors(p => ({ ...p, email: '이미 사용 중인 이메일입니다.' }))
+        setErrors(p => ({ ...p, email: '이미 가입된 이메일이에요. 로그인해 주세요.' }))
       } else {
         setServerErr(error.message)
       }
       return
     }
-    // 이메일 인증 ON → verify-email 화면
-    // 이메일 인증 OFF → 세션 즉시 발급 → 대시보드로 바로 이동
-    if (data.session) {
-      navigate('/dashboard')
-    } else {
-      navigate('/verify-email', { state: { email } })
-    }
+    // 이메일 인증 OFF → 바로 로그인 상태 / ON → 인증 안내 화면
+    if (data.session) navigate(next ?? '/dashboard', { replace: true })
+    else { rememberNext(next); navigate('/verify-email', { state: { email } }) }
   }
 
   return (
-    <AuthShell crumb="회원가입 · SIGN UP">
-      <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
-
-        <div>
-          <h1 className="font-kr font-semibold text-[22px] text-ink tracking-[-0.018em]">회원가입</h1>
-          <p className="font-kr text-[13px] text-[rgba(10,10,11,0.55)] mt-1">라벨패스를 시작해 보세요.</p>
-        </div>
-
-        <KakaoBtn />
-        <AuthDivider />
-
+    <AuthShell>
+      {gate && <GateBanner />}
+      <AuthTitle kicker="SIGN UP" title="회원가입" sub="가입하고 무료 검토 결과를 확인하세요." />
+      <KakaoBtn next={next} />
+      <AuthDivider text="또는 이메일로 가입" />
+      <form onSubmit={handleSubmit} noValidate>
         <AuthErrorBanner msg={serverErr} />
-
-        <AuthField label="이메일" type="email" placeholder="이메일 주소를 입력해주세요"
-          value={email} onChange={v => { setEmail(v); setErrors(p => ({...p, email:''})) }}
+        <AuthField label="이메일" type="email" placeholder="name@company.com"
+          value={email} onChange={v => { setEmail(v); setErrors(p => ({ ...p, email: '' })) }}
           error={errors.email} autoComplete="email" />
-
-        <AuthField label="비밀번호" type="password" placeholder="8자 이상의 비밀번호"
-          value={pw} onChange={v => { setPw(v); setErrors(p => ({...p, pw:''})) }}
-          error={errors.pw} autoComplete="new-password" />
-
-        <AuthField label="비밀번호 확인" type="password" placeholder="비밀번호 확인"
-          value={pwConf} onChange={v => { setPwConf(v); setErrors(p => ({...p, pwConf:''})) }}
+        <AuthField label="비밀번호" type="password" placeholder="8자 이상"
+          value={pw} onChange={v => { setPw(v); setErrors(p => ({ ...p, pw: '' })) }}
+          error={errors.pw} hint="영문 · 숫자를 섞어 8자 이상" autoComplete="new-password" />
+        <AuthField label="비밀번호 확인" type="password" placeholder="비밀번호를 한 번 더 입력"
+          value={pwConf} onChange={v => { setPwConf(v); setErrors(p => ({ ...p, pwConf: '' })) }}
           error={errors.pwConf} autoComplete="new-password" />
 
-        {/* 약관 동의 */}
-        <div className="flex flex-col gap-1">
-          <label className="flex items-center gap-2.5 cursor-pointer">
-            <input type="checkbox" checked={terms} onChange={e => { setTerms(e.target.checked); setErrors(p => ({...p, terms:''})) }}
-              className="w-4 h-4 cursor-pointer" style={{ accentColor: '#002D72' }} />
-            <span className="font-kr text-[13px] text-ink">필수 약관에 동의합니다</span>
-          </label>
-          {errors.terms && (
-            <p className="font-kr text-[12px] pl-6" style={{ color: '#E5484D' }}>{errors.terms}</p>
-          )}
+        <div className={`lp-agree${errors.terms ? ' bad' : ''}`} role="group" aria-label="약관 동의">
+          <label className="lp-ag all"><input type="checkbox" checked={allAgreed} onChange={e => setAll(e.target.checked)} /><BoxIcon />전체 동의</label>
+          <label className="lp-ag"><input type="checkbox" checked={agTerms} onChange={e => { setAgTerms(e.target.checked); setErrors(p => ({ ...p, terms: '' })) }} /><BoxIcon />
+            <span><span className="lp-req" style={{ fontWeight: 700 }}>[필수]</span> 이용약관</span>
+            <a className="view" href="/terms">보기</a></label>
+          <label className="lp-ag"><input type="checkbox" checked={agPriv} onChange={e => { setAgPriv(e.target.checked); setErrors(p => ({ ...p, terms: '' })) }} /><BoxIcon />
+            <span><span className="lp-req" style={{ fontWeight: 700 }}>[필수]</span> 개인정보 수집 · 이용</span>
+            <a className="view" href="/privacy">보기</a></label>
         </div>
+        {errors.terms && <p className="lp-err" style={{ margin: '-12px 0 16px' }}>{errors.terms}</p>}
 
-        <AuthSubmitBtn label="회원가입" loading={loading} />
-
-        <p className="font-kr text-[13px] text-center text-[rgba(10,10,11,0.5)]">
-          이미 계정이 있으신가요?{' '}
-          <Link to="/login" className="font-medium text-ink hover:underline">로그인</Link>
-        </p>
+        <AuthSubmitBtn label="가입하기" loading={loading} disabled={!allAgreed} />
       </form>
+      <p className="lp-switch">이미 계정이 있나요?<Link to={`/login${qs}`}>로그인</Link></p>
+      <p className="lp-note">가입 후 이메일 인증 링크를 보내드려요.</p>
     </AuthShell>
   )
 }

@@ -1,3 +1,4 @@
+import { readPendingReview } from '../lib/next'
 import { useMemo, useState } from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import {
@@ -1374,7 +1375,8 @@ function NoticePanelB() {
 export default function ReviewResult() {
   const navigate = useNavigate()
   const location = useLocation()
-  const state = location.state as {
+  // 로그인 직후(결과 전 로그인)에는 location.state가 없으므로 보관해 둔 입력을 사용
+  const state = (location.state ?? readPendingReview()) as {
     ingredients: Ingredient[]
     metadata: Metadata
     serviceTier?: ServiceTier

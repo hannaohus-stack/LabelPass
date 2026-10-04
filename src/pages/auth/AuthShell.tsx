@@ -1,43 +1,48 @@
 /**
- * AuthShell — 인증 페이지 공통 레이아웃
- * 배경 #F4F4F5, 중앙 카드, 라벨패스 로고
+ * AuthShell — 인증 화면 공통 레이아웃 (시안 app_auth_v1.0)
+ * PC: 왼쪽 브랜드 패널 + 오른쪽 폼 / 모바일: 폼만
  */
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../../lib/useAuth'
+import type React from 'react'
 
-interface Props {
-  crumb: string          // 예: "회원가입 · SIGN UP"
-  crumbColor?: string    // 기본 #002D72
-  children: React.ReactNode
-}
+const Check = () => (
+  <i><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></i>
+)
 
-export default function AuthShell({ crumb, crumbColor = '#002D72', children }: Props) {
-  const navigate = useNavigate()
-  const { session } = useAuth()
-
+export default function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-[#F4F4F5] flex flex-col items-center justify-start pt-10 px-5 pb-16">
+    <div className="lp lp-white">
+      <div className="lp-auth">
+        <aside className="lp-auth-side" aria-hidden="true">
+          <div className="bg" /><div className="ov" />
+          <a className="logo" href="/" tabIndex={-1}>
+            <img src="/site/LabelPass_Logo_Primary_White_v1.0.svg" alt="" />
+          </a>
+          <div>
+            <h2>내 라벨, 법에 맞는지<br />10분 만에 확인하세요</h2>
+            <p>제품 정보와 원재료를 입력하면<br />17개 표시 항목을 근거 법령과 함께 검토합니다.</p>
+            <ul className="lp-pts">
+              <li><Check />무료 검토 결과 먼저 확인</li>
+              <li><Check />제품별 1회 결제 · 구독 없음</li>
+              <li><Check />결과는 마이페이지에 1년 보관</li>
+            </ul>
+          </div>
+          <div className="foot">검토 결과는 입력 정보를 바탕으로 한 검토 도구의 결과이며, 법적 적합성을 보증하지 않습니다.</div>
+        </aside>
 
-      {/* 로고 */}
-      <button
-        onClick={() => navigate(session ? '/dashboard' : '/')}
-        className="mb-8 hover:opacity-70 transition-opacity"
-      >
-        <img src="/site/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스" style={{ height: 30, width: 'auto', display: 'block' }} />
-      </button>
-
-      {/* 카드 */}
-      <div className="w-full max-w-[400px] bg-white border border-[rgba(10,10,11,0.1)] px-7 py-8 flex flex-col gap-6">
-
-        {/* 크럼 */}
-        <div
-          className="font-en text-[11px] font-semibold tracking-[0.16em] uppercase"
-          style={{ color: crumbColor }}
-        >
-          {crumb}
+        <div className="lp-auth-main">
+          <header className="lp-auth-top">
+            <a className="m-logo" href="/" aria-label="라벨패스 홈">
+              <img src="/site/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스" />
+            </a>
+            <a className="back" href="/">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              홈으로
+            </a>
+          </header>
+          <div className="lp-auth-wrap">
+            <section className="lp-auth-card">{children}</section>
+          </div>
         </div>
-
-        {children}
       </div>
     </div>
   )
