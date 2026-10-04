@@ -4,10 +4,32 @@
   "outputDirectory": "dist",
   "framework": "astro",
   "rewrites": [
-    { "source": "/blog/images/:path*", "destination": "/images/:path*" }
+    {
+      "source": "/blog/images/:path*",
+      "destination": "/images/:path*"
+    }
   ],
   "redirects": [
-    { "source": "/blog", "destination": "/", "permanent": true },
-    { "source": "/blog/:path+", "destination": "/:path+", "permanent": true }
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "blog.krk.team"
+        }
+      ],
+      "destination": "https://blog.labelpass.kr/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:path+",
+      "destination": "/:path+",
+      "permanent": true
+    }
   ]
 }

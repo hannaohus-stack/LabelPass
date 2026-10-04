@@ -4,6 +4,17 @@
   "outputDirectory": "dist",
   "redirects": [
     {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "checker.krk.team"
+        }
+      ],
+      "destination": "https://labelpass.kr/:path*",
+      "permanent": true
+    },
+    {
       "source": "/faq",
       "destination": "/pricing#faq",
       "permanent": false
