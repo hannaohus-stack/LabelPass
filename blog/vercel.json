@@ -22,6 +22,11 @@
       "permanent": true
     },
     {
+      "source": "/krk-checker-label-review-result",
+      "destination": "/labelpass-label-review-result",
+      "permanent": true
+    },
+    {
       "source": "/blog",
       "destination": "/",
       "permanent": true

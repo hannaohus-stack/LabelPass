@@ -21,17 +21,27 @@
     },
     {
       "source": "/guide/label",
-      "destination": "/blog/category/guide",
+      "destination": "https://blog.labelpass.kr/category/guide",
       "permanent": true
     },
     {
       "source": "/guide/rejection",
-      "destination": "/blog",
+      "destination": "https://blog.labelpass.kr",
       "permanent": true
     },
     {
       "source": "/blog/krk-checker-label-review-result",
-      "destination": "/blog/labelpass-label-review-result",
+      "destination": "https://blog.labelpass.kr/labelpass-label-review-result",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "https://blog.labelpass.kr",
+      "permanent": true
+    },
+    {
+      "source": "/blog/:path+",
+      "destination": "https://blog.labelpass.kr/:path+",
       "permanent": true
     }
   ],
@@ -47,18 +57,6 @@
     {
       "source": "/contact",
       "destination": "/contact.html"
-    },
-    {
-      "source": "/blog",
-      "destination": "/blog/index.html"
-    },
-    {
-      "source": "/blog/category/:cat",
-      "destination": "/blog/category/:cat/index.html"
-    },
-    {
-      "source": "/blog/:slug",
-      "destination": "/blog/:slug/index.html"
     },
     {
       "source": "/(.*)",
