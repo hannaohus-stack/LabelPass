@@ -2,11 +2,47 @@
   "installCommand": "npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "redirects": [
+    {
+      "source": "/faq",
+      "destination": "/pricing#faq",
+      "permanent": false
+    },
+    {
+      "source": "/blog",
+      "destination": "https://blog.krk.team",
+      "permanent": false
+    },
+    {
+      "source": "/blog/:path*",
+      "destination": "https://blog.krk.team/:path*",
+      "permanent": false
+    }
+  ],
   "rewrites": [
-    { "source": "/pricing",          "destination": "/pricing.html" },
-    { "source": "/guide/label",      "destination": "/guide-label.html" },
-    { "source": "/guide/rejection",  "destination": "/guide-rejection.html" },
-    { "source": "/faq",              "destination": "/faq.html" },
-    { "source": "/(.*)",             "destination": "/index.html" }
+    {
+      "source": "/service",
+      "destination": "/service.html"
+    },
+    {
+      "source": "/pricing",
+      "destination": "/pricing.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact.html"
+    },
+    {
+      "source": "/guide/label",
+      "destination": "/guide-label.html"
+    },
+    {
+      "source": "/guide/rejection",
+      "destination": "/guide-rejection.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/app.html"
+    }
   ]
 }

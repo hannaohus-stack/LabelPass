@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     Sitemap({
       hostname: 'https://checker.krk.team',
-      dynamicRoutes: ['/', '/pricing', '/guide/label', '/guide/rejection', '/faq'],
+      dynamicRoutes: ['/', '/service', '/pricing', '/contact', '/guide/label', '/guide/rejection'],
       changefreq: 'weekly',
       lastmod: new Date(),
     }),
@@ -15,11 +15,10 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
-        main:              'index.html',
-        pricing:           'pricing.html',
+        // index.html · service.html · pricing.html · contact.html = public/ 정적 마케팅 페이지 (빌드 대상 아님)
+        main:              'app.html',
         'guide-label':     'guide-label.html',
         'guide-rejection': 'guide-rejection.html',
-        faq:               'faq.html',
       },
     },
   },

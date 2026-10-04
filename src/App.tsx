@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { useAuth } from './lib/useAuth'
 
-const Landing = lazy(() => import('./pages/Landing'))
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const ReviewResult = lazy(() => import('./pages/ReviewResult'))
 const LabelExport = lazy(() => import('./pages/LabelExport'))
@@ -19,10 +18,8 @@ const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const AuthCallback = lazy(() => import('./pages/auth/AuthCallback'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const Terms = lazy(() => import('./pages/Terms'))
-const Pricing = lazy(() => import('./pages/seo/Pricing'))
 const GuideLabelPage = lazy(() => import('./pages/seo/GuideLabel'))
 const GuideRejection = lazy(() => import('./pages/seo/GuideRejection'))
-const FAQ = lazy(() => import('./pages/seo/FAQ'))
 const BetaApply = lazy(() => import('./pages/beta/BetaApply'))
 const BetaNps = lazy(() => import('./pages/beta/BetaNps'))
 
@@ -43,6 +40,18 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>
 }
 
+
+// ─── 정적 마케팅 페이지로 이동 ────────────────────────────────────────────────
+// / · /service · /pricing · /contact 는 public/ 의 정적 HTML (vercel.json rewrites).
+// 앱 안에서 이 주소로 이동하면 전체 새로고침으로 정적 페이지를 불러온다.
+function HardNav({ to }: { to: string }) {
+  if (import.meta.env.DEV) {
+    return <div style={{ padding: 40 }}>개발 모드: 정적 페이지 <a href={to}>{to}</a> 는 vercel 배포에서 확인하세요.</div>
+  }
+  window.location.replace(to)
+  return null
+}
+
 // ─── App ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
@@ -60,17 +69,20 @@ export default function App() {
         <Route path="/auth/callback"    element={<AuthCallback />} />
 
         {/* 랜딩 (공개) */}
-        <Route path="/" element={<Landing />} />
+        <Route path="/" element={<HardNav to="/" />} />
 
         {/* 법적 페이지 (공개) */}
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms"   element={<Terms />} />
 
         {/* SEO 공개 페이지 */}
-        <Route path="/pricing"          element={<Pricing />} />
+        <Route path="/pricing"          element={<HardNav to="/pricing" />} />
+        <Route path="/service"          element={<HardNav to="/service" />} />
+        <Route path="/contact"          element={<HardNav to="/contact" />} />
+        <Route path="/blog/*"           element={<HardNav to="/blog" />} />
         <Route path="/guide/label"      element={<GuideLabelPage />} />
         <Route path="/guide/rejection"  element={<GuideRejection />} />
-        <Route path="/faq"              element={<FAQ />} />
+        <Route path="/faq"              element={<HardNav to="/pricing#faq" />} />
 
         {/* 베타 이벤트 (공개, 비로그인 제출 가능) */}
         <Route path="/beta"     element={<BetaApply />} />
@@ -94,7 +106,7 @@ export default function App() {
           element={<ProtectedRoute><PaymentComplete /></ProtectedRoute>} />
 
         {/* 404 → 홈 */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<HardNav to="/" />} />
       </Routes>
       </Suspense>
     </BrowserRouter>

@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>서비스 — 라벨패스 LabelPass</title>
+<meta name="description" content="정보를 입력하면 17개 식품 표시 항목을 검토하고, 고칠 곳과 근거, 바로 쓰는 라벨 파일까지 제공합니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--amber:#C98200;--red:#E0413A;--r:20px}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:#fff;font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all;overflow-wrap:break-word}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+img{display:block;max-width:100%}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:52px;padding:0 24px;border-radius:12px;font-weight:700;font-size:16px;transition:background .15s,color .15s,border-color .15s}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#2547d6}
+.btn-line{border:1.5px solid var(--line);color:var(--navy);background:#fff}.btn-line:hover{border-color:var(--navy)}
+.btn-dark{background:var(--navy);color:#fff}.btn-dark:hover{background:#000}
+.btn-sm{height:40px;padding:0 16px;font-size:14px;border-radius:10px}
+.kicker{font-size:14px;font-weight:700;color:var(--blue);letter-spacing:.04em;margin-bottom:14px}
+h1,h2,h3{margin:0;letter-spacing:-0.035em}
+h2{font-size:40px;line-height:1.3;font-weight:800}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;top:0;z-index:20;background:transparent;border-bottom:1px solid transparent;transition:background .25s,border-color .25s}
+.nav.scrolled,.nav.open{background:rgba(255,255,255,.96);backdrop-filter:saturate(1.4) blur(8px);border-bottom-color:var(--line)}
+.nav .logo-w{display:block}.nav .logo-b{display:none}
+.nav.scrolled .logo-w,.nav.open .logo-w{display:none}.nav.scrolled .logo-b,.nav.open .logo-b{display:block}
+.nav:not(.scrolled):not(.open) .nav-menu,.nav:not(.scrolled):not(.open) .nav-util{color:#fff}
+.nav:not(.scrolled):not(.open) .nav-menu a:hover,.nav:not(.scrolled):not(.open) .nav-util a:hover{color:#fff;opacity:.75}
+.nav:not(.scrolled):not(.open) .nav-util .btn-blue:hover{opacity:1}
+.nav:not(.scrolled):not(.open) .nav-toggle span{background:#fff;box-shadow:0 6px 0 #fff,0 -6px 0 #fff}
+.nav-in{display:flex;align-items:center;height:76px;gap:40px}
+.nav-logo img{height:40px;width:auto}
+.nav-menu{display:flex;gap:32px;font-weight:600;font-size:16px}
+.nav-menu a:hover,.nav-util a:hover{color:var(--blue)}
+.btn-ghost{background:transparent;border:1.5px solid #C9D0DC;color:var(--navy)}.btn-ghost:hover{border-color:var(--navy)}
+.nav:not(.scrolled):not(.open) .btn-ghost{border-color:rgba(255,255,255,.55);color:#fff}
+.nav:not(.scrolled):not(.open) .btn-ghost:hover{border-color:#fff;opacity:1}
+.nav-util{margin-left:auto;display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px;color:var(--ink-2)}
+.nav-toggle{display:none;margin-left:auto;width:40px;height:40px;border-radius:10px;align-items:center;justify-content:center}
+.nav-toggle span{display:block;width:20px;height:2px;background:var(--navy);box-shadow:0 6px 0 var(--navy),0 -6px 0 var(--navy)}
+
+/* hero */
+.hero{position:relative;min-height:max(100vh,680px);display:grid;place-items:center;text-align:center;color:#fff;overflow:hidden;background:#05070f}
+.hero-bg{position:absolute;inset:0;background:var(--hero-img,url("/site/hero_bg.jpg")) center/cover no-repeat;transform:scale(1.04)}
+.hero-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,5,14,.92) 0%,rgba(3,5,14,.78) 45%,rgba(10,22,80,.72) 100%),radial-gradient(80% 60% at 85% 100%,rgba(51,88,238,.45),transparent 70%)}
+.hero-in{position:relative;padding:120px 20px 96px}
+.rot{display:flex;align-items:center;justify-content:center;gap:16px;font-size:24px;font-weight:600;color:rgba(255,255,255,.92);margin-bottom:28px;letter-spacing:-0.02em}
+.rot .dash{width:28px;height:3px;background:var(--blue);border-radius:2px;flex-shrink:0}
+.rot-win{position:relative;display:inline-block;height:1.4em;overflow:hidden;text-align:left}
+.rot-win span{position:absolute;left:0;top:0;white-space:nowrap;transform:translateY(110%);opacity:0;transition:transform .6s cubic-bezier(.2,.7,.2,1),opacity .6s}
+.rot-win span.on{transform:none;opacity:1}
+.rot-win span.out{transform:translateY(-110%);opacity:0}
+.hero h1{font-size:76px;line-height:1.22;font-weight:800;letter-spacing:-0.04em}
+.hero-desc{margin:28px 0 48px;font-size:21px;color:rgba(255,255,255,.78)}
+.hero-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-white{background:#fff;color:var(--navy)}.btn-white:hover{background:#E9EDF7}
+/* facts */
+.facts{background:var(--soft);padding:112px 0;text-align:center}
+.facts h2{font-size:40px;line-height:1.35}
+.facts .btn{margin-top:32px;height:48px;padding:0 22px;font-size:15px}
+.facts-in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;max-width:1040px;margin:56px auto 0}
+.fact{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:36px 24px 40px}
+.fact-lb{display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600;color:var(--ink-2)}
+.fact-lb svg{width:20px;height:20px;stroke:var(--ink-2);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fact b{display:block;margin-top:14px;font-size:52px;line-height:1.1;font-weight:800;letter-spacing:-0.04em;color:var(--navy)}
+.fact b small{font-size:.62em;font-weight:800;margin-left:2px}
+/* why */
+.why{position:relative;padding:128px 0;color:#fff;background:radial-gradient(70% 90% at 0% 0%,rgba(51,88,238,.38),transparent 60%),radial-gradient(50% 60% at 100% 100%,rgba(51,88,238,.16),transparent 70%),#111a2e;overflow:hidden}
+.why .kicker{color:#8FA8FF}
+.why-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:start;margin-bottom:64px}
+.why h2{font-size:44px;line-height:1.3}
+.why h2 em{font-style:normal;color:#8FA8FF}
+.why-sub{margin:20px 0 0;font-size:17px;color:rgba(255,255,255,.66)}
+.why-pts{display:grid;gap:28px;padding-top:34px}
+.why-pt h3{display:flex;align-items:center;gap:10px;font-size:21px;font-weight:700}
+.why-pt h3 svg{width:24px;height:24px;stroke:#8FA8FF;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.why-pt p{margin:8px 0 0 34px;color:rgba(255,255,255,.62);font-size:16px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:32px 30px;display:flex;flex-direction:column}
+.card-ico{width:52px;height:52px;border-radius:14px;background:rgba(51,88,238,.22);border:1px solid rgba(143,168,255,.25);display:grid;place-items:center}
+.card-ico svg{width:24px;height:24px;stroke:#A9BCFF;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:21px;font-weight:700;margin:28px 0 12px}
+.card p{margin:0 0 28px;color:rgba(255,255,255,.62);font-size:15.5px;line-height:1.7}
+.card .go{margin-top:auto;font-size:15px;color:#fff}
+.card .go:hover{color:#A9BCFF}
+.laws{margin-top:16px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:var(--r);padding:26px 30px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:40px}
+.laws-h{display:flex;align-items:center;gap:16px;font-size:20px;font-weight:700;white-space:nowrap}
+.laws-h .card-ico{width:48px;height:48px}
+.marq{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.marq-tr{display:flex;gap:10px;width:max-content;animation:marq 40s linear infinite}
+.marq:hover .marq-tr{animation-play-state:paused}
+@keyframes marq{to{transform:translateX(-50%)}}
+.law{display:flex;align-items:center;gap:10px;background:#fff;color:var(--navy);border-radius:12px;padding:12px 16px;font-size:14px;font-weight:700;white-space:nowrap}
+.law small{display:block;font-size:11px;font-weight:600;color:var(--ink-3);margin-top:1px}
+.law i{font-style:normal;font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-50);border-radius:6px;padding:5px 6px}
+.why-note{margin:20px 0 0;font-size:13px;color:rgba(255,255,255,.45)}
+/* steps (modusign style) */
+.steps{padding:24px 0 136px}
+.steps-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:72px;align-items:start}
+.steps h2{margin-bottom:48px}
+.step-list{border-top:1px solid var(--line)}
+.step-btn{display:flex;align-items:center;gap:16px;width:100%;text-align:left;padding:28px 0;border-bottom:1px solid var(--line);font-size:26px;font-weight:800;letter-spacing:-0.035em;color:#C5CBD6;transition:color .2s}
+.step-btn .no{font-size:15px;font-weight:700;letter-spacing:0;min-width:28px;color:inherit}
+.step-btn:hover{color:var(--ink-3)}
+.step-btn{position:relative}
+.step-btn::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:0;background:var(--blue)}
+.step-btn[aria-selected="true"]::after{animation:prog var(--dur,5s) linear forwards}
+.steps-paused .step-btn[aria-selected="true"]::after{animation-play-state:paused}
+@keyframes prog{to{width:100%}}
+.step-btn[aria-selected="true"]{color:var(--navy)}
+.step-btn[aria-selected="true"] .no{color:var(--blue)}
+.step-tag{font-size:12px;font-weight:700;color:var(--blue);background:var(--blue-50);border-radius:999px;padding:3px 10px;letter-spacing:0}
+.step-panel{display:none}
+.step-panel.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stage{position:relative;background:var(--soft);border:1px solid var(--line);border-radius:24px;aspect-ratio:616/420;overflow:hidden}
+.app{position:absolute;left:12%;right:-1px;top:9%;bottom:-1px;background:#fff;border-radius:14px 0 0 0;box-shadow:0 1px 0 var(--line);border:1px solid var(--line);overflow:hidden}
+.app-bar{height:44px;background:var(--blue);display:flex;align-items:center;padding:0 18px;gap:10px;color:#fff;font-size:13px;font-weight:600}
+.app-bar img{height:20px;width:auto}
+.app-bar .crumb{margin-left:auto;opacity:.75;font-weight:500}
+.app-main{display:grid;grid-template-columns:132px minmax(0,1fr);height:calc(100% - 44px)}
+.app-side{border-right:1px solid var(--line);padding:18px 14px;font-size:12px;color:var(--ink-3);display:flex;flex-direction:column;gap:6px}
+.app-side span{padding:6px 8px;border-radius:7px}
+.app-side .cur{background:var(--blue-50);color:var(--blue);font-weight:700}
+.app-body{padding:20px 22px;font-size:13px}
+.app-title{font-size:16px;font-weight:800;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.demo{font-size:11px;font-weight:700;color:var(--ink-3);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.field{display:grid;grid-template-columns:84px 1fr;align-items:center;gap:10px;margin-bottom:9px}
+.field label{color:var(--ink-3);font-weight:600}
+.field .in{border:1px solid var(--line);border-radius:8px;height:32px;display:flex;align-items:center;gap:6px;padding:0 10px;color:var(--navy)}
+.tag{font-size:12px;background:var(--blue-50);color:var(--blue);border-radius:6px;padding:2px 7px;font-weight:600}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{border-radius:10px;padding:10px 12px;font-weight:700;font-size:12px}
+.stat b{display:block;font-size:24px;line-height:1.2;font-weight:800}
+.s-g{background:#E8F6EF;color:var(--green)}.s-a{background:#FFF4DC;color:var(--amber)}.s-r{background:#FDECEA;color:var(--red)}
+.row{display:flex;justify-content:space-between;border-bottom:1px solid var(--line);padding:9px 2px}
+.row .g{color:var(--green);font-weight:700}.row .a{color:var(--amber);font-weight:700}.row .r{color:var(--red);font-weight:700}
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.plan{border:1.5px solid var(--line);border-radius:12px;padding:14px}
+.plan.sel{border-color:var(--blue);background:var(--blue-50)}
+.plan h4{margin:0 0 2px;font-size:14px}
+.plan .pr{font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.plan ul{margin:8px 0 0;padding-left:16px;color:var(--ink-2);font-size:12px;line-height:1.6}
+.paybtn{margin-top:12px;height:38px;border-radius:9px;background:var(--blue);color:#fff;font-weight:700;display:grid;place-items:center}
+.file{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;margin-bottom:7px}
+.file .ext{font-size:11px;font-weight:800;color:var(--blue);background:var(--blue-50);border-radius:6px;padding:3px 6px;min-width:38px;text-align:center}
+.file .dl{margin-left:auto;color:var(--ink-3);font-weight:700}
+.float{position:absolute;left:3%;bottom:8%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 16px;box-shadow:0 12px 30px rgba(24,33,54,.12);font-size:13px;width:36%;max-width:220px}
+.float b{display:block;font-size:14px;margin-bottom:4px}
+.float .mut{color:var(--ink-3);font-size:12px}
+.step-desc{margin:28px 0 18px;font-size:17px;color:var(--ink-2);line-height:1.7}
+.go{font-weight:700;font-size:16px;display:inline-flex;gap:6px;align-items:center}
+.go:hover{color:var(--blue)}
+
+/* help cards */
+.help{background:var(--soft);padding:112px 0}
+.help-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.help-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:40px;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.help-card h3{font-size:24px;font-weight:800;margin-bottom:8px}
+.help-card p{margin:0;color:var(--ink-2)}
+.help-card .btn{flex-shrink:0;min-width:140px}
+
+/* more */
+.more{padding:128px 0 120px}
+.more h2{margin-bottom:56px}
+.more-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr) 48px;gap:40px;align-items:start;padding:40px 0;border-top:1px solid var(--line)}
+.more-row:last-child{border-bottom:1px solid var(--line)}
+.more-row h3{display:flex;align-items:center;gap:14px;font-size:28px;font-weight:800}
+.more-row h3 svg{width:28px;height:28px;stroke:var(--navy);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.more-row p{margin:0;font-size:17px;color:var(--ink-2);line-height:1.75}
+.more-badge{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:14px;font-weight:600;color:var(--blue);background:var(--blue-50);border:1px solid var(--blue-100);border-radius:10px;padding:8px 14px}
+.more-go{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--navy);display:grid;place-items:center;transition:background .15s,color .15s}
+.more-go svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.more-row:hover .more-go{background:var(--navy);color:#fff}
+
+/* big cta */
+.bigcta{position:relative;background:var(--blue);color:#fff;text-align:center;padding:144px 0;overflow:hidden}
+.bigcta-arrow{position:absolute;right:-60px;bottom:-120px;width:520px;height:520px;fill:rgba(255,255,255,.08)}
+.bigcta-arrow.l{left:-140px;top:-160px;right:auto;bottom:auto;width:360px;height:360px;transform:rotate(180deg);fill:rgba(255,255,255,.05)}
+.bigcta .kicker{color:rgba(255,255,255,.8)}
+.bigcta h2{position:relative;font-size:60px;line-height:1.25}
+.bigcta p{position:relative;margin:24px 0 44px;font-size:20px;color:rgba(255,255,255,.82)}
+.bigcta-act{position:relative;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.bigcta .btn{height:60px;padding:0 32px;font-size:17px}
+.btn-wline{border:1.5px solid rgba(255,255,255,.7);color:#fff}.btn-wline:hover{background:rgba(255,255,255,.1);border-color:#fff}
+
+/* footer */
+.footer{padding:56px 0 64px;font-size:14px;color:var(--ink-2)}
+.foot-top{display:flex;justify-content:space-between;gap:40px;padding-bottom:32px;border-bottom:1px solid var(--line)}
+.foot-top img{height:40px;width:auto}
+.foot-links{display:flex;gap:28px;font-weight:600;color:var(--navy);flex-wrap:wrap}
+.foot-bottom{display:flex;justify-content:space-between;gap:40px;padding-top:28px;flex-wrap:wrap}
+.foot-legal{display:flex;gap:18px;font-weight:600;color:var(--navy);margin-bottom:12px}
+.foot-info{line-height:1.8;color:var(--ink-3)}
+.foot-sns{display:flex;gap:10px;align-items:flex-start}
+.foot-sns a{width:40px;height:40px;border-radius:50%;background:#EEF0F4;color:#8A94A8;display:grid;place-items:center;transition:background .15s,color .15s}
+.foot-sns a:hover{background:#E1E5EC;color:var(--navy)}
+.foot-sns svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* responsive */
+@media (max-width:1024px){
+ .hero h1{font-size:56px}
+ .steps-grid{gap:48px}
+}
+@media (max-width:860px){
+ .wrap{padding:0 20px}
+ .nav-menu,.nav-util{display:none}
+ .nav-toggle{display:flex}
+ .nav.open .nav-menu,.nav.open .nav-util{display:flex}
+ .nav.open .nav-in{flex-wrap:wrap;height:auto;padding:16px 0 20px;row-gap:16px}
+ .nav.open .nav-menu{order:3;width:100%;flex-direction:column;gap:14px}
+ .nav.open .nav-util{order:4;width:100%;margin:0;flex-wrap:wrap}
+ .hero{min-height:max(88vh,560px)}
+ .rot{font-size:17px;gap:10px}
+ .rot .dash{width:18px}
+ .steps-grid,.help-grid{grid-template-columns:1fr}
+ .hero h1{font-size:40px}
+ .hero-in{padding:104px 4px 72px}
+ .hero-desc{font-size:17px;margin:20px 0 36px}
+ h2{font-size:30px}
+ .facts{padding:80px 0}
+ .facts h2{font-size:26px}
+ .facts-in{grid-template-columns:1fr;gap:12px;margin-top:40px}
+ .fact{padding:24px}
+ .fact b{font-size:40px;margin-top:8px}
+ .why{padding:88px 0}
+ .why-top{grid-template-columns:1fr;gap:32px;margin-bottom:40px}
+ .why h2{font-size:30px}
+ .why-pts{padding-top:0}
+ .cards{grid-template-columns:1fr}
+ .laws{grid-template-columns:1fr;gap:20px;padding:24px}
+ .steps{padding:0 0 96px}
+ .steps h2{margin-bottom:28px}
+ .step-btn{font-size:21px;padding:20px 0}
+ .app-body{padding:14px 16px;font-size:12px}
+ .float{display:none}
+ .stage{aspect-ratio:4/3.4}
+ .app{left:6%}
+ .app-main{grid-template-columns:1fr}
+ .app-side{display:none}
+ .card{padding:26px 24px}
+ .card h3{margin:20px 0 8px}
+ .help{padding:72px 0}
+ .more{padding:88px 0}
+ .more h2{margin-bottom:32px}
+ .more-row{grid-template-columns:minmax(0,1fr) 44px;gap:16px 20px;padding:28px 0}
+ .more-row h3{font-size:22px}
+ .more-row .more-txt{grid-column:1/-1;grid-row:2}
+ .more-row .more-go{grid-column:2;grid-row:1}
+ .bigcta{padding:96px 0}
+ .bigcta h2{font-size:36px}
+ .bigcta p{font-size:17px}
+ .bigcta-arrow{width:300px;height:300px;right:-80px;bottom:-90px}
+ .bigcta .btn{height:54px}
+ .help-card{flex-direction:column;align-items:flex-start;padding:28px}
+ .foot-top,.foot-bottom{flex-direction:column}
+}
+@media (prefers-reduced-motion:reduce){.marq-tr{animation:none!important;flex-wrap:wrap;width:auto}.marq-tr .dup{display:none}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+/* ===== service ===== */
+body.solid .nav{background:rgba(255,255,255,.96);border-bottom-color:var(--line)}
+body.solid .nav .logo-w{display:none}body.solid .nav .logo-b{display:block}
+body.solid .nav .nav-menu,body.solid .nav .nav-util{color:var(--navy)}
+body.solid .nav .nav-util>a:first-child{color:var(--ink-2)}
+body.solid .nav .btn-ghost{border-color:#C9D0DC;color:var(--navy)}
+body.solid .nav .nav-toggle span{background:var(--navy);box-shadow:0 6px 0 var(--navy),0 -6px 0 var(--navy)}
+
+.sec{padding:120px 0}.soft{background:var(--soft)}
+.center{text-align:center}
+.h-sub{margin:16px 0 0;font-size:18px;color:var(--ink-2)}
+/* hero */
+.s-hero{padding:160px 0 0;text-align:center}
+.s-hero h1{font-size:58px;line-height:1.24;font-weight:800;letter-spacing:-0.04em}
+.s-hero h1 em{font-style:normal;color:var(--blue)}
+.s-hero .h-sub{font-size:20px;margin-top:22px}
+.s-hero .hero-actions{margin-top:36px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.s-hero-img{position:relative;margin:72px auto 0;max-width:1120px;border-radius:32px 32px 0 0;overflow:hidden;aspect-ratio:1120/520}
+.s-hero-img img{width:100%;height:100%;object-fit:cover;object-position:center 60%}
+.s-hero-img .mini{position:absolute;right:4%;bottom:10%;background:#fff;border-radius:18px;padding:16px;box-shadow:0 16px 40px rgba(24,33,54,.2);width:260px;text-align:left}
+.mini-t{font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:8px}
+/* pains */
+.pains{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:48px}
+.pain{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px 24px;text-align:left}
+.pain .q{width:40px;height:40px;border-radius:12px;background:#FDECEA;color:var(--red);font-weight:800;display:grid;place-items:center;margin-bottom:18px;font-size:18px}
+.pain b{display:block;font-size:18px;font-weight:800;line-height:1.45;color:var(--navy)}
+.pain span{display:block;margin-top:8px;font-size:14px;color:var(--ink-3)}
+.bridge{margin-top:64px;font-size:34px;font-weight:800;letter-spacing:-0.035em;line-height:1.35}
+.bridge em{font-style:normal;color:var(--blue)}
+.bridge-arrow{width:44px;height:44px;margin:28px auto 0;fill:var(--blue)}
+/* features alternating */
+.ft{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:72px;align-items:center;padding:56px 0}
+.ft.rev{grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr)}
+.ft.rev .ft-txt{order:2}
+.ft-no{font-size:14px;font-weight:800;color:var(--blue);letter-spacing:.06em}
+.ft h2{font-size:38px;line-height:1.32;margin:10px 0 16px}
+.ft p{margin:0;font-size:17px;color:var(--ink-2);line-height:1.7}
+.ft-pts{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.ft-pts span{font-size:14px;font-weight:700;color:var(--blue);background:var(--blue-50);border-radius:10px;padding:8px 12px}
+.ft .stage{aspect-ratio:600/400}
+.ft .app-body{font-size:13px}
+.ac{position:absolute;left:3%;top:52%;width:42%;max-width:250px;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 14px 34px rgba(24,33,54,.14);padding:8px;font-size:13px}
+.ac div{padding:8px 10px;border-radius:8px;display:flex;justify-content:space-between}
+.ac div.on{background:var(--blue-50);color:var(--blue);font-weight:700}
+.ac small{color:var(--ink-3)}
+.badge-pop{position:absolute;right:4%;top:6%;background:var(--navy);color:#fff;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;box-shadow:0 12px 30px rgba(24,33,54,.25)}
+.badge-pop i{font-style:normal;color:#FFB4AE}
+.rpt{position:absolute;inset:8% 8% 0 8%;background:#fff;border-radius:16px 16px 0 0;border:1px solid var(--line);padding:22px 24px;font-size:13px}
+.rpt-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.rpt-h b{font-size:16px}
+.rpt-h span{font-size:11px;color:var(--ink-3)}
+.vio{border:1px solid #F5C6C2;border-radius:12px;padding:14px;background:#FFF8F7}
+.vio-t{display:flex;justify-content:space-between;font-weight:800;margin-bottom:10px}
+.vio-t em{font-style:normal;color:var(--red)}
+.vio-r{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:6px 0;border-top:1px dashed #F0D3D0;color:var(--ink-2)}
+.vio-r b{color:var(--navy);font-weight:700}
+.fix{margin-top:10px;background:#E8F6EF;border-radius:8px;padding:10px;color:#167a52;font-weight:600}
+.files{position:absolute;inset:9% 6% 9% 6%;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.lbl{background:#fff;border-radius:14px;border:1px solid var(--line);padding:16px;font-size:11px;box-shadow:0 10px 24px rgba(24,33,54,.08)}
+.lbl-t{font-weight:800;font-size:14px;border-bottom:2px solid var(--navy);padding-bottom:6px;margin-bottom:6px}
+.lbl .pl{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--line);color:var(--ink-2)}
+.lbl .pl b{color:var(--navy)}
+.lbl-marks{display:flex;gap:6px;margin-top:10px}
+.lbl-marks span{width:30px;height:30px;border:1.5px solid var(--navy);border-radius:7px;display:grid;place-items:center;font-size:8px;font-weight:800}
+.flist{display:flex;flex-direction:column;gap:8px}
+.flist .file{background:#fff;margin:0}
+.my{position:absolute;inset:9% 6% 9% 6%;background:#fff;border-radius:14px;border:1px solid var(--line);padding:18px 20px;font-size:13px}
+.my-h{font-weight:800;font-size:15px;margin-bottom:12px}
+.my-r{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.my-r small{display:block;color:var(--ink-3);font-size:11px}
+.pill{font-size:11px;font-weight:700;border-radius:999px;padding:4px 9px}
+.pill.b{background:var(--blue-50);color:var(--blue)}.pill.g{background:var(--soft);color:var(--ink-2)}
+.re-btn{font-size:12px;font-weight:700;color:#fff;background:var(--blue);border-radius:8px;padding:6px 10px}
+/* rules bento */
+.rules{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-top:48px}
+.rl{background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;text-align:left}
+.rl.big{grid-column:span 2;background:var(--navy);color:#fff;border:0}
+.rl-n{font-size:46px;font-weight:800;letter-spacing:-0.04em;line-height:1;color:var(--blue)}
+.rl.big .rl-n{color:#8FA8FF}
+.rl h3{font-size:19px;font-weight:800;margin:12px 0 4px}
+.rl .ref{font-size:13px;color:var(--ink-3);font-weight:600}
+.rl.big .ref{color:rgba(255,255,255,.55)}
+.rl-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
+.rl-chips span{font-size:13px;font-weight:600;border-radius:8px;padding:6px 10px;background:var(--blue-50);color:var(--blue)}
+.rl.big .rl-chips span{background:rgba(255,255,255,.08);color:#fff}
+/* categories */
+.cats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-top:48px}
+.cat{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;text-align:left}
+.cat-img{aspect-ratio:268/340;background:#c9d3dc;overflow:hidden}
+.cat-img img{width:100%;height:100%;object-fit:cover}
+.cat-b{padding:16px}
+.cat-b h3{font-size:17px;font-weight:800;margin-bottom:10px}
+.cat-tags{display:flex;flex-wrap:wrap;gap:5px}
+.cat-tags span{font-size:12px;font-weight:600;color:var(--ink-2);background:var(--soft);border-radius:7px;padding:4px 8px}
+.cat-foot{display:grid;grid-template-columns:1fr 1fr 1.4fr;gap:14px;margin-top:14px;text-align:left}
+.cf{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px}
+.cf b{display:flex;align-items:center;gap:10px;font-size:16px}
+.cf b svg{width:22px;height:22px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cf small{display:block;margin:4px 0 0 32px;color:var(--ink-3);font-size:13px}
+.cf.no b svg{stroke:#B7BFCC}
+.cf.no p{margin:8px 0 0;font-size:13px;color:var(--ink-3);line-height:1.6}
+/* trust */
+.trust{background:radial-gradient(70% 90% at 0% 0%,rgba(51,88,238,.35),transparent 60%),#111a2e;color:#fff}
+.trust .kicker{color:#8FA8FF}
+.trust .h-sub{color:rgba(255,255,255,.62)}
+.laws6{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:48px;text-align:left}
+.lw{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:22px 24px;display:flex;gap:14px;align-items:flex-start}
+.lw i{font-style:normal;font-size:12px;font-weight:800;color:#A9BCFF;background:rgba(51,88,238,.25);border-radius:8px;padding:6px 8px;white-space:nowrap}
+.lw b{display:block;font-size:16px}
+.lw span{display:block;font-size:13px;color:rgba(255,255,255,.55);margin-top:4px}
+.trust-note{margin-top:28px;font-size:13px;color:rgba(255,255,255,.45)}
+/* faq */
+.faq{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:56px;align-items:start}
+.faq h2{font-size:36px}
+.qa{border-top:1px solid #D9DEE7}
+.qa details{border-bottom:1px solid #D9DEE7}
+.qa summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0;font-size:17px;font-weight:700}
+.qa summary::-webkit-details-marker{display:none}
+.qa summary::after{content:"";width:22px;height:22px;flex-shrink:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 5v14M5 12h14' stroke='%23182136' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") center/22px no-repeat;transition:transform .2s}
+.qa details[open] summary::after{transform:rotate(45deg)}
+.qa details p{margin:0 0 22px;color:var(--ink-2);line-height:1.75}
+@media (max-width:1024px){.pains,.rules{grid-template-columns:repeat(2,1fr)}.cats{grid-template-columns:repeat(3,1fr)}.laws6{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){
+ .sec{padding:80px 0}
+ .s-hero{padding:116px 0 0}.s-hero h1{font-size:36px}.s-hero .h-sub{font-size:17px}
+ .s-hero-img{margin-top:48px;aspect-ratio:4/3;border-radius:22px 22px 0 0}.s-hero-img .mini{display:none}
+ .pains,.rules,.laws6,.faq,.cat-foot{grid-template-columns:1fr}
+ .rl.big{grid-column:auto}
+ .bridge{font-size:26px;margin-top:48px}
+ .ft,.ft.rev{grid-template-columns:1fr;gap:28px;padding:36px 0}
+ .ft.rev .ft-txt{order:0}
+ .ft h2{font-size:28px}
+ .ft .stage{aspect-ratio:4/3.6}
+ .ac{left:4%;width:58%;top:50%}
+ .files{grid-template-columns:1fr}.files .lbl{display:none}
+ .cats{grid-template-columns:repeat(2,1fr)}
+ .faq h2{font-size:28px}
+}
+</style>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-5QYQQ49EGR"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5QYQQ49EGR',{anonymize_ip:true});</script>
+<script>(function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y)})(window,document,"clarity","script","wwzyi71k5m");</script>
+<link rel="icon" href="/favicon.svg">
+</head>
+<body class="solid">
+<header class="nav" id="nav">
+ <div class="wrap nav-in">
+  <a class="nav-logo" href="/" aria-label="라벨패스 홈"><img class="logo-w" src="/site/LabelPass_Logo_Primary_White_v1.0.svg" alt="LabelPass 라벨패스" width="102" height="40"><img class="logo-b" src="/site/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="" width="102" height="40"></a>
+  <nav class="nav-menu" aria-label="주 메뉴">
+   <a href="/service" aria-current="page" style="color:var(--blue)">서비스</a>
+   <a href="/pricing">요금안내</a>
+   <a href="/blog">블로그</a>
+  </nav>
+  <div class="nav-util">
+   <a href="/login" style="margin-right:14px">로그인</a>
+   <a class="btn btn-sm btn-ghost" href="/contact">도입문의</a>
+   <a class="btn btn-blue btn-sm" href="/creator">무료 검사 시작</a>
+  </div>
+  <button class="nav-toggle" aria-label="메뉴 열기" aria-expanded="false" id="navToggle"><span></span></button>
+ </div>
+</header>
+
+<main>
+<section class="s-hero">
+ <div class="wrap">
+  <div class="kicker">SERVICE</div>
+  <h1>출시 전 라벨,<br>이제 <em>혼자 고민하지</em> 마세요</h1>
+  <p class="h-sub">입력하면 17개 표시 항목을 검토하고, 고칠 곳과 근거까지 알려드립니다.</p>
+  <div class="hero-actions"><a class="btn btn-blue" href="/creator">무료 검사 시작 ↗</a><a class="btn btn-line" href="/contact">도입문의</a></div>
+ </div>
+ <div class="s-hero-img"><img src="/site/svc_hero.jpg" alt="잼 병에 라벨을 붙이는 손" width="1168" height="880">
+  <div class="mini"><div class="mini-t">딸기잼 · 검토 결과 예시</div><div class="stat3"><div class="stat s-g">통과<b>12</b></div><div class="stat s-a">주의<b>3</b></div><div class="stat s-r">위반<b>2</b></div></div></div></div>
+</section>
+
+<section class="sec soft center">
+ <div class="wrap">
+  <div class="kicker">PROBLEM</div>
+  <h2>라벨 만들 때, 이런 순간 있으셨죠?</h2>
+  <div class="pains">
+   <div class="pain"><div class="q">?</div><b>원산지,<br>이렇게 쓰면 될까?</b><span>법령마다 기준이 달라요</span></div>
+   <div class="pain"><div class="q">?</div><b>알레르기 표시<br>빠진 건 없을까?</b><span>22품목, 다 외우기 어려워요</span></div>
+   <div class="pain"><div class="q">!</div><b>입점 서류에서<br>반려됐어요</b><span>어디가 틀렸는지 몰라요</span></div>
+   <div class="pain"><div class="q">?</div><b>카페 답변이<br>다 달라요</b><span>누구 말이 맞는지 몰라요</span></div>
+  </div>
+  <p class="bridge">이제 정보만 입력하세요.<br><em>라벨패스</em>가 순서대로 확인합니다.</p>
+ </div>
+</section>
+
+<section class="sec">
+ <div class="wrap">
+  <div class="ft">
+   <div class="ft-txt"><div class="ft-no">01 · 입력</div><h2>법규를 몰라도<br>입력은 쉽게</h2><p>원재료를 고르면 알레르기와 복합원재료를 자동으로 찾아냅니다.</p><div class="ft-pts"><span>원재료 자동완성</span><span>알레르기 22품목 감지</span><span>복합원재료 감지</span></div></div>
+   <div class="stage"><div class="app"><div class="app-bar"><img src="/site/LabelPass_Logo_Primary_White_v1.0.svg" alt=""><span class="crumb">제품 정보 입력</span></div><div class="app-body"><div class="app-title">원재료 <span class="demo">예시</span></div>
+     <div class="field"><label>원재료 1</label><div class="in">딸기 <span class="tag">60%</span></div></div>
+     <div class="field"><label>원재료 2</label><div class="in">우유</div></div>
+     <div class="field"><label>원재료 3</label><div class="in">설탕</div></div></div></div>
+    <div class="ac"><div class="on">우유 <small>알레르기</small></div><div>우유 분말 <small>복합원재료</small></div><div>우유 크림</div></div>
+    <div class="badge-pop"><i>●</i> 알레르기 1개 자동 감지</div></div>
+  </div>
+
+  <div class="ft rev">
+   <div class="ft-txt"><div class="ft-no">02 · 검토</div><h2>17개 항목을<br>신호등으로 한눈에</h2><p>통과·주의·위반으로 나눠, 먼저 볼 곳부터 보여줍니다.</p><div class="ft-pts"><span>필수 표시사항</span><span>원산지</span><span>영양강조</span><span>분리배출</span></div></div>
+   <div class="stage"><div class="app"><div class="app-bar"><img src="/site/LabelPass_Logo_Primary_White_v1.0.svg" alt=""><span class="crumb">검토 결과</span></div><div class="app-body"><div class="app-title">딸기잼 표시사항 검토 <span class="demo">예시</span></div>
+     <div class="stat3"><div class="stat s-g">통과<b>12</b></div><div class="stat s-a">주의<b>3</b></div><div class="stat s-r">위반<b>2</b></div></div>
+     <div class="row"><span>알레르기 표시</span><span class="r">위반</span></div><div class="row"><span>원산지 표시</span><span class="r">위반</span></div><div class="row"><span>원재료명 표시</span><span class="a">주의</span></div><div class="row"><span>분리배출 표시</span><span class="g">통과</span></div></div></div></div>
+  </div>
+
+  <div class="ft">
+   <div class="ft-txt"><div class="ft-no">03 · 근거</div><h2>고칠 곳과<br>근거를 함께</h2><p>위반마다 관련 조항, 과태료, 수정 예시를 정리합니다.</p><div class="ft-pts"><span>관련 조항</span><span>과태료 기준</span><span>수정 예시 문구</span></div></div>
+   <div class="stage"><div class="rpt"><div class="rpt-h"><b>검토 리포트</b><span>검토번호 LP-20261004-0012</span></div>
+     <div class="vio"><div class="vio-t">알레르기 표시 <em>위반</em></div>
+      <div class="vio-r"><span>확인 내용</span><b>‘우유’ 알레르기 표시 누락</b></div>
+      <div class="vio-r"><span>관련 조항</span><b>표시광고법 시행규칙 별표 2</b></div>
+      <div class="vio-r"><span>과태료</span><b>기준 금액 안내</b></div>
+      <div class="fix">수정 예시 · 우유 함유</div></div></div></div>
+  </div>
+
+  <div class="ft rev">
+   <div class="ft-txt"><div class="ft-no">04 · 결과물</div><h2>인쇄와 신고에<br>바로 쓰는 파일</h2><p>라벨 파일부터 신고 가이드, 분리배출 마크까지 한 번에 받습니다.</p><div class="ft-pts"><span>라벨 PDF · PNG</span><span>텍스트 복사</span><span>정부24 신고 가이드</span><span>분리배출 마크</span></div></div>
+   <div class="stage"><div class="files">
+     <div class="lbl"><div class="lbl-t">딸기잼</div><div class="pl"><span>식품유형</span><b>잼</b></div><div class="pl"><span>내용량</span><b>200 g</b></div><div class="pl"><span>원재료명</span><b>딸기 60%…</b></div><div class="pl"><span>알레르기</span><b>우유 함유</b></div><div class="pl"><span>보관방법</span><b>냉장</b></div><div class="lbl-marks"><span>유리</span><span>캔</span></div></div>
+     <div class="flist"><div class="file"><span class="ext">PDF</span>라벨 파일<span class="dl">↓</span></div><div class="file"><span class="ext">PNG</span>라벨 이미지<span class="dl">↓</span></div><div class="file"><span class="ext">TXT</span>텍스트 복사<span class="dl">⧉</span></div><div class="file"><span class="ext">PDF</span>신고 가이드<span class="dl">↓</span></div><div class="file"><span class="ext">ZIP</span>분리배출 마크<span class="dl">↓</span></div></div></div></div>
+  </div>
+
+  <div class="ft">
+   <div class="ft-txt"><div class="ft-no">05 · 관리</div><h2>고친 뒤에도,<br>1년 뒤에도</h2><p>수정본은 다시 검토받고, 결과물은 마이페이지에 보관합니다.</p><div class="ft-pts"><span>수정본 재검토</span><span>1년 보관</span><span>언제든 재다운로드</span></div></div>
+   <div class="stage"><div class="my"><div class="my-h">내 검토</div>
+     <div class="my-r"><div>딸기잼 200g<small>2026.10.04 · 전문</small></div><span class="pill b">재검토 가능</span><span class="re-btn">재검토</span></div>
+     <div class="my-r"><div>쑥 인절미<small>2026.09.21 · 기본</small></div><span class="pill g">보관 중</span><span class="dl" style="color:var(--ink-3);font-weight:700">↓</span></div>
+     <div class="my-r"><div>버터 쿠키<small>2026.09.02 · 전문</small></div><span class="pill g">보관 중</span><span class="dl" style="color:var(--ink-3);font-weight:700">↓</span></div></div></div>
+  </div>
+ </div>
+</section>
+
+<section class="sec soft center" id="items">
+ <div class="wrap">
+  <div class="kicker">17 CHECK ITEMS</div>
+  <h2>무엇을 검토하나요?</h2>
+  <div class="rules">
+   <div class="rl big"><div class="rl-n">12</div><h3>필수 표시사항</h3><div class="ref">표시광고법 시행규칙 · 식품등의 표시기준</div><div class="rl-chips"><span>제품명</span><span>식품유형</span><span>내용량</span><span>원재료명</span><span>알레르기</span><span>소비기한</span><span>보관방법</span><span>영업소</span></div></div>
+   <div class="rl"><div class="rl-n">3</div><h3>분리배출 표시</h3><div class="ref">분리배출 표시 지침</div><div class="rl-chips"><span>재질</span><span>마크</span></div></div>
+   <div class="rl"><div class="rl-n">2</div><h3>원산지 · 영양강조</h3><div class="ref">원산지표시법 · 표시기준</div><div class="rl-chips"><span>원료 원산지</span><span>무가당 등</span></div></div>
+  </div>
+ </div>
+</section>
+
+<section class="sec center" id="category">
+ <div class="wrap">
+  <div class="kicker">CATEGORIES</div>
+  <h2>우리 제품도 이용할 수 있나요?</h2>
+  <div class="cats"><div class="cat"><div class="cat-img"><img src="/site/svc_cat1.jpg" alt="잼 · 소스 · 장류 제품 예시"></div><div class="cat-b"><h3>잼 · 소스 · 장류</h3><div class="cat-tags"><span>원재료명</span><span>원산지</span><span>내용량</span></div></div></div><div class="cat"><div class="cat-img"><img src="/site/svc_cat2.jpg" alt="떡류 제품 예시"></div><div class="cat-b"><h3>떡류</h3><div class="cat-tags"><span>알레르기</span><span>보관방법</span><span>소비기한</span></div></div></div><div class="cat"><div class="cat-img"><img src="/site/svc_cat3.jpg" alt="디저트 · 베이커리 제품 예시"></div><div class="cat-b"><h3>디저트 · 베이커리</h3><div class="cat-tags"><span>알레르기</span><span>식품유형</span><span>원재료명</span></div></div></div><div class="cat"><div class="cat-img"><img src="/site/svc_cat4.jpg" alt="차 · 음료 제품 예시"></div><div class="cat-b"><h3>차 · 음료</h3><div class="cat-tags"><span>식품유형</span><span>내용량</span><span>원재료명</span></div></div></div><div class="cat"><div class="cat-img"><img src="/site/svc_cat5.jpg" alt="일반 건강식품 제품 예시"></div><div class="cat-b"><h3>일반 건강식품</h3><div class="cat-tags"><span>표시 문구</span><span>식품유형</span><span>지원 범위</span></div></div></div></div>
+  <div class="cat-foot">
+   <div class="cf"><b><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg>식품제조·가공업</b><small>품목제조보고 대상</small></div>
+   <div class="cf"><b><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V9l7-5 7 5v12M9 21v-6h6v6"/></svg>즉석판매제조·가공업</b><small>직접 판매 사업자</small></div>
+   <div class="cf no"><b><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>지금은 지원하지 않아요</b><p>건강기능식품 · 영유아식 · 주류 · 통·병조림 · 식육·유가공품 · HACCP · 해외 수출 라벨</p></div>
+  </div>
+ </div>
+</section>
+
+<section class="sec trust center">
+ <div class="wrap">
+  <div class="kicker">STANDARDS</div>
+  <h2>이 기준으로 검토합니다</h2>
+  <p class="h-sub">식품 표시에 적용되는 법령과 고시를 항목별 규칙으로 정리했습니다.</p>
+  <div class="laws6"><div class="lw"><i>표시광고법</i><div><b>식품 등의 표시·광고에 관한 법률</b><span>표시 의무 · 금지 표현</span></div></div><div class="lw"><i>시행규칙</i><div><b>같은 법 시행규칙</b><span>알레르기 유발물질 22품목</span></div></div><div class="lw"><i>고시</i><div><b>식품등의 표시기준</b><span>표시 방법 · 영양강조</span></div></div><div class="lw"><i>원산지</i><div><b>농수산물의 원산지 표시 등에 관한 법률</b><span>원료 원산지 표시</span></div></div><div class="lw"><i>분리배출</i><div><b>분리배출 표시에 관한 지침</b><span>재질별 분리배출 마크</span></div></div><div class="lw"><i>식품위생법</i><div><b>식품위생법</b><span>영업 유형 · 품목제조보고</span></div></div></div>
+  <p class="trust-note">검토 결과는 입력 정보를 바탕으로 한 검토 도구의 결과이며, 법적 적합성을 보증하지 않습니다.</p>
+ </div>
+</section>
+
+<section class="sec">
+ <div class="wrap faq">
+  <div><div class="kicker">FAQ</div><h2>서비스 이용 질문</h2></div>
+  <div class="qa"><details open><summary>검토 결과가 법적으로 보증되나요?</summary><p>법적 적합성을 보증하지 않습니다. 입력한 정보를 바탕으로 한 검토 도구의 결과이며, 전문 검토에서는 관련 근거를 함께 확인할 수 있습니다.</p></details><details><summary>라벨 사진만 있어도 되나요?</summary><p>지금은 제품 정보를 직접 입력합니다. 입력이 어렵다면 카톡으로 라벨 사진을 보내주세요. 입력을 도와드립니다.</p></details><details><summary>즉석판매제조·가공업도 이용할 수 있나요?</summary><p>네, 식품제조·가공업과 즉석판매제조·가공업 모두 이용할 수 있습니다.</p></details><details><summary>영양성분도 계산해 주나요?</summary><p>자동 계산은 지원하지 않습니다. 입력한 영양성분 값으로 표시합니다.</p></details><details><summary>결과물은 어디에 쓰나요?</summary><p>라벨 디자인과 인쇄, 정부24 품목제조보고, 스마트스토어 상세페이지, 입점 서류에 바로 씁니다.</p></details></div>
+ </div>
+</section>
+
+<!-- 7 BIG CTA -->
+<section class="bigcta" aria-labelledby="cta-h">
+ <svg class="bigcta-arrow" viewBox="0 0 100 100" aria-hidden="true"><polygon points="0,0 100,0 100,100 72,100 72,47.80 19.80,100 0,80.20 52.20,28 0,28"/></svg>
+ <div class="wrap">
+  <div class="kicker">TALK TO US</div>
+  <h2 id="cta-h">라벨 확인이 처음이라면,<br>먼저 상담부터 받아보세요</h2>
+  <p>라벨 사진만 보내주시면, 우리 제품에 맞는 검토 방법을 직접 안내해 드립니다.</p>
+  <div class="bigcta-act">
+   <a class="btn btn-white" href="#kakao">카톡으로 상담하기 <span aria-hidden="true">↗</span></a>
+   <a class="btn btn-wline" href="/contact">파트너 도입문의</a>
+  </div>
+ </div>
+</section>
+</main>
+
+<footer class="footer">
+ <div class="wrap">
+  <div class="foot-top">
+   <img src="/site/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스" width="102" height="40">
+   <nav class="foot-links" aria-label="푸터 메뉴"><a href="/service">서비스</a><a href="/pricing">요금안내</a><a href="/blog">블로그</a><a href="/contact">도입문의</a></nav>
+  </div>
+  <div class="foot-bottom">
+   <div>
+    <div class="foot-legal"><a href="/terms">이용약관</a><a href="/privacy"><b>개인정보처리방침</b></a><a href="/refund">환불정책</a></div>
+    <div class="foot-info">[상호] · 대표 [이름] · 사업자등록번호 [번호] · 통신판매업 [번호]<br>[주소] · 고객센터 카톡 [채널명]<br>검토 결과는 입력 정보를 바탕으로 한 검토 도구의 결과이며, 법적 적합성을 보증하지 않습니다.<br>© 2026 LabelPass</div>
+   </div>
+   <div class="foot-sns"><a href="#naver" aria-label="네이버 블로그"><svg viewBox="0 0 24 24"><path d="M6.5 5.5h3.6l3.8 6V5.5h3.6v13h-3.6l-3.8-6v6H6.5z" fill="currentColor" stroke="none"/></svg></a><a href="https://instagram.com/labelpass.kr" aria-label="인스타그램"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".6" fill="currentColor"/></svg></a><a href="#youtube" aria-label="유튜브"><svg viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></svg></a><a href="#kakao" aria-label="카카오톡"><svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z"/></svg></a></div>
+  </div>
+ </div>
+</footer>
+<script>
+(function(){var nav=document.getElementById('nav');nav.classList.add('scrolled');var tg=document.getElementById('navToggle');tg.addEventListener('click',function(){var o=nav.classList.toggle('open');tg.setAttribute('aria-expanded',o)});})();
+</script>
+<script src="/site/policies.js" defer></script>
+</body>
+</html>
