@@ -1,15 +1,33 @@
 /**
- * 인증 페이지 공통 컴포넌트
- * - AuthField: 라벨 + 인풋 + 에러 메시지
- * - KakaoBtn: 카카오 로그인 버튼 (UI only)
- * - AuthDivider: OR 구분선
+ * 인증 화면 공통 컴포넌트 (시안 app_auth_v1.0)
  */
-import { Eye, EyeOff, AlertCircle } from 'lucide-react'
-import { useState } from 'react'
+import type React from 'react'
+import { useState, useId } from 'react'
 import { supabase } from '../../lib/supabase'
+import { rememberNext } from '../../lib/next'
+
+// ─── 제목 ──────────────────────────────────────────────────────────────────────
+export function AuthTitle({ kicker, title, sub }: { kicker: string; title: string; sub?: string }) {
+  return (
+    <>
+      <div className="lp-kicker">{kicker}</div>
+      <h1 className="lp-h1">{title}</h1>
+      {sub && <p className="lp-sub">{sub}</p>}
+    </>
+  )
+}
+
+// ─── 결과 보기 전 로그인 안내 ───────────────────────────────────────────────────
+export function GateBanner() {
+  return (
+    <div className="lp-gate" role="status">
+      <div className="ic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></div>
+      <div><b>입력 완료 · 검토 결과가 준비됐어요</b><span>로그인하면 바로 결과를 볼 수 있어요. 입력한 내용은 그대로 이어집니다.</span></div>
+    </div>
+  )
+}
 
 // ─── 인풋 필드 ─────────────────────────────────────────────────────────────────
-
 interface FieldProps {
   label: string
   type?: string
@@ -17,106 +35,64 @@ interface FieldProps {
   value: string
   onChange: (v: string) => void
   error?: string
+  hint?: string
   autoComplete?: string
   disabled?: boolean
 }
 
-export function AuthField({
-  label, type = 'text', placeholder, value, onChange, error, autoComplete, disabled,
-}: FieldProps) {
+export function AuthField({ label, type = 'text', placeholder, value, onChange, error, hint, autoComplete, disabled }: FieldProps) {
   const [showPw, setShowPw] = useState(false)
+  const id = useId()
   const isPassword = type === 'password'
-  const inputType  = isPassword ? (showPw ? 'text' : 'password') : type
+  const inputType = isPassword ? (showPw ? 'text' : 'password') : type
 
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="font-kr text-[13px] font-medium text-ink">{label}</label>
-      <div className="relative">
+    <div className="lp-fl">
+      <label className="lp-lb" htmlFor={id}>{label}</label>
+      <div className={isPassword ? 'lp-pw' : undefined}>
         <input
+          id={id}
+          className={`lp-in${error ? ' bad' : ''}`}
           type={inputType}
           placeholder={placeholder}
           value={value}
           onChange={e => onChange(e.target.value)}
           autoComplete={autoComplete}
           disabled={disabled}
-          className="w-full h-[46px] px-[14px] bg-white font-kr text-[14px] text-ink outline-none transition-all
-            border"
-          style={{
-            borderColor: error ? '#E5484D' : 'rgba(10,10,11,0.14)',
-            borderWidth: error ? '1.5px' : '1px',
-          }}
-          onFocus={e => {
-            if (!error) e.currentTarget.style.borderColor = '#0CA4F9'
-            if (!error) e.currentTarget.style.borderWidth = '1.5px'
-          }}
-          onBlur={e => {
-            if (!error) e.currentTarget.style.borderColor = 'rgba(10,10,11,0.14)'
-            if (!error) e.currentTarget.style.borderWidth = '1px'
-          }}
+          aria-invalid={error ? true : undefined}
+          aria-describedby={error ? `${id}-e` : undefined}
         />
         {isPassword && (
-          <button
-            type="button"
-            tabIndex={-1}
-            onClick={() => setShowPw(p => !p)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[rgba(10,10,11,0.4)] hover:text-ink transition-colors"
-          >
-            {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
+          <button type="button" className="lp-eye" onClick={() => setShowPw(p => !p)} aria-label={showPw ? '비밀번호 숨기기' : '비밀번호 보기'}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" />
+              {showPw && <path d="M4 4l16 16" />}
+            </svg>
           </button>
         )}
       </div>
-      {error && (
-        <p className="flex items-center gap-1 font-kr text-[12px]" style={{ color: '#E5484D' }}>
-          <AlertCircle size={12} className="flex-shrink-0" />
-          {error}
-        </p>
-      )}
+      {error ? <p className="lp-err" id={`${id}-e`}>{error}</p> : hint ? <p className="lp-help">{hint}</p> : null}
     </div>
   )
 }
 
 // ─── 제출 버튼 ─────────────────────────────────────────────────────────────────
-
-export function AuthSubmitBtn({
-  label,
-  loading,
-  disabled,
-}: {
-  label: string
-  loading?: boolean
-  disabled?: boolean
-}) {
+export function AuthSubmitBtn({ label, loading, disabled }: { label: string; loading?: boolean; disabled?: boolean }) {
   return (
-    <button
-      type="submit"
-      disabled={loading || disabled}
-      className="w-full h-[46px] font-kr font-semibold text-[14px] text-white transition-colors
-        flex items-center justify-center gap-2"
-      style={{
-        background: loading || disabled ? 'rgba(10,10,11,0.18)' : '#002D72',
-        cursor: loading || disabled ? 'not-allowed' : 'pointer',
-      }}
-    >
-      {loading ? (
-        <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-        </svg>
-      ) : null}
+    <button type="submit" disabled={loading || disabled} className="lp-btn lp-btn-blue lp-btn-block" style={{ height: 54 }}>
+      {loading && <span className="lp-spin" aria-hidden="true" />}
       {label}
     </button>
   )
 }
 
 // ─── 카카오 버튼 ───────────────────────────────────────────────────────────────
-
-export function KakaoBtn() {
+export function KakaoBtn({ next }: { next?: string | null }) {
   const handleKakao = async () => {
+    rememberNext(next ?? null)
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'kakao',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
     })
     if (error) {
       console.error('Kakao OAuth error:', error)
@@ -125,46 +101,57 @@ export function KakaoBtn() {
   }
 
   return (
-    <button
-      type="button"
-      onClick={handleKakao}
-      className="w-full h-[46px] flex items-center justify-center gap-2 font-kr font-semibold text-[14px]
-        transition-opacity hover:opacity-90"
-      style={{ background: '#FEE500', color: '#000' }}
-    >
-      {/* 카카오 로고 SVG */}
-      <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-        <path fillRule="evenodd" clipRule="evenodd"
-          d="M9 0.9C4.473 0.9 0.9 3.716 0.9 7.2c0 2.27 1.497 4.266 3.77 5.393l-.963 3.6c-.085.315.297.566.567.366l4.338-2.912A10.2 10.2 0 009 13.5c4.527 0 8.1-2.816 8.1-6.3C17.1 3.716 13.527.9 9 .9z"
-          fill="#000000"
-          fillOpacity="0.85"
-        />
-      </svg>
-      카카오로 시작하기
+    <button type="button" onClick={handleKakao} className="lp-btn lp-btn-kakao lp-btn-block" style={{ height: 54, marginTop: 32 }}>
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path fill="#191600" d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z" /></svg>
+      카카오로 3초 만에 시작하기
     </button>
   )
 }
 
-// ─── OR 구분선 ──────────────────────────────────────────────────────────────────
-
-export function AuthDivider() {
-  return (
-    <div className="flex items-center gap-3">
-      <div className="flex-1 h-px bg-[rgba(10,10,11,0.1)]" />
-      <span className="font-en text-[11px] font-medium text-[rgba(10,10,11,0.35)] tracking-[0.08em]">OR</span>
-      <div className="flex-1 h-px bg-[rgba(10,10,11,0.1)]" />
-    </div>
-  )
+// ─── 구분선 ────────────────────────────────────────────────────────────────────
+export function AuthDivider({ text = '또는 이메일로 로그인' }: { text?: string }) {
+  return <div className="lp-or">{text}</div>
 }
 
 // ─── 전체 오류 배너 ─────────────────────────────────────────────────────────────
-
 export function AuthErrorBanner({ msg }: { msg: string }) {
   if (!msg) return null
+  return <div className="lp-alert" role="alert"><span aria-hidden="true">!</span><span>{msg}</span></div>
+}
+
+// ─── 상태 안내 패널 (인증 메일 · 재설정 완료 등) ─────────────────────────────────
+type Tone = 'blue' | 'green' | 'amber' | 'red'
+const TONE: Record<Tone, [string, string]> = {
+  blue: ['var(--blue-50)', 'var(--blue)'], green: ['var(--green-50)', 'var(--green)'],
+  amber: ['var(--amber-50)', 'var(--amber)'], red: ['var(--red-50)', 'var(--red)'],
+}
+const ICON: Record<string, string> = {
+  mail: 'M4 6h16v12H4z M4 7l8 6 8-6',
+  check: 'm5 12.5 4.5 4.5L19 7.5',
+  alert: 'M12 8v5 M12 16.5v.5 M10.3 3.9 2.4 18a2 2 0 0 0 1.7 3h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z',
+}
+export function AuthStatus({ tone, icon, kicker, title, sub, steps, children }: {
+  tone: Tone; icon: 'mail' | 'check' | 'alert'; kicker: string; title: string; sub?: string; steps?: string[]; children?: React.ReactNode
+}) {
+  const [bg, fg] = TONE[tone]
   return (
-    <div className="flex items-start gap-2 px-3 py-2.5 border" style={{ background: 'rgba(229,72,77,0.06)', borderColor: '#E5484D' }}>
-      <AlertCircle size={13} className="flex-shrink-0 mt-0.5" style={{ color: '#E5484D' }} />
-      <p className="font-kr text-[12px] leading-[1.55]" style={{ color: '#B30000' }}>{msg}</p>
+    <div>
+      <div style={{ width: 56, height: 56, borderRadius: 16, background: bg, display: 'grid', placeItems: 'center', marginBottom: 20 }}>
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={fg} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          {ICON[icon].split(' M').map((d, i) => <path key={i} d={i ? 'M' + d : d} />)}
+        </svg>
+      </div>
+      <AuthTitle kicker={kicker} title={title} sub={sub} />
+      {steps && (
+        <ol style={{ listStyle: 'none', margin: '24px 0 0', padding: 0, display: 'grid', gap: 10 }}>
+          {steps.map((t, i) => (
+            <li key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start', background: 'var(--soft)', borderRadius: 12, padding: '12px 14px', fontSize: 15, color: 'var(--ink-2)' }}>
+              <b style={{ color: 'var(--blue)', fontSize: 13, marginTop: 2 }}>{i + 1}</b>{t}
+            </li>
+          ))}
+        </ol>
+      )}
+      <div style={{ marginTop: 24, display: 'grid', gap: 10 }}>{children}</div>
     </div>
   )
 }

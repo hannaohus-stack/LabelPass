@@ -6,7 +6,6 @@ import { useAuth } from './lib/useAuth'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const ReviewResult = lazy(() => import('./pages/ReviewResult'))
-const LabelExport = lazy(() => import('./pages/LabelExport'))
 const Creator = lazy(() => import('./pages/creator/Creator'))
 const Payment = lazy(() => import('./pages/Payment'))
 const PaymentComplete = lazy(() => import('./pages/PaymentComplete'))
@@ -16,8 +15,6 @@ const EmailVerify = lazy(() => import('./pages/auth/EmailVerify'))
 const ForgotPassword = lazy(() => import('./pages/auth/ForgotPassword'))
 const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const AuthCallback = lazy(() => import('./pages/auth/AuthCallback'))
-const Privacy = lazy(() => import('./pages/Privacy'))
-const Terms = lazy(() => import('./pages/Terms'))
 const BetaApply = lazy(() => import('./pages/beta/BetaApply'))
 const BetaNps = lazy(() => import('./pages/beta/BetaNps'))
 
@@ -32,8 +29,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   // 세션 확인 중 — 빈 화면 (flash 방지)
   if (loading) return null
 
-  // 미인증 → 로그인
-  if (!session) return <Navigate to="/login" replace />
+  // 미인증 → 로그인 (로그인 후 원래 화면으로 돌아옴)
+  if (!session) {
+    const here = window.location.pathname + window.location.search
+    return <Navigate to={`/login?next=${encodeURIComponent(here)}`} replace />
+  }
 
   return <>{children}</>
 }
@@ -70,8 +70,9 @@ export default function App() {
         <Route path="/" element={<HardNav to="/" />} />
 
         {/* 법적 페이지 (공개) */}
-        <Route path="/privacy" element={<Privacy />} />
-        <Route path="/terms"   element={<Terms />} />
+        <Route path="/privacy" element={<HardNav to="/#privacy" />} />
+        <Route path="/terms"   element={<HardNav to="/#terms" />} />
+        <Route path="/refund"  element={<HardNav to="/#refund" />} />
 
         {/* SEO 공개 페이지 */}
         <Route path="/pricing"          element={<HardNav to="/pricing" />} />
@@ -89,12 +90,12 @@ export default function App() {
         {/* 보호된 라우트 */}
         <Route path="/dashboard"
           element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/creator"
-          element={<ProtectedRoute><Creator /></ProtectedRoute>} />
+        {/* 무료 검사 입력은 로그인 없이 — 결과 보기 직전에 로그인 */}
+        <Route path="/creator" element={<Creator />} />
         <Route path="/review"
           element={<ProtectedRoute><ReviewResult /></ProtectedRoute>} />
-        <Route path="/export"
-          element={<ProtectedRoute><LabelExport /></ProtectedRoute>} />
+        {/* 옛 내보내기 화면 → 마이페이지(결과 · 파일) */}
+        <Route path="/export" element={<Navigate to="/dashboard" replace />} />
         <Route path="/payment"
           element={<ProtectedRoute><Payment /></ProtectedRoute>} />
         <Route path="/payment/complete"

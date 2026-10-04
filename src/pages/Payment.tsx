@@ -1,347 +1,162 @@
+/**
+ * 결제 (시안 app_payment_v1.0) — 주문 내용 확인 · 환불 고지 동의 · Lemon Squeezy 결제창 이동
+ */
 import { useState } from 'react'
-import { useLocation, useNavigate, Navigate } from 'react-router-dom'
-import { AlertCircle, Check, ChevronLeft, CreditCard, LockKeyhole, ShieldCheck } from 'lucide-react'
-import LogoLockup from '../components/LogoLockup'
-import type { Ingredient } from '../utils/parsing'
-import type { Metadata } from './ReviewResult'
-import type { CreatorData } from './creator/types'
-import type { ServiceTier } from '../utils/tierUtils'
-
-type ServiceType = 'basic' | 'pro'
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
+import AppHeader from '../components/lp/AppHeader'
+import { PAYMENT_STATE_KEY, SERVICE, readSession, won, writeSession, type PaymentState, type ServiceType } from '../lib/review'
 
 // ─── Lemon Squeezy Variant IDs (공개 OK — API Key 아님) ───────────────────────
 const LS_VARIANT: Record<ServiceType, string> = {
   basic: import.meta.env.VITE_LS_BASIC_VARIANT_ID as string,
   pro:   import.meta.env.VITE_LS_PRO_VARIANT_ID   as string,
 }
-
-// ─── Supabase Edge Function URL ───────────────────────────────────────────────
 const LS_CHECKOUT_FN = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lemonsqueezy-checkout`
 
-const SERVICES: Record<ServiceType, {
-  eyebrow: string
-  name: string
-  price: number
-  files: { name: string; use: string }[]
-  copyItems: string[]
-}> = {
-  basic: {
-    eyebrow: 'Basic Label Package',
-    name: '기본 라벨 패키지',
-    price: 9900,
-    files: [
-      { name: '라벨 PDF', use: '인쇄용 · A4' },
-      { name: '라벨 PNG', use: '웹 · 스마트스토어 / 3000x3000' },
-    ],
-    copyItems: ['원재료명 · 함량', '알레르기 유발물질', '제품명 · 영문'],
-  },
-  pro: {
-    eyebrow: 'Professional Guide',
-    name: '전문 수정 가이드',
-    price: 19900,
-    files: [
-      { name: '라벨 PDF', use: '인쇄용 · A4' },
-      { name: '라벨 PNG', use: '웹 · 스마트스토어' },
-      { name: '품목제조보고 입력 가이드', use: '정부24 참고용' },
-      { name: 'krk 라벨 검토 리포트', use: '자율 점검 기록' },
-      { name: '분리배출 마크 ZIP', use: '환경부 공식 도안' },
-    ],
-    copyItems: ['원재료명 · 함량', '알레르기 유발물질', '식품유형', '제품명 · 영문'],
-  },
+// ─── TEST MODE: 결제창 없이 결과 화면으로 (Live 전환 시 false) ────────────────
+export const TEST_MODE = true
+
+const INCLUDES: Record<ServiceType, { i: string; t: string; s: string }[]> = {
+  basic: [
+    { i: '17', t: '항목별 검토 결과', s: '수정 필요 · 확인 권장 항목 공개' },
+    { i: 'PDF', t: '라벨 PDF · PNG · 텍스트', s: '인쇄소 · 디자이너에게 바로 전달' },
+    { i: '1년', t: '마이페이지 보관', s: '언제든 다시 받기' },
+  ],
+  pro: [
+    { i: '17', t: '항목별 검토 결과', s: '수정 필요 · 확인 권장 항목 공개' },
+    { i: '법령', t: '수정 방법 · 근거 법령 · 과태료', s: '항목마다 바로 고칠 수 있게' },
+    { i: 'PDF', t: '라벨 PDF · PNG · 텍스트', s: '인쇄소 · 디자이너에게 바로 전달' },
+    { i: '리포트', t: '검토 리포트 PDF', s: '입점 · 거래처 공유용' },
+    { i: '신고', t: '정부24 신고 가이드', s: '품목제조보고 입력 순서' },
+    { i: 'ZIP', t: '분리배출 마크', s: '재질별 도안 파일' },
+    { i: '1년', t: '마이페이지 보관', s: '언제든 다시 받기' },
+  ],
 }
 
-const fmtKRW = (value: number) => value.toLocaleString('ko-KR')
-const serviceToTier = (service: ServiceType): ServiceTier => service === 'basic' ? 'tier1' : 'tier2'
-
-function normalizeService(state: NonNullable<PaymentRouteState>): ServiceType {
-  if (state.service === 'basic' || state.service === 'pro') return state.service
-  if (state.returnTier === 'tier1') return 'basic'
-  return 'pro'
-}
-
-type PaymentRouteState = {
-  ingredients?: Ingredient[]
-  metadata?: Metadata
-  service?: ServiceType
-  returnTier?: ServiceTier
-  creatorData?: CreatorData
-} | null
-
-// ─── Header ──────────────────────────────────────────────────────────────────
-function Header({ onBack }: { onBack: () => void }) {
-  return (
-    <nav className="sticky top-0 z-40 border-b border-[rgba(10,10,11,0.1)] bg-white/75 px-5 py-4 backdrop-blur-[18px] md:px-12">
-      <div className="mx-auto flex max-w-[1180px] items-center justify-between">
-        <button
-          onClick={onBack}
-          className="flex items-center gap-1.5 font-en text-[12px] text-[rgba(10,10,11,0.5)] transition-colors hover:text-ink"
-        >
-          <ChevronLeft size={14} />
-          Review
-        </button>
-        <LogoLockup />
-        <div className="flex items-center gap-2 font-en text-[11px] font-semibold uppercase tracking-[0.14em] text-[rgba(10,10,11,0.42)]">
-          <ShieldCheck size={13} />
-          Checkout
-        </div>
-      </div>
-    </nav>
-  )
-}
-
-// ─── OrderSummary ─────────────────────────────────────────────────────────────
-function OrderSummary({
-  metadata,
-  service,
-}: {
-  metadata: Metadata
-  service: ServiceType
-}) {
-  const cfg = SERVICES[service]
-  return (
-    <section className="border border-[rgba(10,10,11,0.1)] bg-white">
-      <div className="border-b border-[rgba(10,10,11,0.08)] px-5 py-5">
-        <div className="font-en text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgba(10,10,11,0.38)]">
-          {cfg.eyebrow}
-        </div>
-        <h2 className="mt-1 font-kr text-[18px] font-semibold text-ink">{cfg.name}</h2>
-        <p className="mt-2 font-kr text-[12px] leading-[1.6] text-[rgba(10,10,11,0.5)]">
-          {metadata.productName || '제품명 미입력'} · {(metadata.categories ?? []).join(', ') || '카테고리 미선택'}
-        </p>
-      </div>
-
-      <div className="border-b border-[rgba(10,10,11,0.08)] px-5 py-4">
-        <div className="mb-3 font-en text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgba(10,10,11,0.35)]">
-          포함 내역
-        </div>
-        <div className="flex flex-col gap-2.5">
-          {cfg.files.map(file => (
-            <div key={file.name} className="flex items-start gap-2.5">
-              <Check size={13} className="mt-[2px] flex-shrink-0 text-heritage-500" strokeWidth={2.5} />
-              <div>
-                <div className="font-kr text-[13px] font-medium text-ink">{file.name}</div>
-                <div className="font-kr text-[11px] text-[rgba(10,10,11,0.43)]">{file.use}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="px-5 py-5">
-        <div className="flex items-end justify-between gap-4">
-          <span className="font-kr text-[13px] text-[rgba(10,10,11,0.48)]">결제 금액</span>
-          <span className="font-en text-[32px] font-bold leading-none tracking-normal text-heritage-500 tabular-nums">
-            {fmtKRW(cfg.price)}<span className="ml-1 font-kr text-[14px] font-medium text-[rgba(10,10,11,0.45)]">원</span>
-          </span>
-        </div>
-        <p className="mt-2 font-kr text-[11px] text-[rgba(10,10,11,0.36)]">1회 발급 · 부가세 포함</p>
-      </div>
-    </section>
-  )
-}
-
-// ─── TEST MODE: 결제 스킵 (테스트 시에만 true) ────────────────────────────────
-const TEST_MODE = true
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 export default function Payment() {
   const navigate = useNavigate()
   const location = useLocation()
-
-  const [paying, setPaying] = useState(false)
-  const [error, setError]   = useState<string | null>(null)
   const [agreed, setAgreed] = useState(false)
+  const [paying, setPaying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
-  const state = location.state as PaymentRouteState
-  if (!state?.ingredients || !state?.metadata) return <Navigate to="/" replace />
+  const state = (location.state ?? readSession<PaymentState>(PAYMENT_STATE_KEY)) as PaymentState | null
+  if (!state?.ingredients || !state?.metadata) return <Navigate to="/creator" replace />
 
-  const { ingredients, metadata, creatorData } = state
-  const service = normalizeService(state)
-  const tier    = serviceToTier(service)
-  const cfg     = SERVICES[service]
+  const service: ServiceType = state.service === 'basic' ? 'basic' : 'pro'
+  const cfg = SERVICE[service]
+  const m = state.metadata
+  const back = () => navigate('/review', { state })
 
-  // ── 결제 핸들러 ─────────────────────────────────────────────────────────────
   const handlePay = async () => {
     if (paying || !agreed) return
     setPaying(true)
     setError(null)
+    writeSession(PAYMENT_STATE_KEY, { ...state, service })
 
-    // TEST_MODE: 결제 스킵 → PaymentComplete로 직행
     if (TEST_MODE) {
-      navigate('/payment/complete', {
-        replace: true,
-        state: { ingredients, metadata, service, tier, creatorData, success: true },
-      })
+      navigate('/payment/complete', { replace: true, state: { ...state, service, success: true } })
       return
     }
 
     try {
       const res = await fetch(LS_CHECKOUT_FN, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        },
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
         body: JSON.stringify({
           variantId: LS_VARIANT[service],
           userId: null,
-          redirectUrl: `${window.location.origin}/payment/complete`,
+          // 결제가 끝나야만 이 주소로 돌아옴 → paid=1로 완료 화면 판별
+          redirectUrl: `${window.location.origin}/payment/complete?paid=1`,
         }),
       })
-
       if (!res.ok) throw new Error('checkout_failed')
       const { checkoutUrl } = await res.json()
-
-      // sessionStorage 보존 (redirect 복귀 후 사용)
-      sessionStorage.setItem(
-        'krk_payment_state',
-        JSON.stringify({ ingredients, metadata, service, tier, creatorData }),
-      )
-
       window.location.href = checkoutUrl
     } catch (e) {
       console.error('[LemonSqueezy] 결제 요청 실패', e)
-      setError('결제 페이지를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.')
+      setError('결제창을 열지 못했어요. 잠시 후 다시 시도해 주세요.')
       setPaying(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-[#F4F4F5]">
-      <Header onBack={() => navigate(-1)} />
+    <div className="lp">
+      <AppHeader mode="flow" current={3} />
+      <main className="lp-page lp-page-pb">
+        <button type="button" className="lp-back" onClick={back}>← 검토 결과로 돌아가기</button>
+        <div className="lp-py-ph">
+          <h1 className="lp-h1">결제하고 결과 받기</h1>
+          <p className="lp-sub">결제가 끝나면 바로 항목별 결과와 파일을 받을 수 있어요.</p>
+        </div>
 
-      <main className="mx-auto max-w-[1180px] px-5 py-8 md:px-8 md:py-12">
-        <header className="mb-7 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="lp-py-grid">
           <div>
-            <div className="font-en text-[11px] font-semibold uppercase tracking-[0.16em] text-[rgba(10,10,11,0.38)]">
-              결제 · CHECKOUT
-            </div>
-            <h1 className="mt-2 font-kr text-[26px] font-semibold tracking-[-0.018em] text-ink md:text-[34px]">
-              결제하고 파일 받기
-            </h1>
-            <p className="mt-2 font-kr text-[13px] leading-[1.7] text-[rgba(10,10,11,0.55)]">
-              결제 완료 즉시 파일이 준비됩니다. 입력한 제품 정보는 다운로드 화면까지 이어집니다.
-            </p>
-          </div>
-          <div className="flex items-center gap-2 border border-[rgba(10,10,11,0.08)] bg-white px-3 py-2 font-en text-[11px] font-semibold uppercase tracking-[0.12em] text-[rgba(10,10,11,0.42)]">
-            <LockKeyhole size={13} className="text-heritage-500" />
-            SSL · Lemon Squeezy
-          </div>
-        </header>
-
-        <div className="grid grid-cols-1 gap-7 md:grid-cols-[1fr_1.05fr]">
-          <OrderSummary metadata={metadata} service={service} />
-
-          <section className="border border-[rgba(10,10,11,0.1)] bg-white">
-            <div className="border-b border-[rgba(10,10,11,0.08)] px-5 py-4">
-              <div className="flex items-center gap-2">
-                <CreditCard size={16} className="text-heritage-500" />
-                <h2 className="font-kr text-[15px] font-semibold text-ink">결제 수단</h2>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-4 px-5 py-5">
-              {error && (
-                <div className="flex items-start gap-2 border border-[#B30000] bg-[rgba(179,0,0,0.04)] px-4 py-3">
-                  <AlertCircle size={14} className="mt-0.5 flex-shrink-0 text-[#B30000]" />
-                  <p className="font-kr text-[12px] text-[#B30000]">{error}</p>
+            <section className="lp-card" aria-labelledby="py-order">
+              <h2 id="py-order">주문 내용</h2>
+              <div className="lp-py-prod">
+                <div className="thumb" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M8 3h8l-1 4H9z" /><rect x="6" y="7" width="12" height="14" rx="3" /><path d="M9 13h6M9 16h4" /></svg>
                 </div>
+                <div>
+                  <b>{m.productName || '이름 없는 제품'}</b>
+                  <span>{[(m.categories ?? []).map(c => c.replace(/\//g, ' · ')).join(', '), m.totalWeight && `${m.totalWeight}${m.unit}`, state.reviewId && `검토번호 ${state.reviewId}`].filter(Boolean).join(' · ')}</span>
+                </div>
+              </div>
+              <div className="lp-py-svc">
+                <span className="nm">{cfg.name}{service === 'pro' && <span className="lp-badge">추천</span>}</span>
+                <Link to="/review#svc" state={state}>서비스 변경</Link>
+              </div>
+              <ul className="lp-py-inc">
+                {INCLUDES[service].map(x => (
+                  <li key={x.t}><i>{x.i}</i><span>{x.t}<small>{x.s}</small></span></li>
+                ))}
+              </ul>
+            </section>
+            <section className="lp-card" aria-labelledby="py-how">
+              <h2 id="py-how">결제는 이렇게 진행돼요</h2>
+              <div className="lp-py-how">
+                <div><b>1</b><span>결제 버튼을 누르면 보안 결제창으로 이동해요</span></div>
+                <div><b>2</b><span>카드 또는 간편결제로 결제해요</span></div>
+                <div><b>3</b><span>자동으로 돌아와 결과와 파일이 열려요</span></div>
+              </div>
+            </section>
+          </div>
+
+          <aside className="lp-py-box" aria-labelledby="py-pay">
+            <h2 id="py-pay">결제 금액</h2>
+            <div className="ln"><span>{cfg.name} 서비스 · 1제품</span><span>{won(cfg.price)}원</span></div>
+            <div className="ln tot"><span>총 결제 금액</span><b>{won(cfg.price)}<small>원</small></b></div>
+            <div className="vat">1회 결제 · 구독 없음</div>
+            {/* 결제 전 환불 고지 (전자상거래법 제17조 제2항 — 디지털 콘텐츠 청약철회 제한 사전 안내) */}
+            <div className="rf">
+              <h3>결제 전 환불 안내</h3>
+              <ul>
+                <li>결제 후 7일 이내, 결과 · 파일을 <b>열람하거나 내려받지 않았다면 전액 환불</b>돼요.</li>
+                <li>결과물은 결제 즉시 제공되는 디지털 콘텐츠라, <b>열람 · 다운로드 후에는 환불이 제한</b>돼요.</li>
+              </ul>
+              <label className="lp-check">
+                <input type="checkbox" checked={agreed} onChange={e => setAgreed(e.target.checked)} />
+                <span className="lp-bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
+                <span>위 내용과 <a href="/#refund" target="_blank" rel="noopener">환불정책</a>을 확인했어요 <span className="lp-req-t">(필수)</span></span>
+              </label>
+            </div>
+            {error && <div className="lp-alert">{error}</div>}
+            <button type="button" className="lp-btn lp-btn-blue lp-btn-block lp-py-pay" disabled={!agreed || paying} onClick={handlePay}>
+              {paying ? <span className="lp-spin" /> : (
+                <>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>
+                  {won(cfg.price)}원 결제하기
+                </>
               )}
-
-              {/* 결제 플로우 안내 */}
-              <div className="border border-[rgba(10,10,11,0.09)] bg-[#F8F8F8] p-6">
-                <p className="mb-5 font-en text-[10px] font-semibold uppercase tracking-[0.14em] text-[rgba(10,10,11,0.35)]">
-                  결제 진행 방식
-                </p>
-
-                {/* Step flow */}
-                <div className="flex items-start justify-between gap-2">
-                  {[
-                    { icon: '🔒', step: 'STEP 1', text: '아래 버튼\n클릭' },
-                    { icon: '💳', step: 'STEP 2', text: '보안 결제창\n이동 후 결제' },
-                    { icon: '📦', step: 'STEP 3', text: '파일 자동\n준비 완료' },
-                  ].map((s, i) => (
-                    <div key={s.step} className="flex flex-1 items-start gap-2">
-                      <div className="flex flex-1 flex-col items-center gap-2 text-center">
-                        <div className="flex h-11 w-11 items-center justify-center rounded-full border border-[rgba(0,45,114,0.15)] bg-[rgba(0,45,114,0.05)] text-[20px]">
-                          {s.icon}
-                        </div>
-                        <span className="font-en text-[9px] font-bold tracking-[0.1em] text-heritage-500">
-                          {s.step}
-                        </span>
-                        <span className="whitespace-pre-line font-kr text-[11px] leading-[1.5] text-[rgba(10,10,11,0.55)]">
-                          {s.text}
-                        </span>
-                      </div>
-                      {i < 2 && (
-                        <span className="mt-5 flex-shrink-0 text-[14px] text-[rgba(10,10,11,0.2)]">›</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-
-                {/* 결제 수단 배지 */}
-                <div className="mt-5 flex flex-wrap justify-center gap-2">
-                  {['Visa', 'Mastercard', 'Apple Pay', 'Google Pay'].map(m => (
-                    <span
-                      key={m}
-                      className="rounded border border-[rgba(10,10,11,0.1)] bg-white px-3 py-1 font-en text-[11px] font-medium text-[rgba(10,10,11,0.45)]"
-                    >
-                      {m}
-                    </span>
-                  ))}
-                </div>
-
-                {/* 보안 배지 */}
-                <div className="mt-4 flex items-center justify-center gap-1.5 rounded bg-[rgba(0,45,114,0.05)] px-4 py-2.5 text-center">
-                  <LockKeyhole size={12} className="flex-shrink-0 text-heritage-500" />
-                  <span className="font-kr text-[11px] text-[rgba(0,45,114,0.75)]">
-                    SSL 보안 결제 · Lemon Squeezy 제공 · 결제 후 자동으로 돌아옵니다
-                  </span>
-                </div>
-              </div>
-
-              {/* 결제 전 환불 고지 (전자상거래법 제17조 제2항 — 디지털 콘텐츠 청약철회 제한 사전 안내) */}
-              <div className="border border-[rgba(10,10,11,0.1)] bg-[#FAFAFA] px-4 py-4">
-                <p className="font-kr text-[13px] font-semibold text-ink">결제 전 환불 안내</p>
-                <ul className="mt-2 list-disc space-y-1 pl-4 font-kr text-[12px] leading-[1.7] text-[rgba(10,10,11,0.6)]">
-                  <li>결제 후 7일 이내, 결과·파일을 열람하거나 내려받지 않았다면 전액 환불됩니다.</li>
-                  <li>결과물은 결제 즉시 제공되는 디지털 콘텐츠로, 열람·다운로드 후에는 환불이 제한됩니다.</li>
-                </ul>
-                <label className="mt-3 flex cursor-pointer items-start gap-2">
-                  <input
-                    type="checkbox"
-                    checked={agreed}
-                    onChange={e => setAgreed(e.target.checked)}
-                    className="mt-[3px] h-4 w-4 flex-shrink-0 accent-[#3358EE]"
-                  />
-                  <span className="font-kr text-[12px] leading-[1.6] text-ink">
-                    위 내용과{' '}
-                    <a href="/pricing#refund" target="_blank" rel="noopener" className="font-semibold text-[#3358EE] underline">
-                      환불정책
-                    </a>
-                    을 확인했습니다. (필수)
-                  </span>
-                </label>
-              </div>
-
-              <button
-                onClick={handlePay}
-                disabled={paying || !agreed}
-                className="btn-heritage mt-1 flex h-14 w-full items-center justify-center gap-2 text-[14px] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {paying ? (
-                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                ) : (
-                  `${fmtKRW(cfg.price)}원 결제하기`
-                )}
-              </button>
-
-              <p className="text-center font-kr text-[11px] leading-[1.65] text-[rgba(10,10,11,0.36)]">
-                SSL 보안 결제 · 결제 완료 즉시 다운로드 화면으로 이동합니다.
-              </p>
+            </button>
+            <p className="hint">{agreed ? '결제창으로 이동해요 · 결제 후 자동으로 돌아와요' : '환불 안내에 동의하면 결제할 수 있어요'}</p>
+            <div className="methods"><span>신용 · 체크카드</span><span>Apple Pay</span><span>Google Pay</span></div>
+            <div className="secure">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z" /></svg>
+              SSL 보안 결제 · Lemon Squeezy 결제창
             </div>
-          </section>
+          </aside>
         </div>
       </main>
     </div>

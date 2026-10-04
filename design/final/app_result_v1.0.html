@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>검토 결과 · 파일 — 라벨패스 LabelPass</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--green-50:#E8F6EF;--amber:#C98200;--amber-50:#FFF4DC;--red:#E0413A;--red-50:#FDECEA;--r:20px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:var(--soft);font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+/* 앱 헤더 (공통) */
+.ah{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+.ah-in{max-width:1240px;margin:0 auto;padding:0 32px;height:68px;display:flex;align-items:center;gap:32px}
+.ah-logo img{height:34px;width:auto;display:block}
+.flow{margin:0 auto;font-size:14px;font-weight:700;color:var(--ink-3)}
+.flow ol{display:flex;gap:6px;margin:0;padding:0}
+.flow li{display:flex;align-items:center;gap:8px;list-style:none}
+.flow .n{width:24px;height:24px;border-radius:50%;border:1.5px solid #C9D0DC;display:grid;place-items:center;font-size:12px}
+.flow li.done{color:var(--ink-2)}
+.flow li.done .n{background:var(--blue-50);border-color:var(--blue-100);color:var(--blue)}
+.flow li.cur{color:var(--navy)}
+.flow li.cur .n{background:var(--blue);border-color:var(--blue);color:#fff}
+.flow li+li::before{content:"";width:28px;height:1.5px;background:var(--line);margin-right:6px}
+.ah-util{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.ah-util a{padding:8px 12px;border-radius:10px}
+.ah-util a:hover{background:var(--soft);color:var(--navy)}
+
+.page{max-width:1240px;margin:0 auto;padding:36px 32px 120px}
+
+
+
+.rv{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:60;display:flex;gap:4px;background:var(--navy);padding:5px;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.rv a{white-space:nowrap;color:rgba(255,255,255,.7);font-size:13px;font-weight:700;padding:8px 12px;border-radius:8px}
+.rv a.on{background:#fff;color:var(--navy)}
+.done-bn{display:flex;align-items:center;gap:18px;background:#fff;border:1px solid var(--line);border-radius:24px;padding:24px 28px;margin-bottom:24px}
+.done-bn .ck{width:56px;height:56px;border-radius:50%;background:var(--green-50);display:grid;place-items:center;flex-shrink:0}
+.done-bn .ck svg{width:28px;height:28px;stroke:var(--green);fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.done-bn h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.04em;line-height:1.3}
+.done-bn p{margin:4px 0 0;font-size:14px;color:var(--ink-3)}
+.done-bn .acts{margin-left:auto;display:flex;gap:8px;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:46px;padding:0 18px;border-radius:12px;font-weight:700;font-size:15px}
+.btn-line{border:1.5px solid var(--line);background:#fff}.btn-line:hover{border-color:var(--navy)}
+.btn-blue{background:var(--blue);color:#fff}.btn-blue:hover{background:#2547d6}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:24px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px 28px;margin-bottom:16px}
+.card-h{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+.card h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.flt{display:flex;gap:6px;flex-wrap:wrap}
+.flt button{height:34px;padding:0 12px;border-radius:999px;border:1.5px solid var(--line);font-size:13px;font-weight:700;color:var(--ink-2);background:#fff}
+.flt button.on{border-color:var(--navy);background:var(--navy);color:#fff}
+.cnt{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.cnt span{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;border-radius:10px;padding:6px 12px}
+.c-r{background:var(--red-50);color:var(--red)}.c-a{background:var(--amber-50);color:var(--amber)}.c-g{background:var(--green-50);color:var(--green)}
+.it{border:1px solid var(--line);border-radius:16px;margin-bottom:10px;overflow:hidden}
+.it-h{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:16px 18px;font-size:16px;font-weight:700}
+.it-h .no{font-size:13px;color:var(--ink-3);min-width:22px}
+.tag{font-size:12px;font-weight:800;border-radius:999px;padding:3px 10px;flex-shrink:0}
+.t-r{background:var(--red-50);color:var(--red)}.t-a{background:var(--amber-50);color:var(--amber)}.t-g{background:var(--green-50);color:var(--green)}
+.it-h .chev{margin-left:auto;width:20px;height:20px;stroke:var(--ink-3);fill:none;stroke-width:2;stroke-linecap:round;transition:transform .2s;flex-shrink:0}
+.it.open .chev{transform:rotate(180deg)}
+.it-b{display:none;border-top:1px solid var(--line);padding:18px 18px 20px 52px;background:#FBFCFE}
+.it.open .it-b{display:block}
+.row{margin-bottom:14px}
+.row:last-child{margin-bottom:0}
+.row b{display:block;font-size:13px;color:var(--ink-3);margin-bottom:4px}
+.row p{margin:0;font-size:15px}
+.sugg{display:flex;justify-content:space-between;gap:12px;align-items:center;background:#fff;border:1.5px dashed var(--blue-100);border-radius:12px;padding:12px 14px;font-size:15px;font-weight:600}
+.copy{flex-shrink:0;height:32px;padding:0 12px;border-radius:8px;background:var(--blue-50);color:var(--blue);font-size:13px;font-weight:700}
+.law{display:flex;flex-wrap:wrap;gap:8px 16px;font-size:13px;color:var(--ink-2)}
+.law span{background:var(--soft);border-radius:8px;padding:4px 10px}
+.lockrow{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:12px;padding:12px 14px;font-size:14px;color:var(--ink-2)}
+.ok-list{border:1px solid var(--line);border-radius:16px;padding:6px 18px}
+.ok-list summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:12px 0;font-size:15px;font-weight:700}
+.ok-list summary::-webkit-details-marker{display:none}
+.ok-list ul{margin:0 0 12px;padding:0;list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;font-size:14px;color:var(--ink-2)}
+.ok-list li::before{content:"✓ ";color:var(--green);font-weight:800}
+.notice{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;font-size:13.5px;color:var(--ink-2)}
+.notice b{color:var(--navy)}
+
+.side{position:sticky;top:92px}
+.dl{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.dl:first-of-type{border-top:0}
+.dl i{width:42px;height:42px;border-radius:11px;background:var(--blue-50);color:var(--blue);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;flex-shrink:0}
+.dl span{font-size:15px;font-weight:700;line-height:1.35}
+.dl small{display:block;font-size:12px;font-weight:500;color:var(--ink-3)}
+.dl a{margin-left:auto;width:38px;height:38px;border-radius:10px;border:1.5px solid var(--line);display:grid;place-items:center;flex-shrink:0}
+.dl a:hover{border-color:var(--blue);color:var(--blue)}
+.dl a svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dl.off{opacity:.45}
+.all{width:100%;margin-top:12px;height:52px}
+.re{background:linear-gradient(135deg,var(--navy),#24305a);color:#fff;border:0}
+.re h2{color:#fff;font-size:18px}
+.re p{margin:6px 0 14px;font-size:14px;color:rgba(255,255,255,.72)}
+.re .d{display:inline-block;font-size:12px;font-weight:800;background:rgba(255,255,255,.14);border-radius:999px;padding:3px 10px;margin-bottom:10px}
+.re .btn{background:#fff;color:var(--navy);width:100%}
+.txt textarea{width:100%;height:120px;border:1.5px solid var(--line);border-radius:12px;padding:12px;font:inherit;font-size:13px;color:var(--ink-2);resize:vertical;background:var(--soft)}
+
+/* 실패 */
+.fail{max-width:560px;margin:40px auto;text-align:center;background:#fff;border:1px solid var(--line);border-radius:24px;padding:48px 36px}
+.fail .ck{width:64px;height:64px;border-radius:50%;background:var(--red-50);display:grid;place-items:center;margin:0 auto 18px}
+.fail .ck svg{width:30px;height:30px;stroke:var(--red);fill:none;stroke-width:2.6;stroke-linecap:round}
+.fail h1{margin:0;font-size:26px;font-weight:800;letter-spacing:-0.04em}
+.fail p{margin:10px 0 26px;color:var(--ink-2)}
+.fail .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.fail small{display:block;margin-top:18px;font-size:13px;color:var(--ink-3)}
+
+.view{display:none}.view.on{display:block}
+@media (max-width:1024px){.grid{grid-template-columns:1fr}.side{position:static}.flow li:not(.cur) .t{display:none}}
+@media (max-width:720px){
+ .done-bn{flex-wrap:wrap;padding:20px}
+ .done-bn .acts{margin:0;width:100%}.done-bn .acts .btn{flex:1}
+ .done-bn h1{font-size:21px}
+ .card{padding:20px 16px}
+ .card-h{flex-direction:column;align-items:flex-start}
+ .it-b{padding:16px}
+ .ok-list ul{grid-template-columns:1fr}
+ .sugg{flex-direction:column;align-items:flex-start}
+}
+@media (max-width:720px){
+ .ah-in{padding:0 16px;gap:12px;height:60px}
+ .ah-logo img{height:30px}
+ .flow{font-size:13px}.flow li+li::before{width:8px;margin-right:2px}.flow ol{gap:4px}.flow li{gap:5px}
+ .flow .t{white-space:nowrap}
+ .ah-util a{padding:8px 4px;white-space:nowrap}
+ .ah-util a:first-child{display:none}
+ .page{padding:20px 16px 60px}
+ .ph h1{font-size:26px}
+ .card,.paybox{padding:22px 18px}
+ .inc,.how{grid-template-columns:1fr}
+}
+@media (max-width:400px){.ah-in{gap:8px;padding:0 12px}.ah-logo img{height:26px}.flow .n{width:22px;height:22px}}
+</style>
+</head>
+<body>
+
+<header class="ah">
+ <div class="ah-in">
+  <a class="ah-logo" href="/" aria-label="라벨패스 홈"><img src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스"></a>
+  <nav class="flow" aria-label="진행 단계"><ol>
+   <li class="done"><span class="n">✓</span><span class="t">입력</span></li>
+   <li class="done"><span class="n">✓</span><span class="t">검토 결과</span></li>
+   <li class="done"><span class="n">✓</span><span class="t">결제</span></li>
+   <li class="cur" aria-current="step"><span class="n">4</span><span class="t">결과</span></li>
+  </ol></nav>
+  <div class="ah-util"><a href="/dashboard">마이페이지</a><a href="#">로그아웃</a></div>
+ </div>
+</header>
+
+<main class="page">
+ <section class="view on" id="v-ok">
+  <div class="done-bn">
+   <div class="ck"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div>
+   <div><h1>결제가 완료됐어요 · <span id="plan">전문</span></h1><p>수제 딸기잼 · LP-20261004-A3F9 · 2026.10.04 · 마이페이지에 1년 동안 보관돼요</p></div>
+   <div class="acts"><a class="btn btn-line" href="#">영수증</a><a class="btn btn-line" href="app_dashboard_v1.0.html">마이페이지</a></div>
+  </div>
+  <div class="grid">
+   <div>
+    <section class="card" aria-labelledby="h-r">
+     <div class="card-h"><h2 id="h-r">항목별 검토 결과</h2>
+      <div class="flt" role="group" aria-label="결과 필터"><button class="on" data-f="all">전체 17</button><button data-f="t-r">수정 필요 1</button><button data-f="t-a">확인 권장 2</button><button data-f="t-g">기준 충족 14</button></div></div>
+     <div id="list"><div class="it open" data-k="t-r"><button class="it-h" aria-expanded="true"><span class="no">10</span><span class="tag t-r">수정 필요</span>제조업소 정보 표시<svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+     <div class="it-b">
+      <div class="row"><b>왜 문제인가요</b><p>라벨에 제조원 소재지가 없어요. 제조업소명 · 소재지 · 신고번호는 모두 표시해야 해요.</p></div>
+      <div class="pro row"><b>이렇게 고치세요</b><p>제조원 이름 옆에 소재지(도로명 주소)와 품목제조보고번호를 함께 적어 주세요.</p></div>
+      <div class="pro row"><b>라벨 권장 문구</b><div class="sugg"><span>제조원: 딸기공방 / 소재지: [도로명 주소]</span><button class="copy">복사</button></div></div>
+      <div class="pro row"><b>근거 · 참고</b><div class="law"><span>식품등의 표시기준 제3조 제6항</span><span>과태료 참고 100만~300만 원</span></div></div>
+      <div class="basic-lock row lockrow">🔒 수정 방법 · 권장 문구 · 근거 법령은 전문 서비스에서 제공돼요.</div>
+     </div></div><div class="it" data-k="t-a"><button class="it-h" aria-expanded="false"><span class="no">06</span><span class="tag t-a">확인 권장</span>복합원재료 원산지 · 성분 표시<svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+     <div class="it-b">
+      <div class="row"><b>왜 문제인가요</b><p>'레몬즙'에 첨가물이 들어 있다면 복합원재료라 구성 원재료를 함께 적어야 해요.</p></div>
+      <div class="pro row"><b>이렇게 고치세요</b><p>구입한 레몬즙 규격서를 확인해 구성 원재료를 괄호 안에 함량 순으로 적어 주세요.</p></div>
+      <div class="pro row"><b>라벨 권장 문구</b><div class="sugg"><span>레몬즙(레몬과즙 ○○%, 구연산)</span><button class="copy">복사</button></div></div>
+      <div class="pro row"><b>근거 · 참고</b><div class="law"><span>식품등의 표시기준 제4조 제1항 제3호 나목</span><span>과태료 참고 50만~200만 원</span></div></div>
+      <div class="basic-lock row lockrow">🔒 수정 방법 · 권장 문구 · 근거 법령은 전문 서비스에서 제공돼요.</div>
+     </div></div><div class="it" data-k="t-a"><button class="it-h" aria-expanded="false"><span class="no">17</span><span class="tag t-a">확인 권장</span>영양강조 표시<svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></button>
+     <div class="it-b">
+      <div class="row"><b>왜 문제인가요</b><p>'무가당' 같은 영양강조 표현을 쓰면 영양성분 9가지를 함께 표시해야 해요.</p></div>
+      <div class="pro row"><b>이렇게 고치세요</b><p>영양성분표를 라벨에 넣거나, '무가당' 표현을 빼 주세요. 원재료에 당류가 있으면 '무가당'은 쓸 수 없어요.</p></div>
+      <div class="pro row"><b>라벨 권장 문구</b><div class="sugg"><span>영양정보 (총 내용량 240g / 1회 제공량 20g) 표 추가</span><button class="copy">복사</button></div></div>
+      <div class="pro row"><b>근거 · 참고</b><div class="law"><span>식품등의 표시기준 영양강조표시 조항</span><span>과태료 참고 시정명령 ~ 영업정지</span></div></div>
+      <div class="basic-lock row lockrow">🔒 수정 방법 · 권장 문구 · 근거 법령은 전문 서비스에서 제공돼요.</div>
+     </div></div>
+      <details class="ok-list" data-k="t-g" open><summary><span class="tag t-g">기준 충족</span>14개 항목은 지금 그대로 괜찮아요</summary><ul><li>제품명 표시</li><li>내용량 표시</li><li>원재료명 및 함량 순서</li><li>주원료 함량 표시</li><li>알레르기 유발물질 표시</li><li>소비기한 표시</li><li>보관방법 표시</li><li>영양성분표 표시</li><li>포장재질 표시</li><li>부당 표시 · 광고 문구</li><li>분리배출 마크 의무 여부</li><li>분리배출 마크 재질 표기</li><li>다중 포장재 분리배출</li><li>원산지 굵게 표시</li></ul></details>
+     </div>
+    </section>
+    <div class="notice"><span>ⓘ</span><span>검토 결과는 입력한 정보를 바탕으로 한 <b>자율 점검 참고 자료</b>이며, 법적 적합성을 보증하지 않습니다. 과태료는 법령상 범위를 참고로 안내한 것이에요.</span></div>
+   </div>
+   <aside class="side">
+    <section class="card" aria-labelledby="h-dl">
+     <div class="card-h"><h2 id="h-dl">파일 받기</h2></div>
+     <div class="dl "><i>PDF</i><span>라벨 PDF<small>인쇄용 · 디자이너 전달</small></span><a href="#" aria-label="라벨 PDF 받기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a></div>
+     <div class="dl "><i>PNG</i><span>라벨 PNG<small>고해상도 이미지</small></span><a href="#" aria-label="라벨 PNG 받기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a></div>
+     <div class="dl pro-dl"><i>리포트</i><span>검토 리포트 PDF<small>17개 항목 결과 · 근거 법령</small></span><a href="#" aria-label="검토 리포트 PDF 받기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a></div>
+     <div class="dl pro-dl"><i>신고</i><span>정부24 신고 가이드<small>품목제조보고 입력 순서</small></span><a href="#" aria-label="정부24 신고 가이드 받기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a></div>
+     <div class="dl pro-dl"><i>ZIP</i><span>분리배출 마크<small>유리 · PP 도안</small></span><a href="#" aria-label="분리배출 마크 받기"><svg viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg></a></div>
+     <a class="btn btn-blue all" href="#">전체 한 번에 받기 (ZIP)</a>
+    </section>
+    <section class="card txt" aria-labelledby="h-tx">
+     <div class="card-h"><h2 id="h-tx">표시사항 텍스트</h2><button class="copy">전체 복사</button></div>
+     <textarea readonly>제품명: 수제 딸기잼
+식품유형: 잼류
+내용량: 240g
+원재료명: 딸기(국산) 62.5%, 유기농 원당(브라질산), 레몬즙, 버터(뉴질랜드산)
+알레르기 유발물질: 우유 함유
+소비기한: 2027.01.31까지
+보관방법: 냉장 보관(0~10℃)
+제조원: 딸기공방</textarea>
+    </section>
+    <section class="card re pro-only" aria-labelledby="h-re">
+     <span class="d">D-30 · 1회 남음</span>
+     <h2 id="h-re">수정본 재검토 1회 무료</h2>
+     <p>라벨을 고친 뒤 같은 제품을 한 번 더 검토받을 수 있어요. 2026.11.03까지</p>
+     <a class="btn" href="app_creator_v1.0.html#s4">수정본 재검토 받기</a>
+    </section>
+   </aside>
+  </div>
+ </section>
+
+ <section class="view" id="v-fail">
+  <div class="fail">
+   <div class="ck"><svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7 7 17"/></svg></div>
+   <h1>결제를 완료하지 못했어요</h1>
+   <p>결제창이 닫혔거나 승인이 거절됐어요. 결제된 금액은 없어요.<br>입력한 내용과 검토 결과는 그대로 남아 있어요.</p>
+   <div class="acts"><a class="btn btn-blue" href="app_payment_v1.0.html">다시 결제하기</a><a class="btn btn-line" href="app_review_v1.0.html">검토 결과로 돌아가기</a></div>
+   <small>계속 실패하면 <a href="/contact" style="text-decoration:underline">문의</a>로 알려 주세요.</small>
+  </div>
+ </section>
+</main>
+
+<nav class="rv" aria-label="시안 화면 전환"><a href="#pro">전문 결제</a><a href="#basic">기본 결제</a><a href="#fail">결제 실패</a></nav>
+
+<script>
+(function(){
+ var ok=document.getElementById('v-ok'),fl=document.getElementById('v-fail'),plan=document.getElementById('plan');
+ function show(){var h=location.hash.slice(1)||'pro',basic=h==='basic';
+  ok.classList.toggle('on',h!=='fail');fl.classList.toggle('on',h==='fail');plan.textContent=basic?'기본':'전문';
+  [].forEach.call(document.querySelectorAll('.pro,.pro-only'),function(e){e.style.display=basic?'none':''});
+  [].forEach.call(document.querySelectorAll('.basic-lock'),function(e){e.style.display=basic?'':'none'});
+  [].forEach.call(document.querySelectorAll('.pro-dl'),function(e){e.style.display=basic?'none':''});
+  [].forEach.call(document.querySelectorAll('.rv a'),function(a){a.classList.toggle('on',a.getAttribute('href')==='#'+h)});window.scrollTo(0,0)}
+ window.addEventListener('hashchange',show);show();
+ [].forEach.call(document.querySelectorAll('.it-h'),function(b){b.addEventListener('click',function(){var o=b.parentNode.classList.toggle('open');b.setAttribute('aria-expanded',o)})});
+ var fb=[].slice.call(document.querySelectorAll('.flt button'));
+ fb.forEach(function(b){b.addEventListener('click',function(){fb.forEach(function(x){x.classList.toggle('on',x===b)});var f=b.dataset.f;
+  [].forEach.call(document.querySelectorAll('#list>[data-k]'),function(e){e.style.display=(f==='all'||e.dataset.k===f)?'':'none'})})});
+})();
+</script>
+<script src="assets/policies.js" defer></script>
+</body>
+</html>

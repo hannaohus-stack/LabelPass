@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>무료 검토 결과 — 라벨패스 LabelPass</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--green-50:#E8F6EF;--amber:#C98200;--amber-50:#FFF4DC;--red:#E0413A;--red-50:#FDECEA;--r:20px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:var(--soft);font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+/* 앱 헤더 (공통) */
+.ah{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+.ah-in{max-width:1240px;margin:0 auto;padding:0 32px;height:68px;display:flex;align-items:center;gap:32px}
+.ah-logo img{height:34px;width:auto;display:block}
+.flow{margin:0 auto;font-size:14px;font-weight:700;color:var(--ink-3)}
+.flow ol{display:flex;gap:6px;margin:0;padding:0}
+.flow li{display:flex;align-items:center;gap:8px;list-style:none}
+.flow .n{width:24px;height:24px;border-radius:50%;border:1.5px solid #C9D0DC;display:grid;place-items:center;font-size:12px}
+.flow li.done{color:var(--ink-2)}
+.flow li.done .n{background:var(--blue-50);border-color:var(--blue-100);color:var(--blue)}
+.flow li.cur{color:var(--navy)}
+.flow li.cur .n{background:var(--blue);border-color:var(--blue);color:#fff}
+.flow li+li::before{content:"";width:28px;height:1.5px;background:var(--line);margin-right:6px}
+.ah-util{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.ah-util a{padding:8px 12px;border-radius:10px}
+.ah-util a:hover{background:var(--soft);color:var(--navy)}
+
+.page{max-width:1240px;margin:0 auto;padding:36px 32px 120px}
+
+/* 결과 요약 */
+.hero{background:#fff;border:1px solid var(--line);border-radius:24px;padding:32px 36px;margin-bottom:24px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.prod{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;color:var(--ink-3)}
+.prod b{color:var(--navy);font-size:15px}
+.prod i{width:3px;height:3px;border-radius:50%;background:#C5CBD6}
+.hero h1{margin:10px 0 6px;font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-0.04em}
+.hero p{margin:0;color:var(--ink-2)}
+.edit{flex-shrink:0;display:inline-flex;align-items:center;gap:6px;height:42px;padding:0 16px;border:1.5px solid var(--line);border-radius:10px;font-size:14px;font-weight:700;color:var(--ink-2)}
+.edit:hover{border-color:var(--navy);color:var(--navy)}
+.cnt{display:grid;grid-template-columns:repeat(3,1fr) 1.1fr;gap:12px;margin-top:28px}
+.cnt>div{border-radius:18px;padding:20px 22px}
+.cnt b{display:block;font-size:44px;line-height:1.05;font-weight:800;letter-spacing:-0.04em}
+.cnt span{display:block;margin-top:6px;font-size:15px;font-weight:700}
+.cnt small{display:block;font-size:13px;font-weight:500;opacity:.8}
+.c-r{background:var(--red-50);color:var(--red)}
+.c-a{background:var(--amber-50);color:var(--amber)}
+.c-g{background:var(--green-50);color:var(--green)}
+.c-t{background:var(--soft);color:var(--navy);display:flex;flex-direction:column;justify-content:center}
+.c-t .bar{display:flex;height:10px;border-radius:999px;overflow:hidden;margin-top:12px;background:#fff}
+.c-t .bar i{display:block}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:18px;font-size:13px;color:var(--ink-3)}
+
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:24px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:28px 30px;margin-bottom:16px}
+.card h2{margin:0;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.card .desc{margin:4px 0 20px;font-size:14px;color:var(--ink-3)}
+
+/* 항목 목록 (잠김) */
+.items{border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative}
+.it{display:grid;grid-template-columns:44px minmax(0,1fr) 120px;align-items:center;gap:12px;min-height:52px;padding:0 18px;border-top:1px solid var(--line);font-size:15px}
+.it:first-child{border-top:0}
+.it .no{font-size:13px;font-weight:700;color:var(--ink-3)}
+.it .st{justify-self:end;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#B0B8C8}
+.it .st i{width:58px;height:22px;border-radius:999px;background:linear-gradient(90deg,#EEF0F4,#E4E8F0,#EEF0F4);filter:blur(1.5px)}
+.it .st svg{width:15px;height:15px;stroke:#B0B8C8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lock{position:absolute;left:0;right:0;bottom:0;height:62%;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding:0 24px 28px;text-align:center;background:linear-gradient(180deg,rgba(255,255,255,0),rgba(255,255,255,.92) 38%,#fff 70%)}
+.lock .ic{width:48px;height:48px;border-radius:14px;background:var(--navy);display:grid;place-items:center;margin-bottom:12px}
+.lock .ic svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lock b{font-size:18px;font-weight:800}
+.lock p{margin:6px 0 0;font-size:14px;color:var(--ink-2)}
+.grp{display:flex;align-items:center;gap:8px;padding:10px 18px;background:var(--soft);font-size:13px;font-weight:800;border-top:1px solid var(--line)}
+.grp:first-child{border-top:0}
+.dot{width:8px;height:8px;border-radius:50%}
+
+.notice{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 20px;font-size:14px;color:var(--ink-2)}
+.notice b{color:var(--navy)}
+
+/* 서비스 선택 */
+.svc{position:sticky;top:92px}
+.svc-card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:24px}
+.svc-card h2{margin:0 0 4px;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.svc-card .desc{margin:0 0 18px;font-size:14px;color:var(--ink-3)}
+.opt{position:relative;display:block;border:1.5px solid var(--line);border-radius:16px;padding:18px 18px 16px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,box-shadow .15s,background .15s}
+.opt:hover{border-color:#C9D0DC}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt.on{border-color:var(--blue);background:var(--blue-50);box-shadow:0 0 0 3px var(--blue-50)}
+.opt-h{display:flex;align-items:center;gap:10px}
+.rd{width:22px;height:22px;border-radius:50%;border:2px solid #C9D0DC;flex-shrink:0;display:grid;place-items:center}
+.opt.on .rd{border-color:var(--blue)}
+.opt.on .rd::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--blue)}
+.opt-h b{font-size:17px;font-weight:800}
+.badge{font-size:12px;font-weight:800;color:#fff;background:var(--blue);border-radius:999px;padding:2px 9px}
+.price{margin-left:auto;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.price small{font-size:13px;font-weight:600;color:var(--ink-3)}
+.for{margin:6px 0 0 32px;font-size:13px;color:var(--ink-2)}
+.opt ul{margin:12px 0 0 32px;padding:0;list-style:none;display:grid;gap:5px;font-size:14px}
+.opt li{display:flex;gap:8px;align-items:flex-start}
+.opt li::before{content:"";width:16px;height:16px;flex-shrink:0;margin-top:3px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233358EE' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/contain no-repeat}
+.opt li b{font-weight:800}
+.rec{display:flex;gap:8px;align-items:flex-start;background:var(--amber-50);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--ink-2);margin:0 0 14px}
+.rec b{color:var(--amber)}
+.pay{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:56px;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:800;margin-top:6px}
+.pay:hover{background:#2547d6}
+.svc-note{margin:12px 0 0;text-align:center;font-size:13px;color:var(--ink-3)}
+.svc-note a{text-decoration:underline;text-underline-offset:2px}
+.svc-more{display:block;text-align:center;margin-top:14px;font-size:14px;font-weight:700;color:var(--ink-2)}
+.svc-more:hover{color:var(--blue)}
+
+/* 모바일 결제 바 */
+.mbar{display:none}
+
+@media (max-width:1024px){
+ .grid{grid-template-columns:1fr}
+ .svc{position:static}
+ .cnt{grid-template-columns:repeat(3,1fr)}
+ .c-t{grid-column:1/-1}
+ .flow li:not(.cur) .t{display:none}
+}
+@media (max-width:720px){
+ .ah-in{padding:0 16px;gap:12px;height:60px}
+ .ah-logo img{height:30px}
+ .flow{font-size:13px}.flow li+li::before{width:8px;margin-right:2px}.flow ol{gap:4px}.flow li{gap:5px}
+ .flow .t{white-space:nowrap}
+ .ah-util a{padding:8px 4px;white-space:nowrap}
+ .ah-util a:first-child{display:none}
+ .page{padding:20px 16px 120px}
+ .hero{padding:24px 20px;border-radius:20px}
+ .hero-top{flex-direction:column;gap:14px}
+ .hero h1{font-size:25px}
+ .cnt{gap:8px}
+ .cnt>div{padding:14px 12px}
+ .cnt b{font-size:32px}
+ .cnt span{font-size:13px}
+ .cnt small{display:none}
+ .card{padding:22px 18px}
+ .it{grid-template-columns:30px minmax(0,1fr) 72px;padding:0 14px;font-size:14px}
+ .it .st i{width:44px}
+ .svc-card{padding:20px 16px}
+ .mbar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:40;align-items:center;gap:12px;background:rgba(255,255,255,.97);backdrop-filter:blur(8px);border-top:1px solid var(--line);padding:12px 16px}
+ .mbar span{font-size:13px;color:var(--ink-3);line-height:1.3}
+ .mbar span b{display:block;font-size:16px;color:var(--navy)}
+ .mbar a{margin-left:auto;height:50px;padding:0 20px;border-radius:12px;background:var(--blue);color:#fff;font-weight:800;display:flex;align-items:center}
+}
+@media (max-width:400px){.ah-in{gap:8px;padding:0 12px}.ah-logo img{height:26px}.flow .n{width:22px;height:22px}}
+</style>
+</head>
+<body>
+
+<header class="ah">
+ <div class="ah-in">
+  <a class="ah-logo" href="/" aria-label="라벨패스 홈"><img src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스"></a>
+  <nav class="flow" aria-label="진행 단계"><ol>
+   <li class="done"><span class="n">✓</span><span class="t">입력</span></li>
+   <li class="cur" aria-current="step"><span class="n">2</span><span class="t">검토 결과</span></li>
+   <li><span class="n">3</span><span class="t">결제</span></li>
+   <li><span class="n">4</span><span class="t">결과</span></li>
+  </ol></nav>
+  <div class="ah-util"><a href="/dashboard">마이페이지</a><a href="#">로그아웃</a></div>
+ </div>
+</header>
+
+<main class="page">
+ <section class="hero" aria-labelledby="h1">
+  <div class="hero-top">
+   <div>
+    <div class="prod"><b>수제 딸기잼</b><i></i>잼류<i></i>240g<i></i>식품제조 · 가공업</div>
+    <h1 id="h1">판매 전에 확인이 필요한 항목이 있어요</h1>
+    <p>17개 표시 항목을 검토했어요. 1개 항목은 라벨을 고쳐야 하고, 2개는 확인을 권장해요.</p>
+   </div>
+   <a class="edit" href="app_creator_v1.0.html#s4">✎ 입력 수정하기</a>
+  </div>
+  <div class="cnt">
+   <div class="c-r"><b>1</b><span>수정 필요</span><small>라벨을 고쳐야 해요</small></div>
+   <div class="c-a"><b>2</b><span>확인 권장</span><small>한 번 더 확인해 주세요</small></div>
+   <div class="c-g"><b>14</b><span>기준 충족</span><small>지금 그대로 괜찮아요</small></div>
+   <div class="c-t"><span style="margin:0">검토한 항목 <b style="display:inline;font-size:16px;letter-spacing:0">17개</b></span>
+    <div class="bar" aria-hidden="true"><i style="width:5.9%;background:var(--red)"></i><i style="width:11.8%;background:#F0B429"></i><i style="width:82.3%;background:var(--green)"></i></div>
+   </div>
+  </div>
+  <div class="meta"><span>검토번호 LP-20261004-A3F9</span><span>검토일 2026.10.04</span><span>기준: 식품표시광고법 · 식품등의 표시기준 · 원산지표시법 · 자원재활용법</span></div>
+ </section>
+
+ <div class="grid">
+  <div>
+   <section class="card" aria-labelledby="h-items">
+    <h2 id="h-items">항목별 검토 결과</h2>
+    <p class="desc">어떤 항목이 왜 문제인지는 기본 · 전문 서비스에서 확인할 수 있어요.</p>
+    <div class="items">
+     <div class="it"><span class="no">01</span><span>제품명 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">02</span><span>내용량 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">03</span><span>원재료명 및 함량 순서</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">04</span><span>주원료 함량 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">05</span><span>알레르기 유발물질 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">06</span><span>복합원재료 원산지 · 성분 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">07</span><span>소비기한 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">08</span><span>보관방법 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">09</span><span>영양성분표 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">10</span><span>제조업소 정보 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">11</span><span>포장재질 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">12</span><span>부당 표시 · 광고 문구</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">13</span><span>분리배출 마크 의무 여부</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">14</span><span>분리배출 마크 재질 표기</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">15</span><span>다중 포장재 분리배출</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">16</span><span>원산지 굵게 표시</span><span class="st"><i></i></span></div>
+     <div class="it"><span class="no">17</span><span>영양강조 표시</span><span class="st"><i></i></span></div>
+     <div class="lock">
+      <div class="ic"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <b>항목별 결과는 결제 후 열려요</b>
+      <p>어느 항목이 '수정 필요'인지, 무엇을 어떻게 고치면 되는지 확인하세요.</p>
+     </div>
+    </div>
+   </section>
+   <div class="notice"><span>ⓘ</span><span>검토 결과는 입력한 정보를 바탕으로 한 <b>자율 점검 참고 자료</b>이며, 식약처 등 관할 기관의 공식 인증이나 법적 적합성 보증이 아닙니다.</span></div>
+  </div>
+
+  <aside class="svc" aria-labelledby="h-svc">
+   <div class="svc-card">
+    <h2 id="h-svc">서비스 선택</h2>
+    <p class="desc">이 제품 1건 기준 · 한 번만 결제해요</p>
+    <div class="rec"><span>💡</span><span><b>수정 필요 항목이 있어요.</b> 고치는 방법과 근거 법령이 함께 필요하다면 전문을 추천해요.</span></div>
+    <label class="opt" data-p="9,900" data-n="기본"><input type="radio" name="svc">
+     <div class="opt-h"><span class="rd"></span><b>기본</b><span class="price">9,900<small>원</small></span></div>
+     <p class="for">문제가 없거나 직접 고칠 수 있을 때</p>
+     <ul><li>17개 <b>항목별 결과</b></li><li>라벨 PDF · PNG</li><li>표시사항 텍스트 복사</li><li>마이페이지 1년 보관</li></ul>
+    </label>
+    <label class="opt on" data-p="19,900" data-n="전문"><input type="radio" name="svc" checked>
+     <div class="opt-h"><span class="rd"></span><b>전문</b><span class="badge">추천</span><span class="price">19,900<small>원</small></span></div>
+     <p class="for">위반 · 주의 항목이 있거나 신고 · 입점을 준비할 때</p>
+     <ul><li><b>기본 전체 포함</b></li><li>수정 방법 · 근거 법령 · 과태료</li><li>검토 리포트 PDF</li><li>정부24 신고 가이드 · 분리배출 마크</li><li><b>30일 내 수정본 재검토 1회</b></li></ul>
+    </label>
+    <a class="pay" id="pay" href="#">전문 19,900원 결제하기</a>
+    <p class="svc-note">구독 없음 · 결제 전 <a href="/refund">환불 안내</a>를 확인해 주세요</p>
+    <a class="svc-more" href="/pricing" target="_blank">무료 · 기본 · 전문 한눈에 비교 →</a>
+   </div>
+  </aside>
+ </div>
+</main>
+
+<div class="mbar"><span>선택한 서비스<b id="mb-n">전문 19,900원</b></span><a href="#h-svc" id="mb-a">결제하기</a></div>
+
+<script>
+(function(){
+ var opts=[].slice.call(document.querySelectorAll('.opt')),pay=document.getElementById('pay'),mb=document.getElementById('mb-n');
+ opts.forEach(function(o){o.addEventListener('click',function(){opts.forEach(function(x){x.classList.toggle('on',x===o);x.querySelector('input').checked=x===o});var t=o.dataset.n+' '+o.dataset.p+'원';pay.textContent=t+' 결제하기';mb.textContent=t})});
+})();
+</script>
+<script src="assets/policies.js" defer></script>
+</body>
+</html>

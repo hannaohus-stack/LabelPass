@@ -213,14 +213,14 @@ export function drawPdfHeader(doc: jsPDF, label: string, dateLabel?: string): vo
   doc.rect(0, 0, 210, 18, 'F')
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(10.5)
-  doc.text(`KRK CHECKER · ${label}`, 14, 11.5)
+  doc.text(`LABELPASS · ${label}`, 14, 11.5)
   if (dateLabel) {
     doc.setFontSize(7.5)
     doc.text(dateLabel, 168, 11.5)
   }
 }
 
-export function drawPdfFooter(doc: jsPDF, left: string, right = 'krk.team'): void {
+export function drawPdfFooter(doc: jsPDF, left: string, right = 'labelpass.kr'): void {
   doc.setDrawColor(PDF_COLORS.hairline)
   doc.line(14, 274, 196, 274)
   doc.setTextColor(PDF_COLORS.faint)

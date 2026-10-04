@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>결제 — 라벨패스 LabelPass</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;--line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--green-50:#E8F6EF;--amber:#C98200;--amber-50:#FFF4DC;--red:#E0413A;--red-50:#FDECEA;--r:20px}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;color:var(--navy);background:var(--soft);font-size:16px;line-height:1.6;letter-spacing:-0.01em;-webkit-font-smoothing:antialiased;word-break:keep-all}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+
+/* 앱 헤더 (공통) */
+.ah{position:sticky;top:0;z-index:30;background:#fff;border-bottom:1px solid var(--line)}
+.ah-in{max-width:1240px;margin:0 auto;padding:0 32px;height:68px;display:flex;align-items:center;gap:32px}
+.ah-logo img{height:34px;width:auto;display:block}
+.flow{margin:0 auto;font-size:14px;font-weight:700;color:var(--ink-3)}
+.flow ol{display:flex;gap:6px;margin:0;padding:0}
+.flow li{display:flex;align-items:center;gap:8px;list-style:none}
+.flow .n{width:24px;height:24px;border-radius:50%;border:1.5px solid #C9D0DC;display:grid;place-items:center;font-size:12px}
+.flow li.done{color:var(--ink-2)}
+.flow li.done .n{background:var(--blue-50);border-color:var(--blue-100);color:var(--blue)}
+.flow li.cur{color:var(--navy)}
+.flow li.cur .n{background:var(--blue);border-color:var(--blue);color:#fff}
+.flow li+li::before{content:"";width:28px;height:1.5px;background:var(--line);margin-right:6px}
+.ah-util{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:var(--ink-2)}
+.ah-util a{padding:8px 12px;border-radius:10px}
+.ah-util a:hover{background:var(--soft);color:var(--navy)}
+
+.page{max-width:1240px;margin:0 auto;padding:36px 32px 120px}
+
+
+.back{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--ink-2);margin-bottom:14px}
+.back:hover{color:var(--navy)}
+.ph h1{margin:0;font-size:32px;line-height:1.3;font-weight:800;letter-spacing:-0.04em}
+.ph p{margin:8px 0 28px;color:var(--ink-2)}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) 420px;gap:24px;align-items:start}
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:28px 30px;margin-bottom:16px}
+.card h2{margin:0 0 18px;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.prod{display:flex;gap:16px;align-items:center;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.thumb{width:64px;height:64px;border-radius:16px;background:var(--blue-50);display:grid;place-items:center;flex-shrink:0}
+.thumb svg{width:30px;height:30px;stroke:var(--blue);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.prod b{display:block;font-size:18px}
+.prod span{font-size:14px;color:var(--ink-3)}
+.svc{display:flex;justify-content:space-between;align-items:center;padding:18px 0 14px}
+.svc .nm{display:flex;align-items:center;gap:8px;font-size:17px;font-weight:800}
+.badge{font-size:12px;font-weight:800;color:#fff;background:var(--blue);border-radius:999px;padding:2px 9px}
+.svc a{font-size:14px;font-weight:700;color:var(--blue)}
+.inc{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.inc li{display:flex;gap:10px;align-items:center;background:var(--soft);border-radius:12px;padding:12px 14px;font-size:14px;font-weight:600}
+.inc li i{width:32px;height:32px;border-radius:9px;background:#fff;display:grid;place-items:center;flex-shrink:0;font-style:normal;font-size:12px;font-weight:800;color:var(--blue)}
+.inc li small{display:block;font-size:12px;font-weight:500;color:var(--ink-3)}
+.how{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.how div{border:1px solid var(--line);border-radius:14px;padding:16px}
+.how b{display:block;font-size:13px;color:var(--blue);margin-bottom:4px}
+.how span{font-size:14px;color:var(--ink-2)}
+
+.paybox{position:sticky;top:92px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px}
+.paybox h2{margin:0 0 16px;font-size:20px;font-weight:800;letter-spacing:-0.03em}
+.ln{display:flex;justify-content:space-between;font-size:15px;color:var(--ink-2);padding:6px 0}
+.ln.tot{border-top:1px solid var(--line);margin-top:8px;padding-top:16px;color:var(--navy);font-weight:800;align-items:baseline}
+.ln.tot b{font-size:30px;letter-spacing:-0.04em}
+.ln.tot b small{font-size:16px}
+.vat{text-align:right;font-size:12px;color:var(--ink-3);margin-top:-2px}
+.rf{border:1.5px solid var(--line);border-radius:14px;padding:16px;margin:18px 0 14px;background:var(--soft)}
+.rf h3{margin:0 0 8px;font-size:14px;font-weight:800}
+.rf ul{margin:0 0 12px;padding-left:18px;font-size:13.5px;color:var(--ink-2);line-height:1.7}
+.rf ul b{color:var(--navy)}
+.agree{display:flex;gap:10px;align-items:flex-start;cursor:pointer;font-size:14px;font-weight:600}
+.agree input{position:absolute;opacity:0;pointer-events:none}
+.bx{width:22px;height:22px;border-radius:6px;border:2px solid #C9D0DC;background:#fff;display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+.bx svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:3;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.agree input:checked+.bx{background:var(--blue);border-color:var(--blue)}
+.agree input:checked+.bx svg{opacity:1}
+.agree input:focus-visible+.bx{box-shadow:0 0 0 3px var(--blue-100)}
+.agree a{color:var(--blue);text-decoration:underline;text-underline-offset:2px}
+.req{color:var(--blue)}
+.pay{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:58px;border-radius:14px;background:var(--blue);color:#fff;font-size:17px;font-weight:800;transition:background .15s}
+.pay:hover{background:#2547d6}
+.pay:disabled{background:#C9D3F8;cursor:not-allowed}
+.pay svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.hint{margin:10px 0 0;text-align:center;font-size:13px;color:var(--ink-3)}
+.methods{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin-top:16px}
+.methods span{font-size:12px;font-weight:700;color:var(--ink-3);border:1px solid var(--line);border-radius:8px;padding:4px 10px}
+.secure{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:12px;font-size:12px;color:var(--ink-3)}
+.secure svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+@media (max-width:1024px){.grid{grid-template-columns:1fr}.paybox{position:static}.flow li:not(.cur) .t{display:none}}
+@media (max-width:720px){
+ .ah-in{padding:0 16px;gap:12px;height:60px}
+ .ah-logo img{height:30px}
+ .flow{font-size:13px}.flow li+li::before{width:8px;margin-right:2px}.flow ol{gap:4px}.flow li{gap:5px}
+ .flow .t{white-space:nowrap}
+ .ah-util a{padding:8px 4px;white-space:nowrap}
+ .ah-util a:first-child{display:none}
+ .page{padding:20px 16px 60px}
+ .ph h1{font-size:26px}
+ .card,.paybox{padding:22px 18px}
+ .inc,.how{grid-template-columns:1fr}
+}
+@media (max-width:400px){.ah-in{gap:8px;padding:0 12px}.ah-logo img{height:26px}.flow .n{width:22px;height:22px}}
+</style>
+</head>
+<body>
+
+<header class="ah">
+ <div class="ah-in">
+  <a class="ah-logo" href="/" aria-label="라벨패스 홈"><img src="assets/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="LabelPass 라벨패스"></a>
+  <nav class="flow" aria-label="진행 단계"><ol>
+   <li class="done"><span class="n">✓</span><span class="t">입력</span></li>
+   <li class="done"><span class="n">✓</span><span class="t">검토 결과</span></li>
+   <li class="cur" aria-current="step"><span class="n">3</span><span class="t">결제</span></li>
+   <li><span class="n">4</span><span class="t">결과</span></li>
+  </ol></nav>
+  <div class="ah-util"><a href="/dashboard">마이페이지</a><a href="#">로그아웃</a></div>
+ </div>
+</header>
+
+<main class="page">
+ <a class="back" href="app_review_v1.0.html">← 검토 결과로 돌아가기</a>
+ <div class="ph"><h1>결제하고 결과 받기</h1><p>결제가 끝나면 바로 항목별 결과와 파일을 받을 수 있어요.</p></div>
+ <div class="grid">
+  <div>
+   <section class="card" aria-labelledby="h-order">
+    <h2 id="h-order">주문 내용</h2>
+    <div class="prod">
+     <div class="thumb"><svg viewBox="0 0 24 24"><path d="M8 3h8l-1 4H9z"/><rect x="6" y="7" width="12" height="14" rx="3"/><path d="M9 13h6M9 16h4"/></svg></div>
+     <div><b>수제 딸기잼</b><span>잼류 · 240g · 검토번호 LP-20261004-A3F9</span></div>
+    </div>
+    <div class="svc"><span class="nm">전문 <span class="badge">추천</span></span><a href="app_review_v1.0.html#h-svc">서비스 변경</a></div>
+    <ul class="inc">
+     <li><i>17</i><span>항목별 검토 결과<small>수정 필요 · 확인 권장 항목 공개</small></span></li>
+     <li><i>법령</i><span>수정 방법 · 근거 법령 · 과태료<small>항목마다 바로 고칠 수 있게</small></span></li>
+     <li><i>PDF</i><span>라벨 PDF · PNG · 텍스트<small>인쇄소 · 디자이너에게 바로 전달</small></span></li>
+     <li><i>리포트</i><span>검토 리포트 PDF<small>입점 · 거래처 공유용</small></span></li>
+     <li><i>신고</i><span>정부24 신고 가이드<small>품목제조보고 입력 순서</small></span></li>
+     <li><i>ZIP</i><span>분리배출 마크<small>재질별 도안 파일</small></span></li>
+     <li><i>30일</i><span>수정본 재검토 1회<small>같은 제품 · 결제 후 30일</small></span></li>
+     <li><i>1년</i><span>마이페이지 보관<small>언제든 다시 받기</small></span></li>
+    </ul>
+   </section>
+   <section class="card" aria-labelledby="h-how">
+    <h2 id="h-how">결제는 이렇게 진행돼요</h2>
+    <div class="how"><div><b>1</b><span>오른쪽 버튼을 누르면 보안 결제창으로 이동해요</span></div><div><b>2</b><span>카드 또는 간편결제로 결제해요</span></div><div><b>3</b><span>자동으로 돌아와 결과와 파일이 열려요</span></div></div>
+   </section>
+  </div>
+
+  <aside class="paybox" aria-labelledby="h-pay">
+   <h2 id="h-pay">결제 금액</h2>
+   <div class="ln"><span>전문 서비스 · 1제품</span><span>19,900원</span></div>
+   <div class="ln tot"><span>총 결제 금액</span><b>19,900<small>원</small></b></div>
+   <div class="vat">1회 결제 · 구독 없음</div>
+   <div class="rf">
+    <h3>결제 전 환불 안내</h3>
+    <ul>
+     <li>결제 후 7일 이내, 결과 · 파일을 <b>열람하거나 내려받지 않았다면 전액 환불</b>돼요.</li>
+     <li>결과물은 결제 즉시 제공되는 디지털 콘텐츠라, <b>열람 · 다운로드 후에는 환불이 제한</b>돼요.</li>
+    </ul>
+    <label class="agree"><input type="checkbox" id="ag"><span class="bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span>위 내용과 <a href="/refund">환불정책</a>을 확인했어요 <span class="req">(필수)</span></span></label>
+   </div>
+   <button class="pay" id="pay" disabled><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>19,900원 결제하기</button>
+   <p class="hint" id="hint">환불 안내에 동의하면 결제할 수 있어요</p>
+   <div class="methods"><span>신용 · 체크카드</span><span>Apple Pay</span><span>Google Pay</span></div>
+   <div class="secure"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/></svg>SSL 보안 결제 · Lemon Squeezy 결제창</div>
+  </aside>
+ </div>
+</main>
+
+<script>
+(function(){var ag=document.getElementById('ag'),pay=document.getElementById('pay'),h=document.getElementById('hint');
+ag.addEventListener('change',function(){pay.disabled=!ag.checked;h.textContent=ag.checked?'결제창으로 이동해요 · 결제 후 자동으로 돌아와요':'환불 안내에 동의하면 결제할 수 있어요'});
+pay.addEventListener('click',function(){location.href='app_result_v1.0.html'});})();
+</script>
+<script src="assets/policies.js" defer></script>
+</body>
+</html>
