@@ -130,10 +130,12 @@ export default function Creator() {
   const [showSheet, setShowSheet] = useState(false)
 
   // Checker → Creator 연결 시 사전 입력 데이터 적용
-  const prefill = (location.state as { prefill?: Partial<CreatorData> } | null)?.prefill
+  const routeState = location.state as { prefill?: Partial<CreatorData>; startStep?: number } | null
+  const prefill = routeState?.prefill
   const draft = prefill ? null : readCreatorDraft()
 
-  const [step, setStep] = useState(1)
+  // 검토 결과의 '입력 수정하기' → 입력 내용 확인(4단계)에서 바로 시작
+  const [step, setStep] = useState(() => Math.min(Math.max(routeState?.startStep ?? 1, 1), STEPS.length))
   const [data, setData] = useState<CreatorData>(() => ({
     ...INITIAL_DATA,
     ...(prefill ?? {}),
