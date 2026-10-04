@@ -142,8 +142,8 @@
 (function () {
   var LINKS = {
     kakao: '',   // 예: https://pf.kakao.com/_xxxx/chat
-    naver: '',   // 예: https://blog.naver.com/xxxx
-    youtube: ''  // 예: https://www.youtube.com/@xxxx
+    naver: 'https://blog.naver.com/krkseoul',   // 임시 주소 (주소 변경 가능해지면 교체)
+    youtube: 'https://www.youtube.com/channel/UCULBIyN82GaTNyQ1-QK6Wcw'
   };
   function run() {
     ['kakao', 'naver', 'youtube'].forEach(function (k) {
