@@ -404,7 +404,7 @@ fieldset.fl{border:0;margin:0 0 18px;padding:0}
      <div class="agree-box" id="agb">수집 항목: 회사·브랜드명, 담당자 이름, 연락처, 이메일, 문의 내용<br>이용 목적: 도입 문의 확인과 상담 연락<br>보유 기간: 상담 종료 후 1년 (요청 시 즉시 파기)<br>동의를 거부할 수 있으며, 이 경우 문의 접수가 어렵습니다.</div>
     </div>
     <button class="btn btn-blue" type="submit">문의 보내기</button>
-   </form>
+   <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden"><label>웹사이트<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div><p id="cerr" role="alert" hidden style="margin:12px 0 0;color:var(--red,#E0413A);font-size:14px;font-weight:600">전송하지 못했어요. 잠시 후 다시 시도해 주세요.</p></form>
    <div class="done" id="cdone" role="status"><div class="ck"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></div><h2>문의가 접수됐어요</h2><p>영업일 2일 안에 직접 연락드릴게요.</p></div>
   </div>
  </div>
@@ -465,8 +465,14 @@ fieldset.fl{border:0;margin:0 0 18px;padding:0}
   if(!vType()&&!first)first=f.querySelector('input[name=type]');
   if(!vAg()&&!first)first=document.getElementById('f-ag');
   if(first){first.focus();return}
-  /* TODO: 실제 전송 연결 (예: Supabase 테이블 또는 Notion 리드 DB) */
-  f.style.display='none';document.getElementById('cdone').classList.add('on');
+  var btn=f.querySelector('button[type=submit],button:not([type])'),err=document.getElementById('cerr');
+  if(btn){btn.disabled=true;btn.dataset.t=btn.textContent;btn.textContent='보내는 중…'}err.hidden=true;
+  var v=function(n){var el=f.elements[n];return el?el.value:''};
+  fetch('https://ershciqovotewsxzjyeq.supabase.co/functions/v1/contact-submit',{method:'POST',headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({company:v('company'),name:v('name'),tel:v('tel'),email:v('email'),type:(f.querySelector('input[name=type]:checked')||{}).value,volume:v('volume'),message:v('message'),website:v('website'),agree:document.getElementById('f-ag').checked,source_url:location.href})})
+  .then(function(r){return r.json().then(function(j){if(!r.ok||!j.ok)throw 0})})
+  .then(function(){f.style.display='none';document.getElementById('cdone').classList.add('on');if(window.gtag)gtag('event','generate_lead',{form:'contact'})})
+  .catch(function(){err.hidden=false;if(btn){btn.disabled=false;btn.textContent=btn.dataset.t}});
  });
 })();
 </script>

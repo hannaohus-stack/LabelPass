@@ -45,7 +45,7 @@ const jsonld = {
  </div>
  <aside class="share" aria-label="공유"><b>공유하기</b>
   <button class="sh" type="button" id="copy"><svg viewBox="0 0 24 24"><path d="M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>링크 복사</button>
-  <a class="sh" href="#kakao"><svg viewBox="0 0 24 24"><path d="M12 4.5c-4.7 0-8.5 3-8.5 6.6 0 2.3 1.5 4.3 3.8 5.5l-.8 3.2 3.6-2.3c.6.1 1.2.2 1.9.2 4.7 0 8.5-3 8.5-6.6S16.7 4.5 12 4.5z"/></svg>카톡 공유</a>
+  <button class="sh" type="button" id="share" hidden><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m7 8 5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>공유하기</button>
  </aside>
 </div>
 </article>
@@ -56,6 +56,6 @@ const jsonld = {
 </div></section>
 <div class="copied" id="copied" role="status" slot="scripts">링크를 복사했어요</div>
 <script is:inline slot="scripts">
-(function(){var c=document.getElementById('copied');document.getElementById('copy').addEventListener('click',function(){var done=function(){c.classList.add('on');setTimeout(function(){c.classList.remove('on')},1600)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done,done);else done()})})();
+(function(){var sh=document.getElementById('share');if(navigator.share){sh.hidden=false;sh.addEventListener('click',function(){navigator.share({title:document.title,url:location.href}).catch(function(){})})}var c=document.getElementById('copied');document.getElementById('copy').addEventListener('click',function(){var done=function(){c.classList.add('on');setTimeout(function(){c.classList.remove('on')},1600)};if(navigator.clipboard)navigator.clipboard.writeText(location.href).then(done,done);else done()})})();
 </script>
 </Layout>

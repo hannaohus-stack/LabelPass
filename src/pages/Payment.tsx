@@ -150,6 +150,7 @@ export default function Payment() {
 
   const [paying, setPaying] = useState(false)
   const [error, setError]   = useState<string | null>(null)
+  const [agreed, setAgreed] = useState(false)
 
   const state = location.state as PaymentRouteState
   if (!state?.ingredients || !state?.metadata) return <Navigate to="/" replace />
@@ -161,7 +162,7 @@ export default function Payment() {
 
   // ── 결제 핸들러 ─────────────────────────────────────────────────────────────
   const handlePay = async () => {
-    if (paying) return
+    if (paying || !agreed) return
     setPaying(true)
     setError(null)
 
@@ -300,9 +301,33 @@ export default function Payment() {
                 </div>
               </div>
 
+              {/* 결제 전 환불 고지 (전자상거래법 제17조 제2항 — 디지털 콘텐츠 청약철회 제한 사전 안내) */}
+              <div className="border border-[rgba(10,10,11,0.1)] bg-[#FAFAFA] px-4 py-4">
+                <p className="font-kr text-[13px] font-semibold text-ink">결제 전 환불 안내</p>
+                <ul className="mt-2 list-disc space-y-1 pl-4 font-kr text-[12px] leading-[1.7] text-[rgba(10,10,11,0.6)]">
+                  <li>결제 후 7일 이내, 결과·파일을 열람하거나 내려받지 않았다면 전액 환불됩니다.</li>
+                  <li>결과물은 결제 즉시 제공되는 디지털 콘텐츠로, 열람·다운로드 후에는 환불이 제한됩니다.</li>
+                </ul>
+                <label className="mt-3 flex cursor-pointer items-start gap-2">
+                  <input
+                    type="checkbox"
+                    checked={agreed}
+                    onChange={e => setAgreed(e.target.checked)}
+                    className="mt-[3px] h-4 w-4 flex-shrink-0 accent-[#3358EE]"
+                  />
+                  <span className="font-kr text-[12px] leading-[1.6] text-ink">
+                    위 내용과{' '}
+                    <a href="/pricing#refund" target="_blank" rel="noopener" className="font-semibold text-[#3358EE] underline">
+                      환불정책
+                    </a>
+                    을 확인했습니다. (필수)
+                  </span>
+                </label>
+              </div>
+
               <button
                 onClick={handlePay}
-                disabled={paying}
+                disabled={paying || !agreed}
                 className="btn-heritage mt-1 flex h-14 w-full items-center justify-center gap-2 text-[14px] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {paying ? (

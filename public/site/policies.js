@@ -135,3 +135,24 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build();
 })();
+
+/* ── 외부 채널 링크 (한 곳에서 관리) ──────────────────────────────────────
+   주소가 생기면 아래 값만 채우면 모든 페이지(랜딩·요금·서비스·도입문의·블로그)에 반영됩니다.
+   비어 있으면: 카톡 버튼 → 도입문의(/contact)로 임시 연결, 푸터 아이콘은 숨김. */
+(function () {
+  var LINKS = {
+    kakao: '',   // 예: https://pf.kakao.com/_xxxx/chat
+    naver: '',   // 예: https://blog.naver.com/xxxx
+    youtube: ''  // 예: https://www.youtube.com/@xxxx
+  };
+  function run() {
+    ['kakao', 'naver', 'youtube'].forEach(function (k) {
+      [].forEach.call(document.querySelectorAll('a[href="#' + k + '"]'), function (a) {
+        if (LINKS[k]) { a.href = LINKS[k]; a.target = '_blank'; a.rel = 'noopener'; return; }
+        if (a.closest('.foot-sns') || k !== 'kakao' || location.pathname.replace(/\/$/, '') === '/contact') { a.hidden = true; a.style.display = 'none'; return; }
+        a.href = '/contact';
+      });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+})();
