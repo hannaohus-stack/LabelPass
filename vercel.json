@@ -17,6 +17,11 @@
       "source": "/guide/rejection",
       "destination": "/blog",
       "permanent": true
+    },
+    {
+      "source": "/blog/krk-checker-label-review-result",
+      "destination": "/blog/labelpass-label-review-result",
+      "permanent": true
     }
   ],
   "rewrites": [
