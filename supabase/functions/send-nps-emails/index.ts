@@ -7,7 +7,8 @@
  *
  * 환경변수 (Supabase Secrets — Hanna가 직접 추가):
  *   RESEND_API_KEY       — Resend 대시보드에서 발급
- *   NPS_URL              — https://checker.krk.team/beta/nps
+ *   NPS_URL              — https://labelpass.kr/beta/nps
+ *   MAIL_FROM            — 보내는 주소 (Resend에서 labelpass.kr 도메인 인증 후 사용)
  *   SUPABASE_URL         — 자동 주입
  *   SUPABASE_SERVICE_ROLE_KEY — 자동 주입
  *
@@ -51,7 +52,7 @@ Deno.serve(async (req: Request) => {
   )
 
   const resend = new Resend(Deno.env.get('RESEND_API_KEY')!)
-  const npsUrl = Deno.env.get('NPS_URL') ?? 'https://checker.krk.team/beta/nps'
+  const npsUrl = Deno.env.get('NPS_URL') ?? 'https://labelpass.kr/beta/nps'
 
   try {
     // 1. 발송 대상 조회
@@ -83,30 +84,30 @@ Deno.serve(async (req: Request) => {
       try {
         // 2. Resend로 이메일 발송
         await resend.emails.send({
-          from:    'KRK CHECKER <noreply@checker.krk.team>',
+          from:    Deno.env.get('MAIL_FROM') ?? '라벨패스 LabelPass <noreply@labelpass.kr>',
           to:      row.email,
-          subject: '[KRK CHECKER] 3분이면 돼요 — 솔직한 한마디 부탁드려요 🙏',
+          subject: '[라벨패스] 3분이면 돼요 — 솔직한 한마디 부탁드려요 🙏',
           html: `
 <!DOCTYPE html>
 <html lang="ko">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background:#f9f9f9; margin:0; padding:0;">
   <div style="max-width:480px; margin:40px auto; background:#fff; border-radius:16px; padding:40px 36px; border:1px solid #eee;">
-    <div style="font-size:13px; font-weight:800; letter-spacing:0.2em; color:#002D72; margin-bottom:28px;">
-      KRK CHECKER
+    <div style="font-size:13px; font-weight:800; letter-spacing:0.2em; color:#3358EE; margin-bottom:28px;">
+      LabelPass 라벨패스
     </div>
     <h1 style="font-size:20px; font-weight:700; color:#0A0A0B; margin:0 0 12px; line-height:1.3;">
-      안녕하세요, KRK CHECKER 베타 파트너님! 👋
+      안녕하세요, 라벨패스 베타 파트너님! 👋
     </h1>
     <p style="font-size:14px; color:rgba(10,10,11,0.65); line-height:1.7; margin:0 0 28px;">
       사용해보셨나요? 딱 3분이면 되는 설문이에요.<br>
       완료하시면 정식 출시 후 <strong>50% 평생 할인 코드</strong>를 드려요.
     </p>
-    <a href="${npsUrl}" style="display:block; background:#002D72; color:#fff; text-decoration:none; border-radius:10px; padding:14px 0; text-align:center; font-size:14.5px; font-weight:600; margin-bottom:28px;">
+    <a href="${npsUrl}" style="display:block; background:#3358EE; color:#fff; text-decoration:none; border-radius:10px; padding:14px 0; text-align:center; font-size:14.5px; font-weight:600; margin-bottom:28px;">
       👉 설문 참여하기
     </a>
     <p style="font-size:12px; color:rgba(10,10,11,0.4); line-height:1.6; margin:0;">
-      감사합니다.<br>KRK CHECKER 한나 드림
+      감사합니다.<br>라벨패스 한나 드림
     </p>
   </div>
 </body>

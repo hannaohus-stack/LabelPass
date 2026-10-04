@@ -28,7 +28,7 @@ const STEP_META = [
   { title: '입력한 내용을 확인해 주세요', desc: '확인 후 17개 항목 무료 검토를 시작해요.', next: '' },
 ]
 
-const CREATOR_DRAFT_KEY = 'krk_creator_draft_v1'
+const CREATOR_DRAFT_KEY = 'lp_creator_draft'
 
 interface CreatorDraft {
   step: number

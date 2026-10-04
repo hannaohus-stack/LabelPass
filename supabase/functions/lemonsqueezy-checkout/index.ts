@@ -39,7 +39,7 @@ serve(async (req) => {
             custom: { user_id: userId ?? 'anonymous' },
           },
           product_options: {
-            redirect_url: redirectUrl ?? 'https://checker.krk.team/payment/complete',
+            redirect_url: redirectUrl ?? 'https://labelpass.kr/payment/complete?paid=1',
           },
         },
         relationships: {

@@ -1,7 +1,7 @@
 /**
  * 마이페이지 (시안 app_dashboard_v1.0) — 내 검사 · 결제 내역 · 계정
  * 기록: label_reviews (무료 결과 status=reviewed / 결제 status=paid, metadata.reviewId로 묶음)
- * 작성 중: 이 브라우저에 임시 저장된 입력(krk_creator_draft_v1)
+ * 작성 중: 이 브라우저에 임시 저장된 입력(lp_creator_draft)
  */
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
@@ -14,8 +14,8 @@ import { analyzeRegulations, type Metadata } from './ReviewResult'
 import type { CreatorData } from './creator/types'
 import { countResults, fmtDate, won, type ReviewState, type ServiceType } from '../lib/review'
 
-const DRAFT_KEY = 'krk_creator_draft_v1'
-const NOTICE_STORAGE_KEY = 'krk_regulation_notice_state'
+const DRAFT_KEY = 'lp_creator_draft'
+const NOTICE_STORAGE_KEY = 'lp_regulation_notice'
 const STEP_NAMES = ['제품 정보', '원재료 · 포장재', '영양성분', '입력 확인']
 
 type Tab = 'all' | 'paid' | 'free' | 'draft'

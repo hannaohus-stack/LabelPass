@@ -32,7 +32,7 @@ Thumbs.db
 # TypeScript build cache
 tsconfig.*.tsbuildinfo
 
-# KRK 내부 작업 파일 — GitHub에 올리지 않음
+# 내부 작업 파일 — GitHub에 올리지 않음
 Archives/
 UIUX/
 docs/
@@ -40,8 +40,6 @@ scripts/
 .claude/
 *.html.bak
 preview.html
-checker-blog.html
-KRK\ checker\ Guideline.html
 qa-screenshots/
 *.review
 CLAUDE.md

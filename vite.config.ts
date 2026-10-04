@@ -12,7 +12,7 @@ export default defineConfig({
   plugins: [
     react(),
     Sitemap({
-      hostname: 'https://checker.krk.team',
+      hostname: 'https://labelpass.kr',
       dynamicRoutes: ['/', '/service', '/pricing', '/contact', ...blogRoutes],
       changefreq: 'weekly',
       lastmod: new Date(),

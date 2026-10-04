@@ -2,7 +2,7 @@
 // 형식: LP-YYYYMMDD-XXXX (XXXX = 4자리 랜덤 대문자+숫자)
 
 /**
- * LP-YYYYMMDD-XXXX 형식 검토번호 생성 (2026-10 이전 발급분은 KRK-)
+ * LP-YYYYMMDD-XXXX 형식 검토번호 생성
  * @example "LP-20261004-A3F9"
  */
 export function generateReviewId(): string {
