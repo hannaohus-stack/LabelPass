@@ -18,8 +18,6 @@ const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const AuthCallback = lazy(() => import('./pages/auth/AuthCallback'))
 const Privacy = lazy(() => import('./pages/Privacy'))
 const Terms = lazy(() => import('./pages/Terms'))
-const GuideLabelPage = lazy(() => import('./pages/seo/GuideLabel'))
-const GuideRejection = lazy(() => import('./pages/seo/GuideRejection'))
 const BetaApply = lazy(() => import('./pages/beta/BetaApply'))
 const BetaNps = lazy(() => import('./pages/beta/BetaNps'))
 
@@ -79,9 +77,9 @@ export default function App() {
         <Route path="/pricing"          element={<HardNav to="/pricing" />} />
         <Route path="/service"          element={<HardNav to="/service" />} />
         <Route path="/contact"          element={<HardNav to="/contact" />} />
-        <Route path="/blog/*"           element={<HardNav to="/blog" />} />
-        <Route path="/guide/label"      element={<GuideLabelPage />} />
-        <Route path="/guide/rejection"  element={<GuideRejection />} />
+        <Route path="/blog/*"           element={<HardNav to={window.location.pathname} />} />
+        <Route path="/guide/label"      element={<HardNav to="/blog/category/guide" />} />
+        <Route path="/guide/rejection"  element={<HardNav to="/blog" />} />
         <Route path="/faq"              element={<HardNav to="/pricing#faq" />} />
 
         {/* 베타 이벤트 (공개, 비로그인 제출 가능) */}

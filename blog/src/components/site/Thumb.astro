@@ -1,0 +1,14 @@
+---
+import { catName } from '../../lib/posts';
+interface Props { title: string; cat: string; img?: number; big?: boolean }
+const { title, cat, img, big } = Astro.props;
+const lines = title.split('\n');
+---
+<span class:list={['th', { big }]}>
+ <span class="th-t">{lines.map((l, i) => <>{i > 0 && <br />}{l}</>)}</span>
+ <span class="th-l">{catName(cat)}</span>
+ {img
+   ? <span class="th-img"><img src={`/site/svc_cat${img}.jpg`} alt="" loading="lazy" /></span>
+   : <svg class="th-arrow" viewBox="0 0 100 100" aria-hidden="true"><polygon points="0,0 100,0 100,100 72,100 72,47.80 19.80,100 0,80.20 52.20,28 0,28"/></svg>}
+ <img class="th-logo" src="/site/LabelPass_Logo_Primary_White_v1.0.svg" alt="" />
+</span>

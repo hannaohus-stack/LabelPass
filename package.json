@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "mkdir -p dist && vite build",
+    "build": "mkdir -p dist && vite build && npm run build:blog",
+    "build:blog": "npm --prefix blog ci && npm --prefix blog run build && rm -rf dist/blog/astro",
     "type-check": "tsc -b",
     "preview": "vite preview"
   },
