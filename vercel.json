@@ -59,6 +59,10 @@
       "destination": "/contact.html"
     },
     {
+      "source": "/link",
+      "destination": "/link.html"
+    },
+    {
       "source": "/(.*)",
       "destination": "/app.html"
     }
