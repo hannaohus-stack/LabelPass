@@ -3,7 +3,7 @@
    - [대괄호] 표시는 사업자 정보 확정 후 채워야 하는 자리입니다. */
 (function () {
   var EFFECTIVE = '2026년 [ ]월 [ ]일';
-  var CO = 'Chaeum Korea';
+  var CO = '주식회사 채움코리아';
 
   var css = '' +
   '.pm-open{color:var(--blue,#3358EE);font-weight:700;padding:0;font-size:inherit;background:none;border:0;cursor:pointer}' +
