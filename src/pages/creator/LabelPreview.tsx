@@ -3,6 +3,7 @@
  * 상태 개수는 '입력 확인' 기준이며, 17개 항목 검토는 다음 단계(검토 결과)에서 진행된다.
  */
 import type { CreatorData } from './types'
+import { categoryText } from '../../utils/tierUtils'
 import { buildIssues } from './Step4_Preview'
 
 const NUTR_KEYS = ['calories', 'totalCarbs', 'sugar', 'protein', 'totalFat', 'saturatedFat', 'transFat', 'cholesterol', 'sodium'] as const
@@ -33,7 +34,7 @@ export default function LabelPreview({ data }: { data: CreatorData }) {
         <div className="lp-pv-h">라벨 미리보기<span>입력하는 대로 바뀌어요</span></div>
         <div className="lp-lab" aria-label="라벨 미리보기">
           <div className="t">{data.productName || '제품명'}</div>
-          <div className="r"><span>식품유형</span><span>{data.categories.length ? data.categories.join(', ') : empty('카테고리 선택 필요')}</span></div>
+          <div className="r"><span>식품유형</span><span>{data.categories.length ? data.categories.map(categoryText).join(', ') : empty('카테고리 선택 필요')}</span></div>
           <div className="r"><span>내용량</span><span>{data.totalWeight ? `${data.totalWeight}${data.unit}` : empty('입력 필요')}</span></div>
           <div className="r"><span>원재료명</span><span>{ingText}</span></div>
           <div className="r"><span>알레르기</span><span>{allergens.length ? <b className="al">{allergens.join(', ')} 함유</b> : sorted.length ? '해당 없음' : empty('원재료 입력 후 확인')}</span></div>

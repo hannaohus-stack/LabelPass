@@ -13,6 +13,7 @@ import type { Ingredient } from '../utils/parsing'
 import { analyzeRegulations, type Metadata } from './ReviewResult'
 import type { CreatorData } from './creator/types'
 import { countResults, fmtDate, won, type ReviewState, type ServiceType } from '../lib/review'
+import { categoryText } from '../utils/tierUtils'
 
 const DRAFT_KEY = 'lp_creator_draft'
 const NOTICE_STORAGE_KEY = 'lp_regulation_notice'
@@ -39,7 +40,7 @@ function isIngredientList(value: unknown): value is Ingredient[] {
 }
 
 const subLine = (m: Partial<Metadata>, cats: string[]) =>
-  [(m.categories ?? cats).map(c => c.replace(/\//g, ' · ')).join(', '), m.totalWeight ? `${m.totalWeight}${m.unit ?? ''}` : ''].filter(Boolean).join(' · ')
+  [(m.categories ?? cats).map(categoryText).join(', '), m.totalWeight ? `${m.totalWeight}${m.unit ?? ''}` : ''].filter(Boolean).join(' · ')
 
 function rowCounts(row: LabelReviewRow, state?: ReviewState) {
   const saved = (row.results ?? []) as { status?: string }[]
@@ -97,7 +98,7 @@ function readDraftJob(): Job | null {
       key: 'draft',
       kind: 'draft',
       name: d.data.productName,
-      sub: (d.data.categories ?? []).map(c => c.replace(/\//g, ' · ')).join(', '),
+      sub: (d.data.categories ?? []).map(categoryText).join(', '),
       date: new Date().toISOString(),
       draftStep: step,
     }

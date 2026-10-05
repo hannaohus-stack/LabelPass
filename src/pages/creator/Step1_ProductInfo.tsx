@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type React from 'react'
 import type { StepProps } from './types'
-import { ALL_CATEGORIES } from '../../utils/tierUtils'
+import { OTHER_PREFIX, categoryText, isOtherCategory } from '../../utils/tierUtils'
 
 const BUSINESS_TYPES = ['식품제조가공업', '즉판가공업'] as const
 const FACILITY_TYPES = ['단독', '공유'] as const
@@ -45,13 +45,21 @@ function Seg<T extends string>({ options, value, onChange, error, small, labels 
 
 const BIZ_LABEL = { '식품제조가공업': '식품제조 · 가공업', '즉판가공업': '즉석판매제조 · 가공업' } as const
 const FAC_LABEL = { '단독': '단독 주방', '공유': '공유 주방' } as const
-const catLabel = (c: string) => c.replace('/', ' · ')
+const catLabel = categoryText
 
-// 잼류·소스류·장류는 칩 하나로 묶어 보여 준다. 저장값은 기존 그대로(잼류/소스류/장류)라
-// 원재료 사전·식품유형 표기·지난 검토 기록에 영향이 없다.
-const GROUP_CATS: readonly string[] = ['잼류', '소스류', '장류']
-const GROUP_LABEL = '잼 · 소스 · 장류'
-const SINGLE_CATS = ALL_CATEGORIES.filter(c => !GROUP_CATS.includes(c))
+// 칩은 4개: 떡·디저트·베이커리 / 차·음료 / 잼·소스·장류 / 기타(직접 입력).
+// 묶음 칩은 눌러서 세부 종류를 고른다. 저장값은 기존 그대로라 원재료 사전·식품유형 표기·지난 검토 기록에 영향이 없다.
+interface CatGroup { key: string; label: string; subs: readonly string[] }
+const GROUP_RICE_BAKE: CatGroup = { key: 'rice-bake', label: '떡 · 디저트 · 베이커리', subs: ['떡류', '디저트/베이커리'] }
+const GROUP_JAM_SAUCE: CatGroup = { key: 'jam-sauce', label: '잼 · 소스 · 장류', subs: ['잼류', '소스류', '장류'] }
+const CAT_CHIPS = [
+  { type: 'group', group: GROUP_RICE_BAKE },
+  { type: 'single', value: '차/음료' },
+  { type: 'group', group: GROUP_JAM_SAUCE },
+  { type: 'other' },
+] as const
+const KNOWN_CATS: string[] = ['차/음료', ...GROUP_RICE_BAKE.subs, ...GROUP_JAM_SAUCE.subs]
+const UNSUPPORTED_OTHER = /건강기능|영유아|이유식|분유|주류|맥주|와인|소주|막걸리|위스키|양주|청주/
 
 export default function Step1_ProductInfo({ data, onChange }: StepProps) {
   type TouchedField =
@@ -98,18 +106,47 @@ export default function Step1_ProductInfo({ data, onChange }: StepProps) {
     onChange({ categories: next })
   }
 
-  const [groupOpen, setGroupOpen] = useState(false)
-  const groupPicked = data.categories.some(c => GROUP_CATS.includes(c))
-  const showGroup = groupOpen || groupPicked
-  const toggleGroup = () => {
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({})
+  const groupPicked = (g: CatGroup) => g.subs.some(c => data.categories.includes(c))
+  const groupShown = (g: CatGroup) => Boolean(openGroups[g.key]) || groupPicked(g)
+  const toggleGroup = (g: CatGroup) => {
     markTouched('categories')
-    if (showGroup) {
-      setGroupOpen(false)
-      if (groupPicked) onChange({ categories: data.categories.filter(c => !GROUP_CATS.includes(c)) })
+    if (groupShown(g)) {
+      setOpenGroups(prev => ({ ...prev, [g.key]: false }))
+      if (groupPicked(g)) onChange({ categories: data.categories.filter(c => !g.subs.includes(c)) })
     } else {
-      setGroupOpen(true)
+      setOpenGroups(prev => ({ ...prev, [g.key]: true }))
     }
   }
+
+  // 기타(직접 입력): categories에는 '기타:<입력값>'으로 저장 (입력이 비어 있으면 저장하지 않음)
+  const otherEntry = data.categories.find(isOtherCategory)
+  const [otherOpen, setOtherOpen] = useState(false)
+  const [otherText, setOtherText] = useState('')
+  useEffect(() => {
+    // 임시 저장본을 불러왔을 때 입력칸 채우기
+    if (otherEntry && !otherText) setOtherText(otherEntry.slice(OTHER_PREFIX.length))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [otherEntry])
+  const showOther = otherOpen || Boolean(otherEntry)
+  const toggleOther = () => {
+    markTouched('categories')
+    if (showOther) {
+      setOtherOpen(false)
+      setOtherText('')
+      onChange({ categories: data.categories.filter(c => !isOtherCategory(c)) })
+    } else {
+      setOtherOpen(true)
+    }
+  }
+  const changeOther = (value: string) => {
+    setOtherText(value)
+    const text = value.trim()
+    const rest = data.categories.filter(c => !isOtherCategory(c))
+    onChange({ categories: text ? [...rest, OTHER_PREFIX + text] : rest })
+  }
+  // 예전 버전에서 고른 카테고리(예: 건강식품(일반))는 선택된 동안만 칩으로 보여 준다
+  const legacyCats = data.categories.filter(c => !isOtherCategory(c) && !KNOWN_CATS.includes(c))
 
   const renderChip = (category: string) => {
     const on = data.categories.includes(category)
@@ -132,7 +169,7 @@ export default function Step1_ProductInfo({ data, onChange }: StepProps) {
     <div>
       <div className="lp-card">
         <h2>기본 정보</h2>
-        <p className="lp-desc">제품명과 카테고리로 검토 기준이 정해져요.</p>
+        <p className="lp-desc">제품명과 카테고리로 라벨의 식품유형과 원재료 추천이 정해져요.</p>
         <div className="lp-fl">
           <Lb required error={errors.productName} htmlFor="c-pn">제품명</Lb>
           <input id="c-pn" className={`lp-in${errors.productName ? ' bad' : ''}`} placeholder="예: 수제 딸기잼"
@@ -143,14 +180,32 @@ export default function Step1_ProductInfo({ data, onChange }: StepProps) {
           <Lb required error={errors.categories} extra={<span className="lp-tip">{data.categories.length > 0 ? `${data.categories.length}개 선택됨` : '여러 개 선택 가능'}</span>}>식품 카테고리</Lb>
           <div className={`lp-chips${errors.categories ? ' bad' : ''}`}
             onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) markTouched('categories') }}>
-            {SINGLE_CATS.map(renderChip)}
-            <button type="button" aria-pressed={showGroup} aria-expanded={showGroup} aria-controls="c-grp"
-              className={`lp-chip${showGroup ? ' on' : ''}`} onClick={toggleGroup}>{GROUP_LABEL}</button>
+            {CAT_CHIPS.map(chip => chip.type === 'single' ? renderChip(chip.value)
+              : chip.type === 'group' ? (
+                <button key={chip.group.key} type="button" aria-pressed={groupShown(chip.group)} aria-expanded={groupShown(chip.group)}
+                  aria-controls={`c-${chip.group.key}`} className={`lp-chip${groupShown(chip.group) ? ' on' : ''}`} onClick={() => toggleGroup(chip.group)}>
+                  {chip.group.label}
+                </button>
+              ) : (
+                <button key="other" type="button" aria-pressed={showOther} aria-expanded={showOther} aria-controls="c-other"
+                  className={`lp-chip${showOther ? ' on' : ''}`} onClick={toggleOther}>기타 (직접 입력)</button>
+              ))}
+            {legacyCats.map(renderChip)}
           </div>
-          {showGroup && (
-            <div id="c-grp" className="lp-chip-sub" role="group" aria-label={`${GROUP_LABEL} 세부 종류`}>
-              <span className="lp-tip">{groupPicked ? '해당하는 종류를 모두 골라 주세요' : '세부 종류를 골라 주세요'}</span>
-              <div className="lp-chips">{GROUP_CATS.map(renderChip)}</div>
+          {[GROUP_RICE_BAKE, GROUP_JAM_SAUCE].map(g => groupShown(g) && (
+            <div key={g.key} id={`c-${g.key}`} className="lp-chip-sub" role="group" aria-label={`${g.label} 세부 종류`}>
+              <span className="lp-tip">{groupPicked(g) ? '해당하는 종류를 모두 골라 주세요' : '세부 종류를 골라 주세요'}</span>
+              <div className="lp-chips">{g.subs.map(renderChip)}</div>
+            </div>
+          ))}
+          {showOther && (
+            <div id="c-other" className="lp-chip-sub">
+              <label className="lp-tip" htmlFor="c-other-in">식품유형을 직접 적어 주세요</label>
+              <input id="c-other-in" className="lp-in" maxLength={24} placeholder="예: 커피" value={otherText} onChange={e => changeOther(e.target.value)} />
+              <p className="lp-help">식품공전의 식품유형 이름으로 적어 주세요. 라벨에 그대로 쓰여요. 기타 유형은 공통 17개 항목 기준으로 검토하고, 유형별 전용 기준은 반영되지 않을 수 있어요.</p>
+              {UNSUPPORTED_OTHER.test(otherText) && (
+                <p className="lp-err">건강기능식품 · 영유아식 · 주류는 지원하지 않아요. 계속 진행해도 검토 결과가 맞지 않을 수 있어요.</p>
+              )}
             </div>
           )}
           {errors.categories && <p className="lp-err">카테고리를 하나 이상 골라 주세요.</p>}

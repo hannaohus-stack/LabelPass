@@ -1,6 +1,7 @@
 import type React from 'react'
 import { Fragment as Frag } from 'react'
 import type { CreatorData } from './types'
+import { categoryText } from '../../utils/tierUtils'
 
 type IssueKind = 'error' | 'warn' | 'info'
 
@@ -115,7 +116,7 @@ export default function Step4_Preview({
       <h2>입력 내용 확인</h2>
       <p className="lp-desc">검토는 이 내용 그대로 진행돼요. 고칠 곳이 있으면 '수정'을 눌러 주세요.</p>
       <Sec step={1} title="제품 정보" rows={[
-        ['제품명', [data.productName, data.categories.join(', '), data.totalWeight && `${data.totalWeight}${data.unit}`].filter(Boolean).join(' · ')],
+        ['제품명', [data.productName, data.categories.map(categoryText).join(', '), data.totalWeight && `${data.totalWeight}${data.unit}`].filter(Boolean).join(' · ')],
         ['영업', [data.businessType === '즉판가공업' ? '즉석판매제조 · 가공업' : data.businessType === '식품제조가공업' ? '식품제조 · 가공업' : '', data.facilityType && `${data.facilityType} 주방`].filter(Boolean).join(' · ')],
         ['제조원', [data.manufacturer, data.manufacturerAddress].filter(Boolean).join(' · ')],
         ['보관 · 소비기한', [data.storage, data.expiryDate && data.expiryDate.replace(/-/g, '.')].filter(Boolean).join(' · ')],

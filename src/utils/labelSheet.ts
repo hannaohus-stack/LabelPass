@@ -6,7 +6,7 @@
  * 디자이너·인쇄소에 전달하기 위한 확인용 시트.
  */
 import type { CreatorData } from '../pages/creator/types'
-import { CATEGORY_OFFICIAL } from './tierUtils'
+import { officialCategory } from './tierUtils'
 
 export interface SheetCtx {
   reviewId?: string
@@ -103,7 +103,7 @@ export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetMod
   const originMissing = sorted.filter(i => !i.origin).map(i => i.name)
 
   const foodType = data.categories.length
-    ? data.categories.map(c => CATEGORY_OFFICIAL[c] ?? c).join(', ')
+    ? data.categories.map(officialCategory).join(', ')
     : ''
   const amount = data.totalWeight ? `${data.totalWeight}${data.unit}` : ''
   const expiry = data.expiryDate ? `${data.expiryDate.replace(/-/g, '.')}까지` : ''

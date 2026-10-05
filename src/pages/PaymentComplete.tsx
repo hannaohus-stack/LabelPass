@@ -2,6 +2,7 @@
  * 결과 (시안 app_result_v1.0) — 결제 완료 · 항목별 결과 · 파일 받기 · 표시사항 텍스트 / 결제 실패
  * 수정본 재검토 카드 · 영수증 버튼은 기능 준비 전까지 숨김
  */
+import { isOtherCategory } from '../utils/tierUtils'
 import { useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AppHeader from '../components/lp/AppHeader'
@@ -316,6 +317,12 @@ export default function PaymentComplete() {
                 <p className="lp-desc" style={{ margin: '8px 0 0' }}>해당하는 항목이 없어요.</p>
               )}
             </section>
+            {(metadata.categories ?? []).some(isOtherCategory) && (
+              <div className="lp-notice">
+                <span>ⓘ</span>
+                <span>식품유형을 <b>기타</b>로 입력해 공통 17개 항목 기준으로 검토했어요. 이 유형에만 해당하는 전용 표시 기준은 반영되지 않았을 수 있어요.</span>
+              </div>
+            )}
             <div className="lp-notice">
               <span>ⓘ</span>
               <span>검토 결과는 입력한 정보를 바탕으로 한 <b>자율 점검 참고 자료</b>이며, 법적 적합성을 보증하지 않습니다. 과태료는 법령상 범위를 참고로 안내한 것이에요.</span>

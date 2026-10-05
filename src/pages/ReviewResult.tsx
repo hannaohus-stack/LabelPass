@@ -1,4 +1,5 @@
 import { Fragment as Frag, useEffect, useMemo, useState } from 'react'
+import { isOtherCategory } from '../utils/tierUtils'
 import type React from 'react'
 import { useNavigate, useLocation, Navigate } from 'react-router-dom'
 import AppHeader from '../components/lp/AppHeader'
@@ -500,6 +501,12 @@ export default function ReviewResult() {
                 </div>
               </div>
             </section>
+            {(metadata.categories ?? []).some(isOtherCategory) && (
+              <div className="lp-notice">
+                <span>ⓘ</span>
+                <span>식품유형을 <b>기타</b>로 입력해 공통 17개 항목 기준으로 검토했어요. 이 유형에만 해당하는 전용 표시 기준은 반영되지 않았을 수 있어요.</span>
+              </div>
+            )}
             <div className="lp-notice">
               <span>ⓘ</span>
               <span>검토 결과는 입력한 정보를 바탕으로 한 <b>자율 점검 참고 자료</b>이며, 식약처 등 관할 기관의 공식 인증이나 법적 적합성 보증이 아닙니다.</span>

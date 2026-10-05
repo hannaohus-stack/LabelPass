@@ -28,5 +28,16 @@ export const CATEGORY_OFFICIAL: Record<string, string> = {
   '건강식품(일반)':  '기타식품류',
 }
 
+/** '기타(직접 입력)'는 categories에 '기타:<입력값>'으로 저장한다 (베타 신청 폼과 같은 형식) */
+export const OTHER_PREFIX = '기타:'
+export const isOtherCategory = (c: string) => c.startsWith(OTHER_PREFIX)
+
+/** 화면 표시용 이름: '기타:커피' → '커피', '디저트/베이커리' → '디저트 · 베이커리' */
+export const categoryText = (c: string) =>
+  isOtherCategory(c) ? (c.slice(OTHER_PREFIX.length).trim() || '기타') : c.replace(/\//g, ' · ')
+
+/** 라벨 식품유형용 이름: 공식 분류명이 있으면 그것, 기타는 입력값 그대로 */
+export const officialCategory = (c: string) => CATEGORY_OFFICIAL[c] ?? categoryText(c)
+
 /** 원화 포맷 (쉼표 구분) */
 export const fmtKRW = (n: number) => n.toLocaleString('ko-KR')

@@ -5,7 +5,7 @@
 import type { Ingredient } from '../utils/parsing'
 import type { Metadata, RegulationResult } from '../pages/ReviewResult'
 import type { CreatorData } from '../pages/creator/types'
-import { TIER_1_PRICE, TIER_2_PRICE } from '../utils/tierUtils'
+import { TIER_1_PRICE, TIER_2_PRICE, categoryText } from '../utils/tierUtils'
 import { generateReviewId } from '../utils/generateReviewId'
 import { PENDING_REVIEW_KEY } from './next'
 import { supabase } from './supabase'
@@ -79,7 +79,7 @@ const BIZ: Record<string, string> = { '식품제조가공업': '식품제조 · 
 /** 제품 한 줄 요약: 제품명 · 카테고리 · 내용량 · 영업 */
 export function productParts(m: Metadata): string[] {
   return [
-    (m.categories ?? []).map(c => c.replace(/\//g, ' · ')).join(', '),
+    (m.categories ?? []).map(categoryText).join(', '),
     m.totalWeight ? `${m.totalWeight}${m.unit}` : '',
     m.businessType ? (BIZ[m.businessType] ?? m.businessType) : '',
   ].filter(Boolean)
