@@ -83,7 +83,7 @@ Deno.serve(async (req: Request) => {
     for (const row of rows as QueueRow[]) {
       try {
         // 2. Resend로 이메일 발송
-        await resend.emails.send({
+        const { error: sendError } = await resend.emails.send({
           from:    Deno.env.get('MAIL_FROM') ?? '라벨패스 LabelPass <noreply@labelpass.kr>',
           to:      row.email,
           subject: '[라벨패스] 3분이면 돼요 — 솔직한 한마디 부탁드려요 🙏',
@@ -114,6 +114,7 @@ Deno.serve(async (req: Request) => {
 </html>
           `.trim(),
         })
+        if (sendError) throw new Error(sendError.message) // 발송 실패 시 sent 처리하지 않음 → 다음 실행에서 재시도
 
         // 3. sent = true 업데이트
         await supabase
