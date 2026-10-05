@@ -3,7 +3,7 @@
    - [대괄호] 표시는 사업자 정보 확정 후 채워야 하는 자리입니다. */
 (function () {
   var EFFECTIVE = '2026년 [ ]월 [ ]일';
-  var CO = '[상호]';
+  var CO = '주식회사 채움코리아';
 
   var css = '' +
   '.pm-open{color:var(--blue,#3358EE);font-weight:700;padding:0;font-size:inherit;background:none;border:0;cursor:pointer}' +
@@ -79,7 +79,7 @@
   '<h3>4. 제3자 제공</h3><p>회사는 이용자의 개인정보를 제3자에게 제공하지 않습니다. 다만 이용자의 동의가 있거나 법령에 특별한 규정이 있는 경우는 예외로 합니다.</p>' +
   '<h3>5. 처리 위탁과 국외 이전</h3><p>회사는 서비스 운영을 위해 다음과 같이 개인정보 처리를 위탁하며, 일부는 국외에서 처리됩니다.</p>' +
   '<table><tr><th>수탁자</th><th>위탁 업무</th><th>이전 국가</th></tr>' +
-  '<tr><td>Supabase Inc.</td><td>회원 인증, 데이터 저장</td><td>[서버 리전 확인]</td></tr>' +
+  '<tr><td>Supabase Inc.</td><td>회원 인증, 데이터 저장</td><td>대한민국(서울)</td></tr>' +
   '<tr><td>Vercel Inc.</td><td>웹사이트 호스팅</td><td>미국</td></tr>' +
   '<tr><td>Lemon Squeezy, LLC</td><td>결제 처리</td><td>미국</td></tr>' +
   '<tr><td>(주)카카오</td><td>카카오 로그인</td><td>대한민국</td></tr>' +
@@ -89,7 +89,7 @@
   '<h3>7. 이용자의 권리</h3><p>이용자는 언제든지 자신의 개인정보 열람, 정정, 삭제, 처리 정지를 요청할 수 있으며, 회사는 지체 없이 조치합니다. 요청은 아래 개인정보 보호책임자에게 이메일 또는 카톡으로 할 수 있습니다.</p>' +
   '<h3>8. 쿠키와 분석 도구</h3><p>회사는 이용 통계 분석을 위해 쿠키와 분석 도구(Google Analytics, Microsoft Clarity)를 사용합니다. 이용자는 브라우저 설정에서 쿠키 저장을 거부할 수 있으며, 이 경우 일부 기능 이용이 어려울 수 있습니다.</p>' +
   '<h3>9. 안전성 확보 조치</h3><ul><li>비밀번호 암호화 저장, 전송 구간 암호화(HTTPS)</li><li>개인정보 접근 권한 최소화와 접근 기록 관리</li><li>보안 업데이트와 정기 점검</li></ul>' +
-  '<h3>10. 개인정보 보호책임자</h3><table><tr><th>성명</th><td>[이름]</td></tr><tr><th>직책</th><td>대표</td></tr><tr><th>연락처</th><td>[이메일] · 카톡 [채널명]</td></tr></table>' +
+  '<h3>10. 개인정보 보호책임자</h3><table><tr><th>성명</th><td>Hanna Oh</td></tr><tr><th>직책</th><td>대표</td></tr><tr><th>연락처</th><td>marketing@chaeum.cloud · 카카오톡 “라벨패스 | LabelPass 고객센터”</td></tr></table>' +
   '<h3>11. 권익 침해 구제</h3><ul><li>개인정보침해신고센터 (privacy.kisa.or.kr / 118)</li><li>개인정보분쟁조정위원회 (www.kopico.go.kr / 1833-6972)</li><li>대검찰청 사이버수사과 (www.spo.go.kr / 1301)</li><li>경찰청 사이버수사국 (ecrm.police.go.kr / 182)</li></ul>' +
   '<h3>12. 방침의 변경</h3><p>이 방침이 변경되는 경우 시행 7일 전부터 서비스 화면에 공지합니다.</p>';
 
@@ -141,7 +141,7 @@
    비어 있으면: 카톡 버튼 → 도입문의(/contact)로 임시 연결, 푸터 아이콘은 숨김. */
 (function () {
   var LINKS = {
-    kakao: '',   // 예: https://pf.kakao.com/_xxxx/chat
+    kakao: 'https://open.kakao.com/o/szZk5XQi',   // 라벨패스 | LabelPass 고객센터 (카카오톡 오픈채팅)
     naver: 'https://blog.naver.com/krkseoul',   // 임시 주소 (주소 변경 가능해지면 교체)
     youtube: 'https://www.youtube.com/channel/UCULBIyN82GaTNyQ1-QK6Wcw'
   };
