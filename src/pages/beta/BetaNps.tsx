@@ -27,6 +27,9 @@ export default function BetaNps() {
     const e: Record<string, string> = {}
     if (npsScore === null)    e.npsScore    = '점수를 선택해주세요'
     if (interviewOk === null) e.interviewOk = '선택해주세요'
+    const mail = contact.trim()
+    if (interviewOk === true && !mail) e.contact = '인터뷰 연락을 위해 이메일을 입력해주세요'
+    else if (mail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) e.contact = '올바른 이메일 형식으로 입력해주세요'
     setErrors(e)
     return Object.keys(e).length === 0
   }
@@ -94,7 +97,7 @@ export default function BetaNps() {
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <FieldGroup label="1. 라벨패스를 동료 제조사에게 추천할 가능성은?" error={errors.npsScore}>
+          <FieldGroup label="1. 라벨패스를 주변 식품 사업자에게 추천하고 싶은 정도는?" error={errors.npsScore}>
             <NpsButtons value={npsScore} onChange={setNpsScore} />
             {npsScore !== null && (
               <p style={{ fontSize: 12, color: INK_2, marginTop: 8, textAlign: 'center' }}>
@@ -134,9 +137,10 @@ export default function BetaNps() {
             </div>
           </FieldGroup>
 
-          <FieldGroup label="연락처 (선택 — 인터뷰 연락용)">
-            <input type="text" value={contact} onChange={e => setContact(e.target.value)}
-              placeholder="이메일 또는 카톡 ID" style={inputStyle(false)} />
+          <FieldGroup label="이메일 (인터뷰 가능하신 분은 필수)" error={errors.contact}>
+            <input type="email" value={contact} onChange={e => setContact(e.target.value)}
+              placeholder="hello@example.com" inputMode="email" autoComplete="email"
+              style={inputStyle(!!errors.contact)} />
           </FieldGroup>
 
           <button type="submit" disabled={submitting} style={{
