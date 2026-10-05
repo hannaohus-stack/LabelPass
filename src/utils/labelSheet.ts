@@ -11,7 +11,12 @@ import { CATEGORY_OFFICIAL } from './tierUtils'
 export interface SheetCtx {
   reviewId?: string
   reviewedAt?: string
+  /** 전문 서비스 여부 — 분리배출 도안 안내 문구가 등급별로 달라진다 */
+  isPro?: boolean
 }
+
+/** 항목 상태: 입력됨 / 확인 필요(빠졌거나 확인할 것) / 선택(안 넣어도 되는 항목) */
+export type SheetStatus = '입력됨' | '확인 필요' | '선택'
 
 export interface SheetRow {
   k: string
@@ -19,9 +24,32 @@ export interface SheetRow {
   /** 값 아래 작은 안내 */
   sub?: string
   missing?: boolean
+  status: SheetStatus
 }
 
-export interface SheetNutritionRow { k: string; v: string; missing: boolean }
+export interface SheetNutritionRow {
+  k: string
+  /** 1회 제공량당 함량(숫자) — 미입력이면 빈 문자열 */
+  num: string
+  unit: string
+  /** 화면·PDF용 표기 (예: "45 kcal") */
+  v: string
+  missing: boolean
+  /** 1일 영양성분 기준치 (기준치가 없는 열량·트랜스지방은 null) */
+  std: number | null
+  /** 기준치 대비 % (정수) */
+  pct: number | null
+  /** 총 내용량당 함량 (1회 제공량·내용량 단위가 같을 때만) */
+  perTotal: number | null
+}
+
+export interface SheetIngredient {
+  no: number
+  name: string
+  weight: number
+  origin: string
+  allergen: boolean
+}
 
 export interface SheetModel {
   productName: string
@@ -34,7 +62,8 @@ export interface SheetModel {
   reviewId?: string
   reviewedAt?: string
   rows: SheetRow[]
-  nutrition: { exempt: boolean; serving: string; rows: SheetNutritionRow[] }
+  nutrition: { exempt: boolean; serving: string; servingAmount: number; totalAmount: number; rows: SheetNutritionRow[] }
+  ingredients: SheetIngredient[]
   allergens: string[]
   materials: string[]
   /** 복사용 표시사항 텍스트 */
@@ -47,6 +76,11 @@ export const BIZ_LABEL: Record<string, string> = {
 }
 
 const num = (v: string) => parseFloat(v) || 0
+
+/** 1일 영양성분 기준치 — 식품 등의 표시·광고에 관한 법률 시행규칙 [별표 5] (2020.9.9 개정). 열량·트랜스지방은 기준치 없음 */
+export const NUTRIENT_STANDARD: Record<string, number> = {
+  '나트륨': 2000, '탄수화물': 324, '당류': 100, '지방': 54, '포화지방': 15, '콜레스테롤': 300, '단백질': 55,
+}
 
 export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetModel {
   const sorted = [...data.ingredients]
@@ -75,7 +109,7 @@ export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetMod
   const businessLabel = data.businessType ? (BIZ_LABEL[data.businessType] ?? data.businessType) : ''
   const facilityLabel = data.facilityType === '공유' ? '공유 시설' : data.facilityType === '단독' ? '단독 시설' : ''
 
-  const reportRow: SheetRow = data.reportNumber
+  const reportRow: Omit<SheetRow, 'status'> = data.reportNumber
     ? { k: '품목보고번호', v: data.reportNumber }
     : data.reportNumberStatus === 'exists'
       ? { k: '품목보고번호', v: '', sub: '보유로 입력했지만 번호가 없어요. 신고증의 번호를 넣어 주세요.' }
@@ -83,38 +117,72 @@ export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetMod
         ? { k: '품목보고번호', v: '해당 없음', sub: '즉석판매제조·가공업은 품목제조보고 대상이 아니에요.' }
         : { k: '품목보고번호', v: '', sub: '품목제조보고 후 발급되는 번호를 표시해요.' }
 
+  // 총 내용량당 함량은 1회 제공량과 내용량의 단위가 같을 때만 계산한다
+  const servingAmount = num(data.servingSize)
+  const totalAmount = num(data.totalWeight)
+  const sameUnit = !!data.servingUnit && data.servingUnit === data.unit
+  const scale = servingAmount > 0 && totalAmount > 0 && sameUnit ? totalAmount / servingAmount : null
+  const nutRow = (k: string, raw: string, unit: string): SheetNutritionRow => {
+    const n = raw === '' ? null : parseFloat(raw)
+    const has = n !== null && !Number.isNaN(n)
+    const std = NUTRIENT_STANDARD[k] ?? null
+    return {
+      k, unit,
+      num: has ? String(n) : '',
+      v: has ? `${n} ${unit}` : '',
+      missing: !has,
+      std,
+      pct: has && std ? Math.round((n as number) / std * 100) : null,
+      perTotal: has && scale ? Math.round((n as number) * scale * 10) / 10 : null,
+    }
+  }
   const nutritionRows: SheetNutritionRow[] = data.nutritionExempted ? [] : [
-    { k: '열량', v: data.calories ? `${data.calories} kcal` : '', missing: !data.calories },
-    { k: '나트륨', v: data.sodium ? `${data.sodium} mg` : '', missing: !data.sodium },
-    { k: '탄수화물', v: data.totalCarbs ? `${data.totalCarbs} g` : '', missing: !data.totalCarbs },
-    { k: '당류', v: data.sugar ? `${data.sugar} g` : '', missing: !data.sugar },
-    { k: '지방', v: data.totalFat ? `${data.totalFat} g` : '', missing: !data.totalFat },
-    { k: '트랜스지방', v: data.transFat !== '' ? `${data.transFat} g` : '', missing: data.transFat === '' },
-    { k: '포화지방', v: data.saturatedFat ? `${data.saturatedFat} g` : '', missing: !data.saturatedFat },
-    { k: '콜레스테롤', v: data.cholesterol ? `${data.cholesterol} mg` : '', missing: !data.cholesterol },
-    { k: '단백질', v: data.protein ? `${data.protein} g` : '', missing: !data.protein },
+    nutRow('열량', data.calories, 'kcal'),
+    nutRow('나트륨', data.sodium, 'mg'),
+    nutRow('탄수화물', data.totalCarbs, 'g'),
+    nutRow('당류', data.sugar, 'g'),
+    nutRow('지방', data.totalFat, 'g'),
+    nutRow('트랜스지방', data.transFat, 'g'),
+    nutRow('포화지방', data.saturatedFat, 'g'),
+    nutRow('콜레스테롤', data.cholesterol, 'mg'),
+    nutRow('단백질', data.protein, 'g'),
   ]
   const serving = data.servingSize ? `1회 제공량 ${data.servingSize}${data.servingUnit}` : ''
 
   const materials = data.packagingMaterials ?? []
 
+  // 상태: 값이 있으면 입력됨, 비었으면 확인 필요(선택 항목은 '선택')
+  const mk = (r: Omit<SheetRow, 'status'>, opts: { optional?: boolean; check?: boolean } = {}): SheetRow => ({
+    ...r,
+    status: !r.v || r.missing || opts.check ? (opts.optional && !r.v ? '선택' : '확인 필요') : '입력됨',
+  })
+  const pro = ctx.isPro === true
   const rows: SheetRow[] = [
-    { k: '제품명', v: data.productName },
-    { k: '식품유형', v: foodType, sub: data.categories.length ? `선택 카테고리: ${data.categories.join(', ')}` : undefined },
-    { k: '내용량', v: amount },
-    { k: '원재료명', v: ingredientText, sub: sorted.length ? '배합비율 높은 순 · 함량은 상위 1개 원재료 기준으로 적었어요' : undefined },
-    { k: '알레르기 유발물질', v: allergens.length ? `${allergens.join(', ')} 함유` : '', sub: allergens.length ? '원재료명과 별도로 알아보기 쉽게 표시해요' : '감지된 알레르기 유발물질이 없어요. 원재료를 다시 확인해 주세요.', missing: allergens.length === 0 },
-    { k: '원산지', v: originText, sub: originMissing.length ? `원산지 미입력: ${originMissing.join(', ')}` : undefined },
-    { k: '소비기한', v: expiry },
-    { k: '보관방법', v: data.storage },
-    { k: '제조원', v: data.manufacturer },
-    { k: '제조원 소재지', v: data.manufacturerAddress },
-    reportRow,
-    { k: '영업 형태', v: [businessLabel, facilityLabel].filter(Boolean).join(' · ') },
-    { k: '포장재질 · 분리배출', v: materials.join(', '), sub: materials.length ? '재질별 분리배출 표시 도안은 전문 서비스의 ZIP으로 받을 수 있어요' : undefined },
-    { k: '표시 · 광고 문구', v: data.labelClaim, sub: data.labelClaim ? undefined : '라벨에 넣을 강조 문구가 있으면 검토 입력에 추가해 주세요' },
-    { k: '반품 · 교환', v: '구입처 또는 제조원', sub: '반품·교환 장소는 영업자가 정한 곳으로 바꿔 적어 주세요' },
-    { k: '부정 · 불량식품 신고', v: '국번 없이 1399' },
+    mk({ k: '제품명', v: data.productName }),
+    mk({ k: '식품유형', v: foodType }),
+    mk({ k: '내용량', v: amount }),
+    mk({ k: '원재료명', v: ingredientText, sub: sorted.length ? '배합비율 높은 순 · 함량은 상위 1개 원재료 기준으로 적었어요' : undefined }),
+    mk({ k: '알레르기 유발물질', v: allergens.length ? `${allergens.join(', ')} 함유` : '', sub: allergens.length ? '원재료명과 별도로 알아보기 쉽게 표시해요' : '감지된 알레르기 유발물질이 없어요. 원재료를 다시 확인해 주세요.', missing: allergens.length === 0 }),
+    mk({ k: '원산지', v: originText, sub: originMissing.length ? `원산지 미입력: ${originMissing.join(', ')}` : undefined }, { check: originMissing.length > 0 }),
+    mk({ k: '소비기한', v: expiry }),
+    mk({ k: '보관방법', v: data.storage }),
+    mk({ k: '제조원', v: data.manufacturer }),
+    mk({ k: '제조원 소재지', v: data.manufacturerAddress }),
+    mk(reportRow, { check: !data.reportNumber && data.reportNumberStatus === 'exists' }),
+    mk({ k: '영업 형태', v: [businessLabel, facilityLabel].filter(Boolean).join(' · ') }),
+    mk({
+      k: '포장재질 · 분리배출', v: materials.join(', '),
+      sub: materials.length ? (pro ? '재질별 분리배출 표시 도안은 ZIP의 06_분리배출마크 폴더(svg · png)에 있어요' : '재질별 분리배출 표시 도안은 전문 서비스에서 받을 수 있어요') : undefined,
+    }),
+    mk({ k: '표시 · 광고 문구', v: data.labelClaim, sub: data.labelClaim ? undefined : '라벨에 넣을 강조 문구가 있으면 검토 입력에 추가해 주세요' }, { optional: true }),
+    // 입력받지 않은 값은 채워 넣지 않는다 — 반품·교환 장소는 영업자가 정해서 직접 적는다
+    mk({ k: '반품 · 교환', v: '', sub: '반품·교환 장소를 정했다면 직접 적어 주세요. 입력받은 내용이 없어 비워 뒀어요.' }, { optional: true }),
+    mk({
+      k: '부정 · 불량식품 신고', v: '국번 없이 1399',
+      sub: data.businessType === '즉판가공업'
+        ? '소비자 안전 표시사항으로 안내되는 문구예요. 진열상자·표지판에 게시하면 제품별 표시를 생략할 수 있지만, 택배·배송으로 파는 제품은 생략할 수 없어요.'
+        : '소비자 안전 표시사항으로 안내되는 문구예요.',
+    }),
   ]
 
   const nutritionText = data.nutritionExempted
@@ -141,7 +209,8 @@ export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetMod
     foodType, categories: data.categories, businessLabel, facilityLabel, amount,
     reviewId: ctx.reviewId, reviewedAt: ctx.reviewedAt,
     rows,
-    nutrition: { exempt: data.nutritionExempted, serving, rows: nutritionRows },
+    nutrition: { exempt: data.nutritionExempted, serving, servingAmount, totalAmount, rows: nutritionRows },
+    ingredients: sorted.map((i, idx) => ({ no: idx + 1, name: i.name, weight: num(i.weight), origin: i.origin ?? '', allergen: !!i.isAllergen })),
     allergens, materials, copyText,
   }
 }

@@ -179,7 +179,7 @@ export default function PaymentComplete() {
   const firstIssue = issues[0]?.id
   const isOpen = (id: string) => open[id] ?? id === firstIssue
   /** 결과물 공통 맥락 — 검토번호·검토일을 모든 파일에 같이 넣는다 */
-  const ctx = { reviewId: state.reviewId, reviewedAt: state.reviewedAt, results }
+  const ctx = { reviewId: state.reviewId, reviewedAt: state.reviewedAt, results, isPro }
   const text = buildSheetModel(creatorData, ctx).copyText
   const paidAt = state.paidAt ?? new Date().toISOString()
   const keepUntil = new Date(new Date(paidAt).getTime() + 365 * 86_400_000).toISOString()
@@ -195,7 +195,7 @@ export default function PaymentComplete() {
   }
 
   const dlLabelPDF = async () => { const { generateLabelPDF } = await import('../utils/generateLabelPDF'); await generateLabelPDF(creatorData, ctx) }
-  const dlLabelPNG = async () => { const { createLabelPngBlob, labelPngFilename } = await import('../utils/generateLabelPDF'); downloadBlob(await createLabelPngBlob(creatorData, ctx), labelPngFilename(creatorData)) }
+  const dlLabelXlsx = async () => { const { createLabelXlsxBlob, labelXlsxFilename } = await import('../utils/generateLabelXlsx'); downloadBlob(await createLabelXlsxBlob(creatorData, ctx), labelXlsxFilename(creatorData)) }
   const dlReport = async () => { const { generateCertPDF } = await import('../utils/generateCertPDF'); await generateCertPDF(creatorData, paidTier, ctx) }
   const dlGuide = async () => { const { generateReportPDF } = await import('../utils/generateReportPDF'); await generateReportPDF(creatorData, paidTier, ctx) }
   const materials = (metadata.packagingMaterials ?? []).filter(mat => RECYCLING_FILE_MAP[mat])
@@ -210,9 +210,10 @@ export default function PaymentComplete() {
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
     const stamp = kstStamp()
-    const { createLabelPDFArtifact, createLabelPngBlob } = await import('../utils/generateLabelPDF')
+    const { createLabelPDFArtifact } = await import('../utils/generateLabelPDF')
+    const { createLabelXlsxBlob } = await import('../utils/generateLabelXlsx')
     zip.file(`01_표시사항시트_${safeName}_${stamp}.pdf`, (await createLabelPDFArtifact(creatorData, ctx)).blob)
-    zip.file(`02_표시사항시트_${safeName}_${stamp}.png`, await createLabelPngBlob(creatorData, ctx))
+    zip.file(`02_표시사항시트_${safeName}_${stamp}.xlsx`, await createLabelXlsxBlob(creatorData, ctx))
     zip.file(`03_표시사항텍스트_${safeName}.txt`, text)
     if (isPro) {
       const { createReportPDFArtifact } = await import('../utils/generateReportPDF')
@@ -226,7 +227,7 @@ export default function PaymentComplete() {
 
   const files: { key: string; i: string; t: string; s: string; fn: () => Promise<void>; pro?: boolean; off?: boolean }[] = [
     { key: 'pdf', i: 'PDF', t: '표시사항 시트 PDF', s: '항목별 정리 · 디자이너 전달용', fn: dlLabelPDF },
-    { key: 'png', i: 'PNG', t: '표시사항 시트 PNG', s: '같은 내용의 고해상도 이미지', fn: dlLabelPNG },
+    { key: 'xlsx', i: '엑셀', t: '표시사항 시트 엑셀', s: '표시사항 · 영양성분 · 배합비 · 디자이너 전달용', fn: dlLabelXlsx },
     { key: 'report', i: '리포트', t: '검토 리포트 PDF', s: `${results.length}개 항목 결과 · 수정 방법 · 근거`, fn: dlReport, pro: true },
     { key: 'guide', i: '신고', t: '신고 입력 가이드 PDF', s: '신고 절차 · 입력 항목 정리', fn: dlGuide, pro: true },
     {
