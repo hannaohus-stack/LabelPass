@@ -47,6 +47,12 @@ const BIZ_LABEL = { '식품제조가공업': '식품제조 · 가공업', '즉�
 const FAC_LABEL = { '단독': '단독 주방', '공유': '공유 주방' } as const
 const catLabel = (c: string) => c.replace('/', ' · ')
 
+// 잼류·소스류·장류는 칩 하나로 묶어 보여 준다. 저장값은 기존 그대로(잼류/소스류/장류)라
+// 원재료 사전·식품유형 표기·지난 검토 기록에 영향이 없다.
+const GROUP_CATS: readonly string[] = ['잼류', '소스류', '장류']
+const GROUP_LABEL = '잼 · 소스 · 장류'
+const SINGLE_CATS = ALL_CATEGORIES.filter(c => !GROUP_CATS.includes(c))
+
 export default function Step1_ProductInfo({ data, onChange }: StepProps) {
   type TouchedField =
     | 'productName'
@@ -92,6 +98,28 @@ export default function Step1_ProductInfo({ data, onChange }: StepProps) {
     onChange({ categories: next })
   }
 
+  const [groupOpen, setGroupOpen] = useState(false)
+  const groupPicked = data.categories.some(c => GROUP_CATS.includes(c))
+  const showGroup = groupOpen || groupPicked
+  const toggleGroup = () => {
+    markTouched('categories')
+    if (showGroup) {
+      setGroupOpen(false)
+      if (groupPicked) onChange({ categories: data.categories.filter(c => !GROUP_CATS.includes(c)) })
+    } else {
+      setGroupOpen(true)
+    }
+  }
+
+  const renderChip = (category: string) => {
+    const on = data.categories.includes(category)
+    return (
+      <button key={category} type="button" aria-pressed={on} className={`lp-chip${on ? ' on' : ''}`} onClick={() => toggleCategory(category)}>
+        {catLabel(category)}
+      </button>
+    )
+  }
+
   const setProductName = (event: React.ChangeEvent<HTMLInputElement>) => {
     onChange({ productName: event.target.value })
   }
@@ -115,15 +143,16 @@ export default function Step1_ProductInfo({ data, onChange }: StepProps) {
           <Lb required error={errors.categories} extra={<span className="lp-tip">{data.categories.length > 0 ? `${data.categories.length}개 선택됨` : '여러 개 선택 가능'}</span>}>식품 카테고리</Lb>
           <div className={`lp-chips${errors.categories ? ' bad' : ''}`}
             onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) markTouched('categories') }}>
-            {ALL_CATEGORIES.map(category => {
-              const on = data.categories.includes(category)
-              return (
-                <button key={category} type="button" aria-pressed={on} className={`lp-chip${on ? ' on' : ''}`} onClick={() => toggleCategory(category)}>
-                  {catLabel(category)}
-                </button>
-              )
-            })}
+            {SINGLE_CATS.map(renderChip)}
+            <button type="button" aria-pressed={showGroup} aria-expanded={showGroup} aria-controls="c-grp"
+              className={`lp-chip${showGroup ? ' on' : ''}`} onClick={toggleGroup}>{GROUP_LABEL}</button>
           </div>
+          {showGroup && (
+            <div id="c-grp" className="lp-chip-sub" role="group" aria-label={`${GROUP_LABEL} 세부 종류`}>
+              <span className="lp-tip">{groupPicked ? '해당하는 종류를 모두 골라 주세요' : '세부 종류를 골라 주세요'}</span>
+              <div className="lp-chips">{GROUP_CATS.map(renderChip)}</div>
+            </div>
+          )}
           {errors.categories && <p className="lp-err">카테고리를 하나 이상 골라 주세요.</p>}
         </div>
         <div className="lp-fl">
