@@ -386,7 +386,7 @@ const SVC_FEATURES: Record<ServiceType, { forWho: string; items: React.ReactNode
   },
   pro: {
     forWho: '수정 · 확인 항목이 있거나 신고 · 입점을 준비할 때',
-    items: [<b key="b">기본 전체 포함</b>, '수정 방법 · 근거 법령 · 과태료', '검토 리포트 PDF', '정부24 신고 가이드 · 분리배출 마크'],
+    items: [<b key="b">기본 전체 포함</b>, '수정 방법 · 근거 법령 · 과태료', '검토 리포트 PDF', '신고 준비 가이드 · 분리배출 마크'],
   },
 }
 

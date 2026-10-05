@@ -219,7 +219,7 @@ export default function PaymentComplete() {
       const { createReportPDFArtifact } = await import('../utils/generateReportPDF')
       const { createCertPDFArtifact } = await import('../utils/generateCertPDF')
       zip.file(`04_검토리포트_${safeName}_${stamp}.pdf`, (await createCertPDFArtifact(creatorData, paidTier, ctx)).blob)
-      zip.file(`05_신고입력가이드_${safeName}_${stamp}.pdf`, (await createReportPDFArtifact(creatorData, paidTier, ctx)).blob)
+      zip.file(`05_신고준비가이드_${safeName}_${stamp}.pdf`, (await createReportPDFArtifact(creatorData, paidTier, ctx)).blob)
       await addRecyclingMarks(zip, '06_분리배출마크/', materials)
     }
     downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_${isPro ? '전문' : '기본'}_${safeName}_${stamp}.zip`)
@@ -229,7 +229,7 @@ export default function PaymentComplete() {
     { key: 'pdf', i: 'PDF', t: '표시사항 시트 PDF', s: '항목별 정리 · 디자이너 전달용', fn: dlLabelPDF },
     { key: 'xlsx', i: '엑셀', t: '표시사항 시트 엑셀', s: '표시사항 · 영양성분 · 배합비 · 디자이너 전달용', fn: dlLabelXlsx },
     { key: 'report', i: '리포트', t: '검토 리포트 PDF', s: `${results.length}개 항목 결과 · 수정 방법 · 근거`, fn: dlReport, pro: true },
-    { key: 'guide', i: '신고', t: '신고 입력 가이드 PDF', s: '신고 절차 · 입력 항목 정리', fn: dlGuide, pro: true },
+    { key: 'guide', i: '신고', t: '신고 준비 가이드 PDF', s: '신고 절차 · 준비 서류 · 입력 항목 · 관련 링크', fn: dlGuide, pro: true },
     {
       key: 'zip', i: 'ZIP', t: '분리배출 마크',
       s: materials.length ? `${materials.slice(0, 2).join(' · ')}${materials.length > 2 ? ` 외 ${materials.length - 2}` : ''} 도안` : '포장재 재질을 고르지 않았어요',
