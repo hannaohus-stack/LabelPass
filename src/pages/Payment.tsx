@@ -4,6 +4,7 @@
 import { useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AppHeader from '../components/lp/AppHeader'
+import { categoryText } from '../utils/tierUtils'
 import { PAYMENT_STATE_KEY, SERVICE, readSession, won, writeSession, type PaymentState, type ServiceType } from '../lib/review'
 
 // ─── Lemon Squeezy Variant IDs (공개 OK — API Key 아님) ───────────────────────
@@ -100,7 +101,7 @@ export default function Payment() {
                 </div>
                 <div>
                   <b>{m.productName || '이름 없는 제품'}</b>
-                  <span>{[(m.categories ?? []).map(c => c.replace(/\//g, ' · ')).join(', '), m.totalWeight && `${m.totalWeight}${m.unit}`, state.reviewId && `검토번호 ${state.reviewId}`].filter(Boolean).join(' · ')}</span>
+                  <span>{[(m.categories ?? []).map(categoryText).join(', '), m.totalWeight && `${m.totalWeight}${m.unit}`, state.reviewId && `검토번호 ${state.reviewId}`].filter(Boolean).join(' · ')}</span>
                 </div>
               </div>
               <div className="lp-py-svc">
