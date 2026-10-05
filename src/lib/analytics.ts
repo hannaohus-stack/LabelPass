@@ -39,6 +39,11 @@ export function trackCompleteRegistration(userId?: string) {
   once(`lp_fbq_cr_${userId ?? 'anon'}`, () => fbq('track', 'CompleteRegistration'))
 }
 
+// 베타 신청(설문) 완료 — Meta 광고 전환(Lead). 신청당 1회
+export function trackBetaLead(applicationKey: string) {
+  once(`lp_fbq_lead_${applicationKey}`, () => fbq('track', 'Lead'))
+}
+
 /** 결제 확정 직후 1회 (주문당 1회). value=부가세 포함 결제금액(숫자), currency='KRW' */
 export function trackPurchaseMeta(value: number, orderId: string) {
   once(`lp_fbq_pur_${orderId}`, () => fbq('track', 'Purchase', { value, currency: 'KRW' }))
