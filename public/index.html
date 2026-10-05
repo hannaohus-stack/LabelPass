@@ -330,6 +330,28 @@ button.more-row:hover h3{color:var(--blue)}
  .step-desc{font-size:14px;margin-top:14px}
 }
 
+
+/* beta 모집 띠 + 입장 팝업 */
+.topbar{position:absolute;top:0;left:0;right:0;height:40px;z-index:21;background:#3358EE;color:#fff;display:flex;align-items:center;justify-content:center;gap:10px;font-size:14px;font-weight:600;padding:0 12px;white-space:nowrap;cursor:pointer;border:0;font-family:inherit;overflow:hidden}
+.topbar b{font-weight:800}.topbar .sep{opacity:.5}.topbar .left{background:rgba(255,255,255,.18);border-radius:999px;padding:3px 10px;font-size:13px;font-weight:700}
+.dot{position:relative;display:inline-block;width:8px;height:8px;border-radius:50%;background:#2EDB7B;margin-right:7px;vertical-align:1px}
+.dot::after{content:"";position:absolute;inset:0;border-radius:50%;background:#2EDB7B;animation:ping 1.6s ease-out infinite}
+.closed .dot,.closed .dot::after{background:#B7BFD1;animation:none}
+@keyframes ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.2);opacity:0}}
+@media(prefers-reduced-motion:reduce){.dot::after{animation:none}}
+.nav{top:40px}.hero-in{padding-top:160px}
+.pop-bg{position:fixed;inset:0;z-index:50;background:rgba(10,16,40,.55);display:none;align-items:center;justify-content:center;padding:20px}
+.pop{position:relative;width:100%;max-width:420px;background:#fff;border-radius:20px;padding:36px 28px 24px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);color:#182136}
+.pop-x{position:absolute;right:14px;top:12px;width:36px;height:36px;font-size:22px;color:#8A94A8;background:none;border:0;cursor:pointer}
+.pop-badge{display:inline-flex;align-items:center;background:#EEF2FF;color:#3358EE;border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700}
+.pop h3{font-size:26px;line-height:1.3;font-weight:800;margin:16px 0 10px;letter-spacing:-0.035em}
+.pop p{margin:0;font-size:15px;line-height:1.6;color:#4B5873}
+.pop-stat{display:none}.pop-stat.on{display:block}
+.pop-meter{margin:20px 0 6px;height:8px;border-radius:99px;background:#E4E8F0;overflow:hidden}.pop-meter i{display:block;height:100%;width:0;background:#3358EE;border-radius:99px;transition:width .6s}
+.pop-left{font-size:13.5px;font-weight:700;color:#3358EE;margin-bottom:20px}
+.pop .btn{width:100%;margin-top:20px}.pop-stat.on+.btn{margin-top:0}
+.pop-later{margin-top:10px;font-size:14px;color:#8A94A8;background:none;border:0;height:40px;cursor:pointer}
+@media(max-width:700px){.topbar{font-size:12.5px;gap:7px}.topbar .hide-m{display:none}.hero-in{padding-top:144px}.pop h3{font-size:23px}}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5QYQQ49EGR"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5QYQQ49EGR',{anonymize_ip:true});</script>
@@ -356,6 +378,7 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
 </head>
 <body>
 
+<button class="topbar" id="betaBar" type="button" aria-label="베타 파트너 모집 안내 열기"><span><span class="dot"></span><span id="barTitle">베타 파트너 모집중</span></span><span class="sep hide-m">|</span><b id="barSub">선착순 30명 무료 검토</b><span class="left" id="barLeft" hidden></span></button>
 <header class="nav" id="nav">
  <div class="wrap nav-in">
   <a class="nav-logo" href="/" aria-label="라벨패스 홈"><img class="logo-w" src="/site/LabelPass_Logo_Primary_White_v1.0.svg" alt="LabelPass 라벨패스" width="102" height="40"><img class="logo-b" src="/site/LabelPass_Logo_Primary_Blue_v1.0.svg" alt="" width="102" height="40"></a>
@@ -698,5 +721,47 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
 })();
 </script>
 <script src="/site/policies.js" defer></script>
+<div class="pop-bg" id="betaPop" role="dialog" aria-modal="true" aria-labelledby="popT"><div class="pop">
+<button class="pop-x" id="popX" aria-label="닫기">×</button>
+<span class="pop-badge"><span class="dot"></span><span id="popBadge">베타 파트너 모집중</span></span>
+<h3 id="popT">출시 전, 라벨부터<br>무료로 검토해 보세요</h3>
+<p id="popP">선착순 30명께 라벨 검토를 무료로 체험해 드려요.<br>5가지 질문에 답하면 쿠폰을 바로 보내드립니다.</p>
+<div class="pop-stat" id="popStat"><div class="pop-meter"><i id="popFill"></i></div><div class="pop-left" id="popLeft"></div></div>
+<a class="btn btn-blue" id="popCta" href="/beta?utm_source=site&utm_medium=popup">무료 체험 신청하기 <span aria-hidden="true">→</span></a>
+<button class="pop-later" id="popLater" type="button">다음에 볼게요</button>
+</div></div>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)},pop=$('betaPop'),nav=$('nav'),bar=$('betaBar'),KEY='lp_beta_pop',closed=false;
+function seen(){try{return sessionStorage.getItem(KEY)==='1'}catch(e){return false}}
+function mark(){try{sessionStorage.setItem(KEY,'1')}catch(e){}}
+function open(){pop.style.display='flex'}
+function close(){pop.style.display='none';mark()}
+$('popX').onclick=close;$('popLater').onclick=close;
+pop.addEventListener('click',function(e){if(e.target===pop)close()});
+bar.onclick=open;
+document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+function place(){nav.style.top=Math.max(0,40-window.scrollY)+'px'}
+window.addEventListener('scroll',place,{passive:true});place();
+if(!seen())open();
+function render(r){
+  var n=r.remaining,cap=r.cap;
+  if(n<=0){
+    closed=true;document.body.classList.add('closed');
+    $('barTitle').textContent='베타 파트너 모집 마감';$('barSub').textContent='대기 신청은 계속 받고 있어요';$('barLeft').hidden=true;
+    $('popBadge').textContent='베타 모집 마감';$('popT').innerHTML='베타 모집이<br>마감됐어요';
+    $('popP').innerHTML='선착순 '+cap+'명이 모두 찼어요.<br>대기 신청을 남겨주시면 자리가 나는 대로 안내해 드려요.';
+    $('popCta').firstChild.nodeValue='대기 신청하기 ';
+    pop.querySelectorAll('.dot').forEach(function(d){d.parentNode.classList.add('closed')});
+    return;
+  }
+  var t=n<=10?'현재 '+n+'명 남았어요':'현재 '+n+'자리 모집 중';
+  $('barLeft').textContent=t;$('barLeft').hidden=false;
+  $('popLeft').textContent=n<=10?'현재 '+n+'자리 남았어요':t;
+  $('popFill').style.width=Math.round((cap-n)/cap*100)+'%';$('popStat').classList.add('on');
+}
+try{fetch('https://ershciqovotewsxzjyeq.supabase.co/functions/v1/beta-status').then(function(r){return r.json()}).then(function(r){if(r&&r.ok&&typeof r.remaining==='number')render(r)}).catch(function(){})}catch(e){}
+})();
+</script>
 </body>
 </html>
