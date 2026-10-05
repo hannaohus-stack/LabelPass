@@ -195,10 +195,10 @@ export default function BetaApply() {
             </div>
             <div style={{
               fontFamily: FONT_KR,
-              fontSize: 26,
+              fontSize: 22,
               fontWeight: 800,
               color: BLUE,
-              letterSpacing: '0.04em',
+              letterSpacing: '0.02em',
               marginBottom: 12,
               wordBreak: 'break-all',
             }}>
@@ -237,8 +237,8 @@ export default function BetaApply() {
             textAlign: 'left',
           }}>
             <p style={{ fontSize: 13, color: NAVY, lineHeight: 1.7, margin: 0 }}>
-              📧 <strong>3일 뒤</strong> 이메일로 짧은 설문 링크를 보내드려요.<br />
-              이용 후 간단한 사용후기를 남겨주시면, 정식 출시 후 <strong>50% 평생 할인 코드</strong>를 드릴게요 🙏
+              📧 <strong>3일 뒤</strong> 신청하신 이메일로 짧은 사용 후기 설문을 보내드려요.<br />
+              써보신 느낌을 솔직하게 들려주세요 🙏
             </p>
           </div>
         </div>
@@ -408,7 +408,7 @@ export default function BetaApply() {
             tabIndex={-1}
             autoComplete="off"
             aria-hidden="true"
-            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+            style={{ position: 'absolute', left: 0, top: 0, width: 1, height: 1, opacity: 0, pointerEvents: 'none', clipPath: 'inset(50%)' }}
           />
 
           {/* 개인정보 동의 (필수) */}
@@ -469,6 +469,8 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       minHeight: '100svh',
+      overflowX: 'hidden',
+      position: 'relative',
       background: SOFT,
       fontFamily: FONT_KR,
       color: NAVY,

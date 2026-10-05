@@ -100,8 +100,8 @@ Deno.serve(async (req: Request) => {
       안녕하세요, 라벨패스 베타 파트너님! 👋
     </h1>
     <p style="font-size:14px; color:rgba(10,10,11,0.65); line-height:1.7; margin:0 0 28px;">
-      사용해보셨나요? 딱 3분이면 되는 설문이에요.<br>
-      완료하시면 정식 출시 후 <strong>50% 평생 할인 코드</strong>를 드려요.
+      사용해보셨나요? 딱 3분이면 되는 후기 설문이에요.<br>
+      써보신 느낌을 솔직하게 들려주세요.
     </p>
     <a href="${npsUrl}" style="display:block; background:#3358EE; color:#fff; text-decoration:none; border-radius:10px; padding:14px 0; text-align:center; font-size:14.5px; font-weight:600; margin-bottom:28px;">
       👉 설문 참여하기
