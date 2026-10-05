@@ -10,33 +10,14 @@ import { analyzeRegulations, type Metadata } from './ReviewResult'
 import type { CreatorData } from './creator/types'
 import { TEST_MODE } from './Payment'
 import { recordPayment } from '../lib/supabase'
-import { CATEGORY_OFFICIAL } from '../utils/tierUtils'
+import { RECYCLING_FILE_MAP, materialSlug } from '../utils/recycling'
+import { buildSheetModel } from '../utils/labelSheet'
+import { kstStamp, safePdfName } from '../utils/pdfCore'
 import { trackPurchase } from '../lib/analytics'
 import {
   PAYMENT_STATE_KEY, SERVICE, countResults, fmtDate, kindOf, readSession, saveReviewOnce, whyText,
   type PaymentState, type ResultKind, type ServiceType,
 } from '../lib/review'
-
-const RECYCLING_FILE_MAP: Record<string, string> = {
-  '페트(PET)': '/recycling/plastic-pet.svg',
-  '고밀도 폴리에틸렌(HDPE)': '/recycling/plastic-hdpe.svg',
-  '폴리염화비닐(PVC)': '/recycling/plastic-other.svg',
-  '저밀도 폴리에틸렌(LDPE)': '/recycling/plastic-ldpe.svg',
-  '폴리프로필렌(PP)': '/recycling/plastic-pp.svg',
-  '폴리스티렌(PS)': '/recycling/plastic-ps.svg',
-  '기타 플라스틱': '/recycling/plastic-other.svg',
-  '유리': '/recycling/glass.svg',
-  '철': '/recycling/can-steel.svg',
-  '알루미늄': '/recycling/can-aluminum.svg',
-  '종이팩': '/recycling/paper-pack.svg',
-  '멸균팩': '/recycling/paper-pack2.svg',
-  '도포·첩합류(빨간)': '/recycling/laminated-red.svg',
-  '도포·첩합류(검정)': '/recycling/laminated-black.svg',
-  '골판지': '/recycling/paper.svg',
-  '일반 종이': '/recycling/paper.svg',
-  '비닐류': '/recycling/vinyl-ldpe.svg',
-  '스티로폼': '/recycling/plastic-ps.svg',
-}
 
 
 function downloadBlob(blob: Blob, filename: string): void {
@@ -48,126 +29,6 @@ function downloadBlob(blob: Blob, filename: string): void {
   a.click()
   document.body.removeChild(a)
   setTimeout(() => URL.revokeObjectURL(url), 5_000)
-}
-
-function safeFilenamePart(value: string): string {
-  return (value || 'product').replace(/[\s/\\]/g, '_')
-}
-
-// ZIP 내부 파일명용 ASCII slug — 한글 제거, 영문/숫자만 유지
-// 정책: 고객-facing 개별 파일명은 한글 유지, ZIP 내부는 ASCII 호환
-const MATERIAL_SLUG: Record<string, string> = {
-  '유리': 'glass', '철': 'steel', '알루미늄': 'aluminum',
-  '종이팩': 'paper-pack', '멸균팩': 'aseptic-pack',
-  '골판지': 'cardboard', '일반 종이': 'paper', '비닐류': 'vinyl',
-  '스티로폼': 'styrofoam', '기타 플라스틱': 'plastic-other',
-  '도포·첩합류(빨간)': 'laminated-red', '도포·첩합류(검정)': 'laminated-black',
-}
-
-function toZipSlug(value: string): string {
-  if (MATERIAL_SLUG[value]) return MATERIAL_SLUG[value]
-  const paren = value.match(/\(([A-Za-z0-9-]+)\)/)
-  if (paren) return paren[1].toLowerCase()
-  const ascii = value.replace(/[^\x00-\x7F]+/g, '').trim().toLowerCase()
-    .replace(/[\s_/\\()]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '')
-  return ascii || 'file'
-}
-
-function createLabelPngBlob(data: CreatorData): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas')
-    const size = 3000
-    canvas.width = size
-    canvas.height = size
-    const ctx = canvas.getContext('2d')
-    if (!ctx) {
-      reject(new Error('Canvas를 생성할 수 없습니다.'))
-      return
-    }
-
-    ctx.fillStyle = '#FFFFFF'
-    ctx.fillRect(0, 0, size, size)
-    ctx.strokeStyle = '#0A0A0B'
-    ctx.lineWidth = 10
-    ctx.strokeRect(180, 180, size - 360, size - 360)
-
-    ctx.fillStyle = '#002D72'
-    ctx.fillRect(180, 180, size - 360, 260)
-
-    ctx.fillStyle = '#FFFFFF'
-    ctx.font = '700 72px system-ui, sans-serif'
-    ctx.fillText('LABELPASS', 260, 340)
-
-    ctx.fillStyle = '#0A0A0B'
-    ctx.font = '700 190px system-ui, sans-serif'
-    wrapCanvasText(ctx, data.productName || '제품명', 260, 760, size - 520, 220)
-
-    ctx.font = '500 76px system-ui, sans-serif'
-    ctx.fillStyle = 'rgba(10,10,11,0.62)'
-    ctx.fillText(`내용량 ${data.totalWeight || '-'}${data.unit || ''}`, 260, 1450)
-
-    ctx.font = '500 58px system-ui, sans-serif'
-    ctx.fillStyle = 'rgba(10,10,11,0.52)'
-    ctx.fillText((data.categories ?? []).join(' · ') || '식품 유형', 260, 1580)
-
-    ctx.strokeStyle = 'rgba(10,10,11,0.18)'
-    ctx.lineWidth = 4
-    ctx.beginPath()
-    ctx.moveTo(260, 1760)
-    ctx.lineTo(size - 260, 1760)
-    ctx.stroke()
-
-    ctx.font = '500 54px system-ui, sans-serif'
-    ctx.fillStyle = '#0A0A0B'
-    wrapCanvasText(
-      ctx,
-      data.ingredients.map(item => item.weight ? `${item.name} ${item.weight}g` : item.name).join(', ') || '원재료명 및 함량',
-      260,
-      1900,
-      size - 520,
-      82,
-      5,
-    )
-
-    ctx.font = '500 48px system-ui, sans-serif'
-    ctx.fillStyle = 'rgba(10,10,11,0.55)'
-    ctx.fillText(`제조원 ${data.manufacturer || '-'}`, 260, 2600)
-    ctx.fillText('본 이미지는 라벨패스 라벨 PNG 미리보기 산출물입니다.', 260, 2700)
-
-    canvas.toBlob(blob => {
-      if (blob) resolve(blob)
-      else reject(new Error('PNG 파일을 생성할 수 없습니다.'))
-    }, 'image/png')
-  })
-}
-
-function wrapCanvasText(
-  ctx: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  maxLines = 3,
-): void {
-  const chars = Array.from(text)
-  let line = ''
-  let lines = 0
-
-  for (const char of chars) {
-    const testLine = line + char
-    if (ctx.measureText(testLine).width > maxWidth && line) {
-      ctx.fillText(line, x, y)
-      y += lineHeight
-      lines += 1
-      line = char
-      if (lines >= maxLines - 1) break
-    } else {
-      line = testLine
-    }
-  }
-
-  if (line && lines < maxLines) ctx.fillText(line, x, y)
 }
 
 function toCreatorData(ingredients: Ingredient[], metadata: Metadata): CreatorData {
@@ -250,29 +111,6 @@ function copyText(value: string): Promise<boolean> {
   })
 }
 
-function labelText(m: Metadata, cd: CreatorData, ingredients: Ingredient[]): string {
-  const sorted = [...ingredients].sort((a, b) => (b.weight || 0) - (a.weight || 0))
-  const total = sorted.reduce((s, i) => s + (i.weight || 0), 0)
-  const ing = sorted.map(i => {
-    const pct = total > 0 && i === sorted[0] ? ` ${((i.weight / total) * 100).toFixed(1)}%` : ''
-    return `${i.name}${i.origin ? `(${i.origin})` : ''}${pct}`
-  }).join(', ')
-  const allergens = cd.detectedAllergens?.length
-    ? cd.detectedAllergens.map(a => a.name)
-    : ingredients.filter(i => i.isAllergen).map(i => i.name)
-  return [
-    `제품명: ${m.productName}`,
-    (m.categories ?? []).length ? `식품유형: ${(m.categories ?? []).map(c => CATEGORY_OFFICIAL[c] ?? c).join(', ')}` : '',
-    m.totalWeight ? `내용량: ${m.totalWeight}${m.unit}` : '',
-    ing ? `원재료명: ${ing}` : '',
-    allergens.length ? `알레르기 유발물질: ${allergens.join(', ')} 함유` : '',
-    cd.expiryDate ? `소비기한: ${cd.expiryDate.replace(/-/g, '.')}까지` : '',
-    m.storage ? `보관방법: ${m.storage}` : '',
-    m.manufacturer ? `제조원: ${m.manufacturer}${m.manufacturerAddress ? ` / ${m.manufacturerAddress}` : ''}` : '',
-    m.reportNumber ? `품목보고번호: ${m.reportNumber}` : '',
-  ].filter(Boolean).join('\n')
-}
-
 export default function PaymentComplete() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -340,7 +178,9 @@ export default function PaymentComplete() {
   const okItems = results.filter(r => r.status === 'pass')
   const firstIssue = issues[0]?.id
   const isOpen = (id: string) => open[id] ?? id === firstIssue
-  const text = labelText(metadata, creatorData, ingredients)
+  /** 결과물 공통 맥락 — 검토번호·검토일을 모든 파일에 같이 넣는다 */
+  const ctx = { reviewId: state.reviewId, reviewedAt: state.reviewedAt, results }
+  const text = buildSheetModel(creatorData, ctx).copyText
   const paidAt = state.paidAt ?? new Date().toISOString()
   const keepUntil = new Date(new Date(paidAt).getTime() + 365 * 86_400_000).toISOString()
 
@@ -354,48 +194,47 @@ export default function PaymentComplete() {
     } finally { setBusy(null) }
   }
 
-  const dlLabelPDF = async () => { const { generateLabelPDF } = await import('../utils/generateLabelPDF'); await generateLabelPDF(creatorData) }
-  const dlLabelPNG = async () => { downloadBlob(await createLabelPngBlob(creatorData), `LabelPass_라벨_${safeFilenamePart(metadata.productName)}.png`) }
-  const dlReport = async () => { const { generateCertPDF } = await import('../utils/generateCertPDF'); await generateCertPDF(creatorData, paidTier) }
-  const dlGuide = async () => { const { generateReportPDF } = await import('../utils/generateReportPDF'); await generateReportPDF(creatorData, paidTier) }
+  const dlLabelPDF = async () => { const { generateLabelPDF } = await import('../utils/generateLabelPDF'); await generateLabelPDF(creatorData, ctx) }
+  const dlLabelPNG = async () => { const { createLabelPngBlob, labelPngFilename } = await import('../utils/generateLabelPDF'); downloadBlob(await createLabelPngBlob(creatorData, ctx), labelPngFilename(creatorData)) }
+  const dlReport = async () => { const { generateCertPDF } = await import('../utils/generateCertPDF'); await generateCertPDF(creatorData, paidTier, ctx) }
+  const dlGuide = async () => { const { generateReportPDF } = await import('../utils/generateReportPDF'); await generateReportPDF(creatorData, paidTier, ctx) }
   const materials = (metadata.packagingMaterials ?? []).filter(mat => RECYCLING_FILE_MAP[mat])
+  const safeName = safePdfName(metadata.productName)
   const dlRecycling = async () => {
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
     await Promise.all(materials.map(async mat => {
       const res = await fetch(RECYCLING_FILE_MAP[mat])
-      zip.file(`recycling_${toZipSlug(mat)}.svg`, await res.text())
+      zip.file(`분리배출마크_${materialSlug(mat)}.svg`, await res.text())
     }))
-    downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_분리배출마크_${safeFilenamePart(metadata.productName)}.zip`)
+    downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_분리배출마크_${safeName}_${kstStamp()}.zip`)
   }
   const dlAll = async () => {
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
-    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-    const safeName = safeFilenamePart(metadata.productName)
-    const slug = safeName.replace(/[^\x00-\x7F]/g, '').replace(/^[-_]+|[-_]+$/g, '').toLowerCase() || 'product'
-    const { createLabelPDFArtifact } = await import('../utils/generateLabelPDF')
-    zip.file(`01_label_${slug}_${dateStr}.pdf`, (await createLabelPDFArtifact(creatorData)).blob)
-    zip.file(`02_label_${slug}_${dateStr}.png`, await createLabelPngBlob(creatorData))
-    zip.file(`03_label-text_${slug}.txt`, text)
+    const stamp = kstStamp()
+    const { createLabelPDFArtifact, createLabelPngBlob } = await import('../utils/generateLabelPDF')
+    zip.file(`01_표시사항시트_${safeName}_${stamp}.pdf`, (await createLabelPDFArtifact(creatorData, ctx)).blob)
+    zip.file(`02_표시사항시트_${safeName}_${stamp}.png`, await createLabelPngBlob(creatorData, ctx))
+    zip.file(`03_표시사항텍스트_${safeName}.txt`, text)
     if (isPro) {
       const { createReportPDFArtifact } = await import('../utils/generateReportPDF')
       const { createCertPDFArtifact } = await import('../utils/generateCertPDF')
-      zip.file(`04_review-report_${slug}_${dateStr}.pdf`, (await createCertPDFArtifact(creatorData, paidTier)).blob)
-      zip.file(`05_report-guide_${slug}_${dateStr}.pdf`, (await createReportPDFArtifact(creatorData, paidTier)).blob)
+      zip.file(`04_검토리포트_${safeName}_${stamp}.pdf`, (await createCertPDFArtifact(creatorData, paidTier, ctx)).blob)
+      zip.file(`05_신고입력가이드_${safeName}_${stamp}.pdf`, (await createReportPDFArtifact(creatorData, paidTier, ctx)).blob)
       await Promise.all(materials.map(async mat => {
         const res = await fetch(RECYCLING_FILE_MAP[mat])
-        zip.file(`recycling/recycling_${toZipSlug(mat)}.svg`, await res.text())
+        zip.file(`06_분리배출마크/분리배출마크_${materialSlug(mat)}.svg`, await res.text())
       }))
     }
-    downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_${isPro ? '전문' : '기본'}_${safeName}_${dateStr}.zip`)
+    downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_${isPro ? '전문' : '기본'}_${safeName}_${stamp}.zip`)
   }
 
   const files: { key: string; i: string; t: string; s: string; fn: () => Promise<void>; pro?: boolean; off?: boolean }[] = [
-    { key: 'pdf', i: 'PDF', t: '라벨 PDF', s: '인쇄용 · 디자이너 전달', fn: dlLabelPDF },
-    { key: 'png', i: 'PNG', t: '라벨 PNG', s: '고해상도 이미지', fn: dlLabelPNG },
-    { key: 'report', i: '리포트', t: '검토 리포트 PDF', s: `${results.length}개 항목 결과 · 근거 법령`, fn: dlReport, pro: true },
-    { key: 'guide', i: '신고', t: '정부24 신고 가이드', s: '품목제조보고 입력 순서', fn: dlGuide, pro: true },
+    { key: 'pdf', i: 'PDF', t: '표시사항 시트 PDF', s: '항목별 정리 · 디자이너 전달용', fn: dlLabelPDF },
+    { key: 'png', i: 'PNG', t: '표시사항 시트 PNG', s: '같은 내용의 고해상도 이미지', fn: dlLabelPNG },
+    { key: 'report', i: '리포트', t: '검토 리포트 PDF', s: `${results.length}개 항목 결과 · 수정 방법 · 근거`, fn: dlReport, pro: true },
+    { key: 'guide', i: '신고', t: '신고 입력 가이드 PDF', s: '신고 절차 · 입력 항목 정리', fn: dlGuide, pro: true },
     {
       key: 'zip', i: 'ZIP', t: '분리배출 마크',
       s: materials.length ? `${materials.slice(0, 2).join(' · ')}${materials.length > 2 ? ` 외 ${materials.length - 2}` : ''} 도안` : '포장재 재질을 고르지 않았어요',

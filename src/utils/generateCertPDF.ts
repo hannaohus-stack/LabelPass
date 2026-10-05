@@ -1,389 +1,183 @@
-// generateCertPDF.ts — PDF ③ 라벨 검토 리포트 (v5)
-// 파일명: LabelPass_검토리포트_{productName}_{YYYYMMDD}.pdf
-// v5 변경: 서비스별 상세 안내 분기, suggestion + penaltyRange 출력, 검토번호 D-2-7 연결
-
+/**
+ * 라벨 검토 리포트 — PDF (결과물 디자인 v1, 2026-10-05)
+ *
+ * - 17개 항목을 모두 싣는다 (내용이 길면 여러 장).
+ * - 전문: 항목마다 수정 방법 · 근거 · 과태료 참고. 기본: 결과와 사유만.
+ * - 번호는 화면과 같은 검토번호(reviewId)를 쓴다. 결과(results)도 화면에서 계산한 것을 그대로 받는다.
+ * 파일명: LabelPass_검토리포트_{제품명}_{YYYYMMDD}.pdf (한국 시간)
+ */
 import type { CreatorData } from '../pages/creator/types'
+import type { RegulationResult } from '../pages/ReviewResult'
 import type { ServiceTier } from './tierUtils'
-import { analyzeRegulations } from '../pages/ReviewResult'
-import type { Metadata } from '../pages/ReviewResult'
-import { generateReviewId } from './generateReviewId'
+import { buildSheetModel, type SheetCtx } from './labelSheet'
 import {
-  addWrappedText,
-  createCanvasPdfArtifact,
-  createPdfDoc,
-  createRasterPdfArtifact,
-  downloadPdfArtifact,
-  drawBusinessBadge,
-  drawPdfFooter,
-  drawPdfHeader,
-  drawCanvasText,
-  escapePdfHtml,
-  PDF_COLORS,
-  safePdfName,
-  saveDocAsArtifact,
-  type DownloadablePdfArtifact,
+  C, PdfWriter, STATUS, createPdfDoc, downloadPdfArtifact, kstDateTime, kstStamp, safePdfName, saveDocAsArtifact,
+  type DownloadablePdfArtifact, type StatusKey,
 } from './pdfCore'
 
-// ─── 색상 토큰 ─────────────────────────────────────────────────────────────────
-const HERITAGE  = '#002D72'
-const PRN_PASS  = '#1A6B3A'
-const PRN_WARN  = '#8A5A00'
-const PRN_VIOL  = '#B30000'
-
-/**
- * PDF ③ — 라벨 검토 리포트 (사업자 자율 점검 기록)
- *
- * @param data     CreatorData
- * @param tier     'tier1' | 'tier2' — 전문 수정 가이드에서 suggestion/penaltyRange 출력
- */
-export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier = 'tier2'): Promise<DownloadablePdfArtifact> {
-  const dateStr   = new Date().toISOString().slice(0, 10).replace(/-/g, '')
-  const safeName  = safePdfName(data.productName)
-  const filename  = `LabelPass_검토리포트_${safeName}_${dateStr}.pdf`
-  const reviewId  = generateReviewId()
-  const isTier2   = tier === 'tier2'
-
-  // CreatorData → Metadata 변환
-  const metadata: Metadata = {
-    productName:       data.productName,
-    totalWeight:       data.totalWeight,
-    unit:              data.unit as 'g' | 'mL' | 'kg' | 'L',
-    expiryDays:        '',
-    storage:           data.storage,
-    manufacturer:      data.manufacturer,
-    packagingMaterials: data.packagingMaterials,
-    categories:        data.categories,
-    businessType:      data.businessType || undefined,
-    facilityType:      data.facilityType || undefined,
-  }
-
-  const ingredients = data.ingredients.map(ing => ({
-    id:              ing.id,
-    name:            ing.name,
-    origin:          ing.origin ?? '',
-    rawName:         ing.name,
-    weight:          parseFloat(ing.weight) || 0,
-    suggestedName:   ing.name,
-    isComposite:     ing.isComposite,
-    isAllergen:      ing.isAllergen,
-    matchConfidence: 1.0,
-  }))
-
-  const results = analyzeRegulations(ingredients, metadata)
-  const counts  = {
-    violation: results.filter(r => r.status === 'violation').length,
-    warn:      results.filter(r => r.status === 'warn').length,
-    pass:      results.filter(r => r.status === 'pass').length,
-  }
-
-  const summaryText =
-    counts.violation > 0
-      ? `위반 ${counts.violation}건 · 경고 ${counts.warn}건 · 통과 ${counts.pass}건`
-      : counts.warn > 0
-      ? `경고 ${counts.warn}건 · 통과 ${counts.pass}건`
-      : `${results.length}건 전체 통과`
-
-  const today = new Date().toLocaleString('ko-KR')
-  const businessLabel = data.businessType === '즉판가공업' ? '즉석판매제조·가공업' : data.businessType
-  const summaryBg = counts.violation > 0 ? PDF_COLORS.violBg : counts.warn > 0 ? PDF_COLORS.warnBg : PDF_COLORS.passBg
-  const summaryColor = counts.violation > 0 ? PRN_VIOL : counts.warn > 0 ? PRN_WARN : PRN_PASS
-
-  return createCanvasPdfArtifact(filename, ctx => {
-    ctx.fillStyle = PDF_COLORS.heritage
-    ctx.fillRect(0, 0, 794, 68)
-    ctx.fillStyle = '#fff'
-    ctx.font = '700 15px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('LABELPASS · PDF-03 · 자율 점검 기록', 54, 42)
-    ctx.font = '11px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText(today.slice(0, 12), 650, 42)
-
-    ctx.fillStyle = PDF_COLORS.faint
-    ctx.font = '12px system-ui'
-    ctx.fillText('LABEL REVIEW REPORT — SELF-AUDIT RECORD', 54, 104)
-    ctx.fillStyle = PDF_COLORS.ink
-    ctx.font = '700 31px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('라벨패스 검토 리포트', 54, 162)
-    ctx.fillStyle = PDF_COLORS.faint
-    ctx.font = '14px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('사업자 자율 점검 기록', 54, 198)
-    ctx.strokeStyle = PDF_COLORS.heritage
-    ctx.strokeRect(570, 104, 170, 66)
-    ctx.fillStyle = PDF_COLORS.heritage
-    ctx.font = '700 10px system-ui'
-    ctx.fillText('RECORD ID', 590, 128)
-    ctx.font = '700 13px system-ui'
-    ctx.fillText(reviewId, 590, 154)
-
-    ctx.strokeStyle = PDF_COLORS.alert
-    ctx.fillStyle = PDF_COLORS.alertBg
-    ctx.fillRect(54, 218, 686, 118)
-    ctx.strokeRect(54, 218, 686, 118)
-    ctx.fillStyle = PDF_COLORS.alert
-    ctx.fillRect(54, 218, 6, 118)
-    ctx.font = '700 15px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('중요 안내 — 반드시 읽어주세요', 78, 254)
-    ctx.fillStyle = PDF_COLORS.ink
-    ctx.font = '12px "Apple SD Gothic Neo", system-ui'
-    drawCanvasText(ctx, '본 리포트는 라벨패스가 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.', 78, 282, 630, 18, 2)
-    ctx.fillStyle = PDF_COLORS.faint
-    ctx.font = '11px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('1. 공식 인증서가 아닙니다.     2. 법적 효력이 없습니다.', 78, 314)
-    ctx.fillText('3. 최종 책임은 사업자에게 있습니다.     4. 판매 전 재검토가 필요합니다.', 78, 330)
-
-    ctx.fillStyle = PDF_COLORS.paper
-    ctx.fillRect(54, 372, 686, 92)
-    ctx.strokeStyle = PDF_COLORS.hairline
-    ctx.strokeRect(54, 372, 686, 92)
-    ctx.fillStyle = PDF_COLORS.faint
-    ctx.font = '10px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText('제품명', 78, 400)
-    ctx.fillText('작성 일시', 78, 440)
-    ctx.fillText('사업장 유형', 420, 400)
-    ctx.fillText('제공 서비스', 420, 440)
-    ctx.fillStyle = PDF_COLORS.ink
-    ctx.font = '700 13px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText(data.productName || '—', 130, 400)
-    ctx.fillText(today, 130, 440)
-    ctx.fillText(businessLabel || '사업자 유형', 510, 400)
-    ctx.fillText(isTier2 ? '전문 수정 가이드' : '기본 라벨 패키지', 510, 440)
-
-    ctx.strokeStyle = summaryColor
-    ctx.fillStyle = summaryBg
-    ctx.fillRect(54, 500, 686, 82)
-    ctx.strokeRect(54, 500, 686, 82)
-    ctx.fillStyle = summaryColor
-    ctx.font = '700 12px system-ui'
-    ctx.fillText('자율 점검 결과 / Summary', 78, 532)
-    ctx.font = '800 20px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText(summaryText, 78, 562)
-    ctx.font = '700 11px system-ui'
-    ctx.fillText(`${counts.pass} PASS · ${counts.warn} WARN · ${counts.violation} CHECK`, 570, 562)
-
-    ctx.fillStyle = PDF_COLORS.heritage
-    ctx.font = '700 15px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText(`점검 항목 결과 · 총 ${results.length}건`, 54, 632)
-    let y = 660
-    results.slice(0, 10).forEach((result, index) => {
-      const color = result.status === 'pass' ? PRN_PASS : result.status === 'warn' ? PRN_WARN : PRN_VIOL
-      const fill = result.status === 'pass' ? PDF_COLORS.passBg : result.status === 'warn' ? PDF_COLORS.warnBg : PDF_COLORS.violBg
-      const x = index % 2 === 0 ? 54 : 405
-      if (index > 0 && index % 2 === 0) y += 72
-      ctx.fillStyle = fill
-      ctx.fillRect(x, y, 335, 58)
-      ctx.strokeStyle = PDF_COLORS.hairline
-      ctx.strokeRect(x, y, 335, 58)
-      ctx.fillStyle = color
-      ctx.font = '700 10px "Apple SD Gothic Neo", system-ui'
-      ctx.fillText(result.status === 'pass' ? '기준 충족' : result.status === 'warn' ? '보완 권장' : '필수 확인', x + 14, y + 22)
-      ctx.fillStyle = PDF_COLORS.ink
-      ctx.font = '700 12px "Apple SD Gothic Neo", system-ui'
-      drawCanvasText(ctx, `R${String(index + 1).padStart(2, '0')} · ${result.title}`, x + 14, y + 42, 220, 14, 1)
-      ctx.fillStyle = PDF_COLORS.faint
-      ctx.font = '9px "Apple SD Gothic Neo", system-ui'
-      drawCanvasText(ctx, result.regulation || result.id, x + 230, y + 42, 90, 12, 1)
-    })
-    ctx.fillStyle = PDF_COLORS.faint
-    ctx.font = '10px "Apple SD Gothic Neo", system-ui'
-    ctx.fillText(`라벨패스 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${reviewId}`, 54, 1032)
-    ctx.fillText('labelpass.kr', 680, 1032)
-  })
-
-  const resultRows = results.map((result, index) => {
-    const color = result.status === 'pass' ? PRN_PASS : result.status === 'warn' ? PRN_WARN : PRN_VIOL
-    const fill = result.status === 'pass' ? PDF_COLORS.passBg : result.status === 'warn' ? PDF_COLORS.warnBg : PDF_COLORS.violBg
-    const label = result.status === 'pass' ? '기준 충족' : result.status === 'warn' ? '보완 권장' : '필수 확인'
-    const detail = result.status !== 'pass'
-      ? `<div style="margin-top:5px;color:${PDF_COLORS.faint};font-size:10px;line-height:1.45;">${escapePdfHtml(result.detail)}</div>`
-      : ''
-    const suggestion = result.status !== 'pass' && isTier2 && result.suggestion
-      ? `<div style="margin-top:4px;color:${PDF_COLORS.heritage};font-size:10px;line-height:1.45;">수정 방법: ${escapePdfHtml(result.suggestion)}</div>`
-      : result.status !== 'pass' && !isTier2
-      ? `<div style="margin-top:4px;color:${PDF_COLORS.faint};font-size:10px;">수정 방법 및 과태료는 전문 수정 가이드에서 확인 가능합니다.</div>`
-      : ''
-    return `
-      <div style="border:1px solid ${PDF_COLORS.hairline};background:${fill};padding:9px 11px;break-inside:avoid;">
-        <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-          <div>
-            <div style="font-size:10px;color:${color};font-weight:700;">${label}</div>
-            <div style="margin-top:3px;font-size:12px;font-weight:700;color:${PDF_COLORS.ink};">R${String(index + 1).padStart(2, '0')} · ${escapePdfHtml(result.title)}</div>
-          </div>
-          <div style="font-size:9px;color:${PDF_COLORS.faint};text-align:right;">${escapePdfHtml(result.regulation || result.id)}</div>
-        </div>
-        ${detail}
-        ${suggestion}
-      </div>`
-  }).join('')
-
-  const html = `
-    <section style="width:794px;height:1123px;overflow:hidden;box-sizing:border-box;background:#fff;color:${PDF_COLORS.ink};
-      font-family:Pretendard,'Apple SD Gothic Neo',system-ui,sans-serif;padding:0;">
-      <div style="height:68px;background:${PDF_COLORS.heritage};color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 54px;box-sizing:border-box;">
-        <div style="font-size:15px;font-weight:700;letter-spacing:0.08em;">LABELPASS · PDF-03 · 자율 점검 기록</div>
-        <div style="font-size:11px;opacity:.8;">${escapePdfHtml(today.slice(0, 12))}</div>
-      </div>
-      <div style="padding:34px 54px 0;box-sizing:border-box;">
-        <div style="display:flex;justify-content:space-between;gap:24px;align-items:flex-start;margin-bottom:22px;">
-          <div>
-            <div style="font-size:12px;letter-spacing:.08em;color:${PDF_COLORS.faint};">LABEL REVIEW REPORT — SELF-AUDIT RECORD</div>
-            <h1 style="margin:8px 0 4px;font-size:31px;letter-spacing:-.025em;">라벨패스 검토 리포트</h1>
-            <div style="font-size:14px;color:${PDF_COLORS.faint};">사업자 자율 점검 기록</div>
-          </div>
-          <div style="border:1px solid ${PDF_COLORS.heritage};padding:12px 14px;min-width:164px;">
-            <div style="font-size:10px;color:${PDF_COLORS.heritage};font-weight:700;">RECORD ID</div>
-            <div style="font-size:13px;color:${PDF_COLORS.heritage};font-weight:700;margin-top:5px;">${escapePdfHtml(reviewId)}</div>
-          </div>
-        </div>
-        <div style="border:2px solid ${PDF_COLORS.alert};border-left-width:6px;background:${PDF_COLORS.alertBg};padding:16px 18px;margin-bottom:18px;">
-          <div style="font-weight:700;font-size:15px;color:${PDF_COLORS.alert};margin-bottom:8px;">중요 안내 — 반드시 읽어주세요</div>
-          <div style="font-size:12px;line-height:1.65;">본 리포트는 라벨패스가 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 18px;margin-top:10px;font-size:11.5px;color:${PDF_COLORS.faint};">
-            <div>1. 공식 인증서가 아닙니다.</div><div>2. 법적 효력이 없습니다.</div>
-            <div>3. 최종 책임은 사업자에게 있습니다.</div><div>4. 판매 전 재검토가 필요합니다.</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid ${PDF_COLORS.hairline};background:${PDF_COLORS.paper};margin-bottom:18px;">
-          <div style="padding:12px 16px;border-right:1px solid ${PDF_COLORS.hairline};border-bottom:1px solid ${PDF_COLORS.hairline};"><span style="display:block;font-size:10px;color:${PDF_COLORS.faint};margin-bottom:4px;">제품명</span><b>${escapePdfHtml(data.productName || '—')}</b></div>
-          <div style="padding:12px 16px;border-bottom:1px solid ${PDF_COLORS.hairline};"><span style="display:block;font-size:10px;color:${PDF_COLORS.faint};margin-bottom:4px;">작성 일시</span><b>${escapePdfHtml(today)}</b></div>
-          <div style="padding:12px 16px;border-right:1px solid ${PDF_COLORS.hairline};"><span style="display:block;font-size:10px;color:${PDF_COLORS.faint};margin-bottom:4px;">사업장 유형</span><b>${escapePdfHtml(businessLabel || '사업자 유형')}</b></div>
-          <div style="padding:12px 16px;"><span style="display:block;font-size:10px;color:${PDF_COLORS.faint};margin-bottom:4px;">제공 서비스</span><b>${isTier2 ? '전문 수정 가이드' : '기본 라벨 패키지'}</b></div>
-        </div>
-        <div style="border:1px solid ${summaryColor};background:${summaryBg};padding:15px 18px;margin-bottom:18px;">
-          <div style="font-size:12px;color:${summaryColor};font-weight:700;">자율 점검 결과 / Summary</div>
-          <div style="margin-top:7px;display:flex;justify-content:space-between;align-items:flex-end;">
-            <div style="font-size:20px;color:${summaryColor};font-weight:800;">${escapePdfHtml(summaryText)}</div>
-            <div style="font-size:11px;color:${summaryColor};font-weight:700;">${counts.pass} PASS · ${counts.warn} WARN · ${counts.violation} CHECK</div>
-          </div>
-        </div>
-        <div style="font-size:15px;font-weight:700;color:${PDF_COLORS.heritage};margin-bottom:10px;">점검 항목 결과 · 총 ${results.length}건</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px;">${resultRows}</div>
-        <div style="border-top:1px solid ${PDF_COLORS.hairline};padding-top:12px;display:flex;justify-content:space-between;font-size:10px;color:${PDF_COLORS.faint};">
-          <span>라벨패스 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${escapePdfHtml(reviewId)}</span><span>labelpass.kr</span>
-        </div>
-      </div>
-    </section>`
-
-  return createRasterPdfArtifact(html, filename)
-
-  const doc = await createPdfDoc()
-
-  drawPdfHeader(doc, 'PDF-03 · 자율 점검 기록', today.slice(0, 12))
-  doc.setTextColor(PDF_COLORS.faint)
-  doc.setFontSize(8)
-  doc.text('LABEL REVIEW REPORT — SELF-AUDIT RECORD', 14, 33)
-  doc.setTextColor(PDF_COLORS.ink)
-  doc.setFontSize(21)
-  doc.text('라벨패스 검토 리포트', 14, 45)
-  doc.setFontSize(10)
-  doc.setTextColor(PDF_COLORS.faint)
-  doc.text('사업자 자율 점검 기록', 14, 53)
-  doc.setDrawColor(PDF_COLORS.heritage)
-  doc.setFillColor(255, 255, 255)
-  doc.rect(145, 34, 51, 16, 'D')
-  doc.setTextColor(PDF_COLORS.heritage)
-  doc.setFontSize(7)
-  doc.text('RECORD ID', 149, 40)
-  doc.setFontSize(9)
-  doc.text(reviewId, 149, 47)
-
-  doc.setDrawColor(PDF_COLORS.alert)
-  doc.setFillColor(PDF_COLORS.alertBg)
-  doc.rect(14, 64, 182, 42, 'FD')
-  doc.setFillColor(PDF_COLORS.alert)
-  doc.rect(14, 64, 1.4, 42, 'F')
-  doc.setTextColor(PDF_COLORS.alert)
-  doc.setFontSize(10)
-  doc.text('중요 안내 — 반드시 읽어주세요', 19, 74)
-  doc.setTextColor(PDF_COLORS.ink)
-  addWrappedText(
-    doc,
-    '본 리포트는 라벨패스가 입력된 정보를 기준으로 정리한 자율 점검 참고 자료입니다.',
-    19,
-    83,
-    172,
-    4.5,
-    { size: 8.2, color: PDF_COLORS.ink, maxLines: 2 },
-  )
-  doc.setFontSize(7.5)
-  doc.setTextColor(PDF_COLORS.faint)
-  doc.text('1. 공식 인증서가 아닙니다.     2. 법적 효력이 없습니다.', 19, 94)
-  doc.text('3. 최종 책임은 사업자에게 있습니다.     4. 판매 전 재검토가 필요합니다.', 19, 101)
-
-  doc.setDrawColor(PDF_COLORS.hairline)
-  doc.setFillColor(PDF_COLORS.paper)
-  doc.rect(14, 116, 182, 28, 'FD')
-  doc.setTextColor(PDF_COLORS.faint)
-  doc.setFontSize(7.8)
-  doc.text('제품명', 20, 126)
-  doc.text('작성 일시', 20, 137)
-  doc.text('사업장 유형', 106, 126)
-  doc.text('제공 서비스', 106, 137)
-  doc.setTextColor(PDF_COLORS.ink)
-  doc.setFontSize(9)
-  doc.text(data.productName || '—', 42, 126)
-  doc.text(today, 42, 137)
-  drawBusinessBadge(doc, businessLabel || '사업자 유형', 132, 121, 42)
-  doc.text(isTier2 ? '전문 수정 가이드' : '기본 라벨 패키지', 132, 137)
-
-  doc.setDrawColor(summaryColor)
-  doc.setFillColor(summaryBg)
-  doc.rect(14, 154, 182, 24, 'FD')
-  doc.setTextColor(summaryColor)
-  doc.setFontSize(9)
-  doc.text('자율 점검 결과 / Summary', 20, 164)
-  doc.setFontSize(13)
-  doc.text(summaryText, 20, 172)
-  doc.setFontSize(8)
-  doc.text(`${counts.pass} PASS · ${counts.warn} WARN · ${counts.violation} CHECK`, 138, 172)
-
-  doc.setTextColor(PDF_COLORS.heritage)
-  doc.setFontSize(10.5)
-  doc.text(`점검 항목 결과 · 총 ${results.length}건`, 14, 194)
-
-  let y = 202
-  results.forEach((result, index) => {
-    if (y > 250) {
-      doc.addPage()
-      drawPdfHeader(doc, 'PDF-03 · 자율 점검 기록 · 계속', today.slice(0, 12))
-      doc.setTextColor(PDF_COLORS.heritage)
-      doc.setFontSize(10.5)
-      doc.text('점검 항목 결과 · 계속', 14, 34)
-      y = 44
-    }
-
-    const color = result.status === 'pass' ? PRN_PASS : result.status === 'warn' ? PRN_WARN : PRN_VIOL
-    const fill = result.status === 'pass' ? PDF_COLORS.passBg : result.status === 'warn' ? PDF_COLORS.warnBg : PDF_COLORS.violBg
-    doc.setDrawColor(PDF_COLORS.hairline)
-    doc.setFillColor(fill)
-    doc.rect(14, y, 182, 20, 'FD')
-    doc.setTextColor(color)
-    doc.setFontSize(8)
-    doc.text(result.status === 'pass' ? '기준 충족' : result.status === 'warn' ? '보완 권장' : '필수 확인', 18, y + 7)
-    doc.setTextColor(PDF_COLORS.ink)
-    doc.setFontSize(9.5)
-    doc.text(`R${String(index + 1).padStart(2, '0')} · ${result.title}`, 18, y + 14)
-    doc.setFontSize(7.5)
-    doc.setTextColor(PDF_COLORS.faint)
-    doc.text(result.regulation || result.id, 126, y + 14)
-    y += 25
-
-    if (result.status !== 'pass') {
-      y = addWrappedText(doc, result.detail, 18, y, 170, 4.5, { size: 8, color: PDF_COLORS.ink, maxLines: 4 })
-      if (isTier2 && result.suggestion) {
-        y = addWrappedText(doc, `수정 방법: ${result.suggestion}`, 18, y + 2, 170, 4.5, { size: 8, color: HERITAGE, maxLines: 4 })
-      } else if (!isTier2) {
-        y = addWrappedText(doc, '수정 방법 및 과태료는 전문 수정 가이드에서 확인 가능합니다.', 18, y + 2, 170, 4.5, { size: 8, color: '#777777', maxLines: 2 })
-      }
-      if (isTier2 && result.penaltyRange) {
-        y = addWrappedText(doc, `과태료: ${result.penaltyRange}`, 18, y + 2, 170, 4.5, { size: 8, color: PRN_VIOL, maxLines: 2 })
-      }
-      y += 5
-    }
-  })
-
-  drawPdfFooter(doc, `라벨패스 검토 리포트 — 사업자 자율 점검 기록 (법적 효력 없음) · ${reviewId}`)
-  return saveDocAsArtifact(doc, filename)
+export interface ReportCtx extends SheetCtx {
+  /** 화면과 같은 결과. 없으면 입력으로 다시 계산한다 */
+  results?: RegulationResult[]
 }
 
-export async function generateCertPDF(data: CreatorData, tier: ServiceTier = 'tier2'): Promise<void> {
-  downloadPdfArtifact(await createCertPDFArtifact(data, tier))
+const FOOTER = '라벨패스 검토 리포트는 입력한 내용을 기준으로 한 사업자 자율 점검 기록입니다. 행정기관의 판단이나 법적 효력을 대신하지 않으며, 최종 표시 책임은 영업자에게 있습니다.'
+
+/** "왜 확인이 필요한가요" 본문 — 근거·과태료·수정방법 줄은 따로 보여주므로 뺀다 */
+function why(detail: string): string {
+  return (detail || '').split('\n').filter(l => !/^\s*(근거|과태료|수정방법)\s*:/.test(l)).join('\n').trim()
+}
+
+async function computeResults(data: CreatorData): Promise<RegulationResult[]> {
+  const { analyzeRegulations } = await import('../pages/ReviewResult')
+  return analyzeRegulations(
+    data.ingredients.map(i => ({
+      id: i.id, name: i.name, origin: i.origin ?? '', rawName: i.name, weight: parseFloat(i.weight) || 0,
+      suggestedName: i.name, isComposite: i.isComposite, isAllergen: i.isAllergen, matchConfidence: 1,
+    })),
+    {
+      productName: data.productName, totalWeight: data.totalWeight, unit: data.unit, expiryDays: '', storage: data.storage,
+      manufacturer: data.manufacturer, manufacturerAddress: data.manufacturerAddress, reportNumberStatus: data.reportNumberStatus,
+      reportNumber: data.reportNumber, labelClaim: data.labelClaim, hasNutritionClaim: data.hasNutritionClaim,
+      packagingMaterials: data.packagingMaterials, categories: data.categories, businessType: data.businessType || undefined,
+      facilityType: data.facilityType || undefined,
+    },
+  )
+}
+
+export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier = 'tier2', ctx: ReportCtx = {}): Promise<DownloadablePdfArtifact> {
+  const isPro = tier === 'tier2'
+  const m = buildSheetModel(data, ctx)
+  const results = ctx.results ?? await computeResults(data)
+  const filename = `LabelPass_검토리포트_${safePdfName(m.productName)}_${kstStamp()}.pdf`
+  const counts = {
+    violation: results.filter(r => r.status === 'violation').length,
+    warn: results.filter(r => r.status === 'warn').length,
+    pass: results.filter(r => r.status === 'pass').length,
+  }
+  const idOf = new Map(results.map((r, i) => [r.id, String(i + 1).padStart(2, '0')]))
+
+  const doc = await createPdfDoc()
+  const w = new PdfWriter(doc, {
+    header: '라벨 검토 리포트',
+    headerRight: m.reviewId ? `검토번호 ${m.reviewId}` : undefined,
+    footer: FOOTER,
+  })
+
+  // ── 표지 영역 ──
+  w.title('라벨 검토 리포트', `사업자 자율 점검 기록 · ${isPro ? '전문' : '기본'} 서비스 · 법적 효력 없음`)
+  w.kv([
+    { k: '제품명', v: m.productName },
+    { k: '식품유형 · 내용량', v: [m.foodType, m.amount].filter(Boolean).join(' · ') },
+    { k: '영업 형태', v: [m.businessLabel, m.facilityLabel].filter(Boolean).join(' · ') },
+    { k: '검토번호', v: m.reviewId ?? '', missing: !m.reviewId },
+    { k: '검토 일시', v: kstDateTime(m.reviewedAt) },
+    { k: '검토 기준', v: `${results.length}개 항목 자동 검토 (식품 등의 표시·광고에 관한 법률 · 식품등의 표시기준 등, 검토 시점 기준)` },
+  ], { labelW: 36 })
+
+  w.section('검토 결과 요약', `${results.length}개 항목`)
+  w.tiles([
+    { n: counts.violation, label: STATUS.violation.label, color: STATUS.violation.color, bg: STATUS.violation.bg },
+    { n: counts.warn, label: STATUS.warn.label, color: STATUS.warn.color, bg: STATUS.warn.bg },
+    { n: counts.pass, label: STATUS.pass.label, color: STATUS.pass.color, bg: STATUS.pass.bg },
+  ])
+  w.text(
+    counts.violation > 0
+      ? `수정 필요 ${counts.violation}건은 라벨을 쓰기 전에 고쳐야 하는 항목이에요. 확인 권장 ${counts.warn}건은 입력 내용으로는 판단이 갈리는 항목이라 직접 확인이 필요해요.`
+      : counts.warn > 0
+        ? `수정 필요 항목은 없어요. 확인 권장 ${counts.warn}건은 입력 내용으로는 판단이 갈리는 항목이라 직접 확인이 필요해요.`
+        : '입력한 내용 기준으로 모든 항목이 기준을 충족했어요. 실제 라벨 시안에 옮긴 뒤 다시 한번 확인해 주세요.',
+    { size: 9, color: C.text, after: 1 },
+  )
+
+  // ── 전체 항목 표 ──
+  w.section('항목별 결과', '전체')
+  const order: StatusKey[] = ['violation', 'warn', 'pass']
+  w.table(
+    ['번호', '검토 항목', '결과'],
+    results.map(r => [idOf.get(r.id) ?? '', r.title, STATUS[r.status as StatusKey].label]),
+    [14, w.contentW - 14 - 26, 26],
+    {
+      align: ['center', 'left', 'center'], boldCols: [2],
+      color: (t, col) => col === 2 ? (Object.values(STATUS).find(s => s.label === t)?.color) : col === 0 ? C.muted : undefined,
+    },
+  )
+
+  // ── 항목 상세 ──
+  const issues = results.filter(r => r.status !== 'pass').sort((a, b) => order.indexOf(a.status as StatusKey) - order.indexOf(b.status as StatusKey))
+  w.section(isPro ? '수정 필요 · 확인 권장 항목 상세' : '수정 필요 · 확인 권장 항목', isPro ? '왜 · 어떻게 · 근거' : '사유')
+  if (issues.length === 0) {
+    w.text('상세히 볼 항목이 없어요.', { size: 9, color: C.faint, after: 2 })
+  }
+  for (const r of issues) {
+    const s = STATUS[r.status as StatusKey]
+    const reason = why(r.detail)
+    // 제목 줄 (번호 · 배지 · 제목) — 제목 줄과 첫 문단은 같은 장에
+    w.ensure(22)
+    w.space(1.5)
+    const y0 = w.y
+    doc.setFont('LabelPassSans', 'bold'); doc.setFontSize(8.5); doc.setTextColor(C.muted)
+    doc.text(idOf.get(r.id) ?? '', w.ml, y0 + 3.4)
+    const bw = w.statusBadge(r.status as StatusKey, w.ml + 8, y0 - 0.4)
+    doc.setFont('LabelPassSans', 'bold'); doc.setFontSize(10.5); doc.setTextColor(C.ink)
+    const titleLines = w.wrap(r.title, w.contentW - 8 - bw - 4, 10.5, true)
+    titleLines.forEach((l, i) => doc.text(l, w.ml + 8 + bw + 3, y0 + 3.6 + i * 5.2))
+    w.y = y0 + Math.max(5.5, titleLines.length * 5.2) + 1.5
+    doc.setDrawColor(s.color); doc.setLineWidth(0.6)
+    doc.line(w.ml, w.y, w.ml + 10, w.y)
+    w.y += 2.2
+
+    if (reason) {
+      w.text('왜 확인이 필요한가요', { size: 8, bold: true, color: C.faint, after: 0.3, keep: 10 })
+      w.text(reason, { size: 9, after: 1.6 })
+    }
+    if (isPro) {
+      if (r.suggestion) {
+        w.text('이렇게 고치세요', { size: 8, bold: true, color: C.blue, after: 0.3, keep: 10 })
+        w.text(r.suggestion, { size: 9, after: 1.6 })
+      }
+      if (r.recommendedLabelText) {
+        w.text('권장 표시 문구', { size: 8, bold: true, color: C.blue, after: 0.3, keep: 12 })
+        w.note(r.recommendedLabelText, { size: 8.8, color: C.ink })
+      }
+      const basis = [r.regulation || r.legalBasis, r.penaltyRange && `과태료 참고: ${r.penaltyRange}`].filter(Boolean) as string[]
+      if (basis.length) {
+        w.text('근거 · 참고', { size: 8, bold: true, color: C.faint, after: 0.3, keep: 10 })
+        w.bullets(basis, { size: 8.5, color: C.faint })
+        w.space(1.6)
+      }
+    }
+    w.rule()
+  }
+  if (!isPro) {
+    w.note('수정 방법 · 권장 표시 문구 · 근거 법령 · 과태료 참고는 전문 서비스(19,900원)에서 제공해요. 마이페이지에서 같은 제품으로 전문 서비스를 받을 수 있어요.', {
+      bg: C.paper, border: C.line, color: C.faint, size: 8.6,
+    })
+  }
+
+  // ── 기준 충족 항목 ──
+  const passed = results.filter(r => r.status === 'pass')
+  if (passed.length) {
+    w.section('기준 충족 항목', `${passed.length}개`)
+    w.table(
+      ['번호', '검토 항목', '확인한 내용'],
+      passed.map(r => [idOf.get(r.id) ?? '', r.title, why(r.detail) || r.condition || '']),
+      [14, 58, w.contentW - 72],
+      { align: ['center', 'left', 'left'], size: 8.3, color: (_t, col) => col === 0 ? C.muted : undefined },
+    )
+  }
+
+  // ── 안내 ──
+  w.section('이 리포트를 볼 때', '')
+  w.bullets([
+    '검토는 입력한 내용만을 대상으로 해요. 실제 라벨 시안의 글자 크기·배치·색은 포함되지 않아요.',
+    '법령과 고시는 바뀔 수 있어요. 리포트의 근거는 검토 시점 기준이에요.',
+    '과태료 금액은 참고용 범위이며, 위반 횟수와 사안에 따라 달라져요.',
+    '판단이 어려운 항목은 관할 시·군·구 위생 담당 부서나 식품안전나라(foodsafetykorea.go.kr)에서 확인해 주세요.',
+  ], { size: 8.6, color: C.faint })
+
+  return saveDocAsArtifact(w.finish(), filename)
+}
+
+export async function generateCertPDF(data: CreatorData, tier: ServiceTier = 'tier2', ctx: ReportCtx = {}): Promise<void> {
+  downloadPdfArtifact(await createCertPDFArtifact(data, tier, ctx))
 }

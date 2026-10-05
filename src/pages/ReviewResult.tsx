@@ -382,7 +382,7 @@ const LOCK_ICON = (
 const SVC_FEATURES: Record<ServiceType, { forWho: string; items: React.ReactNode[] }> = {
   basic: {
     forWho: '문제가 없거나 직접 고칠 수 있을 때',
-    items: [<>17개 <b>항목별 결과</b></>, '라벨 PDF · PNG', '표시사항 텍스트 복사', '마이페이지 1년 보관'],
+    items: [<>17개 <b>항목별 결과</b></>, '표시사항 시트 PDF · PNG', '표시사항 텍스트 복사', '마이페이지 1년 보관'],
   },
   pro: {
     forWho: '수정 · 확인 항목이 있거나 신고 · 입점을 준비할 때',
