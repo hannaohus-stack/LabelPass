@@ -262,6 +262,74 @@ h2{font-size:40px;line-height:1.3;font-weight:800}
  .foot-top,.foot-bottom{flex-direction:column}
 }
 @media (prefers-reduced-motion:reduce){.marq-tr{animation:none!important;flex-wrap:wrap;width:auto}.marq-tr .dup{display:none}*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+/* ── 랜딩 보완 v2: 카드/파트너 버튼화 · 모바일 how-it-works · 모달 ── */
+button.card{font:inherit;color:inherit;appearance:none;text-align:left;cursor:pointer}
+button.card:hover{border-color:rgba(143,168,255,.45);background:rgba(255,255,255,.07)}
+button.card:focus-visible,button.more-row:focus-visible,.lp-md-close:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.card .go{display:inline-flex;align-items:center;gap:6px}
+button.more-row{font:inherit;color:inherit;appearance:none;background:none;cursor:pointer}
+button.more-row:hover h3{color:var(--blue)}
+/* 모달 */
+.lp-md{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:24px}
+.lp-md[aria-hidden="false"]{display:flex}
+.lp-md-bg{position:absolute;inset:0;background:rgba(10,16,40,.58);backdrop-filter:blur(2px)}
+.lp-md-box{position:relative;width:min(640px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:22px;
+  box-shadow:0 30px 80px rgba(16,24,64,.32);padding:36px 36px 32px;animation:lpmd .18s ease}
+@keyframes lpmd{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.lp-md-close{position:absolute;top:16px;right:16px;width:40px;height:40px;border-radius:12px;display:grid;place-items:center;
+  background:var(--soft);color:var(--ink-2);cursor:pointer}
+.lp-md-close:hover{background:#e7ebf4}
+.lp-md-close svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round}
+.lp-md-ico{width:52px;height:52px;border-radius:15px;background:var(--blue-50);display:grid;place-items:center;margin-bottom:16px}
+.lp-md-ico svg{width:26px;height:26px;stroke:var(--blue);fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lp-md h3{font-size:25px;font-weight:800;letter-spacing:-.02em;margin:0 0 10px}
+.lp-md .lead{margin:0 0 20px;font-size:16px;line-height:1.7;color:var(--ink-2)}
+.lp-md h4{font-size:13px;font-weight:700;letter-spacing:.02em;color:var(--ink-3);margin:22px 0 10px}
+.lp-chips{display:flex;flex-wrap:wrap;gap:8px}
+.lp-chip{font-size:13.5px;font-weight:600;color:var(--navy);background:var(--soft);border:1px solid var(--line);border-radius:999px;padding:7px 13px}
+.lp-md ul.lp-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+.lp-md ul.lp-list li{display:flex;gap:10px;font-size:15px;line-height:1.6;color:var(--ink-1,#182136)}
+.lp-md ul.lp-list li b{color:var(--navy)}
+.lp-md ul.lp-list svg{width:20px;height:20px;flex-shrink:0;margin-top:1px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lp-md-cta{display:inline-flex;align-items:center;gap:8px;margin-top:26px;height:50px;padding:0 24px;border-radius:14px;
+  background:var(--navy);color:#fff;font-weight:700;font-size:15.5px}
+.lp-md-cta:hover{background:#0f1830}
+.lp-md-note{margin:16px 0 0;font-size:12.5px;color:var(--ink-3);line-height:1.6}
+/* 모달 안 미니 목업 */
+.lp-mock{margin:4px 0 2px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.lp-mock-bar{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--navy);color:#fff;font-size:12.5px;font-weight:600}
+.lp-mock-bar .dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.45)}
+.lp-mock-bd{padding:14px 16px;display:flex;flex-direction:column;gap:9px}
+.lp-mrow{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;color:var(--navy)}
+.lp-mrow+.lp-mrow{border-top:1px solid var(--line);padding-top:9px}
+.lp-badge{font-size:12px;font-weight:700;border-radius:999px;padding:4px 10px}
+.lp-b-g{color:#1F7A3A;background:#EAF6EE}
+.lp-b-a{color:#8A6400;background:#FBF1D8}
+.lp-b-r{color:#B30000;background:#FBE6E6}
+.lp-stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:4px}
+.lp-stat{border-radius:12px;padding:10px 8px;text-align:center;font-size:12.5px;font-weight:700}
+.lp-stat b{display:block;font-size:22px;margin-top:2px}
+.lp-rep{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:13px 14px}
+.lp-rep .t{display:flex;align-items:center;gap:8px;font-weight:700;color:var(--navy);font-size:14.5px}
+.lp-rep .ln{margin-top:8px;font-size:13px;color:var(--ink-2);line-height:1.6}
+.lp-rep .ln b{color:var(--navy)}
+@media (max-width:640px){
+ .lp-md{padding:0;align-items:flex-end}
+ .lp-md-box{width:100%;max-height:92vh;border-radius:22px 22px 0 0;padding:30px 22px 26px}
+ .lp-md h3{font-size:22px}
+}
+/* 모바일: how-it-works 간결화 */
+@media (max-width:860px){
+ .steps-grid{gap:26px}
+ .steps h2{font-size:26px;margin-bottom:20px}
+ .step-list{margin-bottom:4px}
+ .step-btn{font-size:17px;padding:14px 0;gap:10px}
+ .step-btn .no{font-size:13px;min-width:22px}
+ .step-tag{font-size:11px;padding:2px 7px}
+ .step-desc{font-size:14px;margin-top:14px}
+}
+
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-5QYQQ49EGR"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-5QYQQ49EGR',{anonymize_ip:true});</script>
@@ -329,7 +397,7 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
   <div class="facts-in">
    <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3.5 6 1 1 2-2M3.5 12l1 1 2-2M3.5 18l1 1 2-2"/></svg>자동 검토 항목</div><b>17<small>개</small></b></div>
    <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></svg>입력부터 결과까지</div><b>10<small>분</small></b></div>
-   <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18M7 15h4"/></svg>제품별 1회 결제</div><b>9,900<small>원~</small></b></div>
+   <div class="fact"><div class="fact-lb"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>바로 받는 결과물</div><b>PDF<small>·엑셀</small></b></div>
   </div>
  </div>
 </section>
@@ -349,9 +417,9 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
    </div>
   </div>
   <div class="cards">
-   <div class="card"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 2 0 0 0 6 0zM19 7l-3 6a3 2 0 0 0 6 0z"/></svg></div><h3>현행 법령 기준 검토</h3><p>식품 표시·광고 법령과 식약처 고시, 원산지·분리배출 기준에 근거해 각 항목을 확인합니다.</p><a class="go" href="/service">검토 기준 보기 <span aria-hidden="true">→</span></a></div>
-   <div class="card"><div class="card-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5M8 17h3"/><path d="m14 16 1.5 1.5L18 15"/></svg></div><h3>17개 항목 자동 판정</h3><p>원재료·알레르기·원산지·영양강조·분리배출까지, 17개 검토 규칙이 입력값을 통과·주의·위반으로 판정합니다.</p><a class="go" href="/service">17개 항목 보기 <span aria-hidden="true">→</span></a></div>
-   <div class="card"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg></div><h3>근거가 남는 리포트</h3><p>전문 검토는 항목마다 관련 조항·과태료·수정 방법을 정리해, 단속에 대비한 기록으로 남깁니다.</p><a class="go" href="/pricing">전문 검토 보기 <span aria-hidden="true">→</span></a></div>
+   <button type="button" class="card" data-modal="m-law"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 2 0 0 0 6 0zM19 7l-3 6a3 2 0 0 0 6 0z"/></svg></div><h3>현행 법령 기준 검토</h3><p>식품 표시·광고 법령과 식약처 고시, 원산지·분리배출 기준에 근거해 각 항목을 확인합니다.</p><span class="go">검토 기준 보기 <span aria-hidden="true">→</span></span></button>
+   <button type="button" class="card" data-modal="m-items"><div class="card-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5M8 17h3"/><path d="m14 16 1.5 1.5L18 15"/></svg></div><h3>17개 항목 자동 판정</h3><p>원재료·알레르기·원산지·영양강조·분리배출까지, 17개 검토 규칙이 입력값을 통과·주의·위반으로 판정합니다.</p><span class="go">17개 항목 보기 <span aria-hidden="true">→</span></span></button>
+   <button type="button" class="card" data-modal="m-report"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg></div><h3>근거가 남는 리포트</h3><p>전문 검토는 항목마다 관련 조항·과태료·수정 방법을 정리해, 단속에 대비한 기록으로 남깁니다.</p><span class="go">전문 검토 보기 <span aria-hidden="true">→</span></span></button>
   </div>
   <div class="laws">
    <div class="laws-h"><div class="card-ico"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>검토 기준 법령 · 고시</div>
@@ -437,11 +505,11 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
 <section class="more" aria-labelledby="more-h">
  <div class="wrap">
   <h2 id="more-h">라벨패스를 더 다양하게 활용해 보세요</h2>
-  <a class="more-row" href="/contact">
+  <button type="button" class="more-row" data-modal="m-partner">
    <h3><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg>파트너와 함께 쓰기</h3>
-   <div class="more-txt"><p>디자이너·인쇄소·에이전시라면 고객 라벨을 납품 전에 확인하세요.<br>공유주방·창업 교육기관과도 함께 운영할 수 있습니다.</p><span class="more-badge">도입문의로 함께 쓰는 방법을 안내해 드립니다</span></div>
+   <div class="more-txt"><p>고객·수강생의 라벨을 납품·제출 전에 라벨패스로 한 번 더 확인하세요.<br>디자이너·인쇄소·에이전시·공유주방·창업 교육기관과 함께 씁니다.</p><span class="more-badge">활용 방법 자세히 보기</span></div>
    <span class="more-go" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-  </a>
+  </button>
   <a class="more-row" href="https://blog.labelpass.kr" target="_blank" rel="noopener">
    <h3><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"/><path d="M8 7h6M8 11h6"/></svg>표시 가이드 · 법규 소식</h3>
    <div class="more-txt"><p>원산지·알레르기·영양강조처럼 자주 헷갈리는 표시 기준을 주제별로 정리했습니다.<br>바뀐 기준은 법규 소식으로 알려드립니다.</p><span class="more-badge">표시 가이드 · 라벨 질문 · 라벨 체크 · 법규 소식</span></div>
@@ -463,6 +531,95 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
   </div>
  </div>
 </section>
+
+<!-- MODALS -->
+<div class="lp-md" id="m-partner" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="m-partner-h">
+ <div class="lp-md-bg" data-close></div>
+ <div class="lp-md-box" role="document">
+  <button type="button" class="lp-md-close" data-close aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="lp-md-ico"><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/></svg></div>
+  <h3 id="m-partner-h">파트너와 함께 쓰기</h3>
+  <p class="lead">고객·수강생의 식품 라벨을 납품·제출 전에 라벨패스로 한 번 더 확인하세요. 재작업과 반려를 줄이고, 결과는 근거 리포트로 함께 전달할 수 있습니다.</p>
+  <h4>이런 분들과 함께 씁니다</h4>
+  <div class="lp-chips"><span class="lp-chip">라벨 디자이너</span><span class="lp-chip">인쇄소</span><span class="lp-chip">브랜딩 에이전시</span><span class="lp-chip">공유주방</span><span class="lp-chip">창업보육·교육기관</span></div>
+  <h4>이렇게 활용해요</h4>
+  <ul class="lp-list">
+   <li><svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></svg><span><b>디자이너·인쇄소</b> — 시안을 넘기기 전에 표시사항 17개를 점검해 재작업을 줄여요.</span></li>
+   <li><svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></svg><span><b>브랜딩 에이전시</b> — 브랜드 라벨 검수를 결과 리포트로 함께 전달해요.</span></li>
+   <li><svg viewBox="0 0 24 24"><path d="m5 12 4.5 4.5L19 7"/></svg><span><b>공유주방·교육기관</b> — 입주사·수강생이 직접 무료 검토로 라벨을 확인하도록 안내해요.</span></li>
+  </ul>
+  <a class="lp-md-cta" href="/contact">도입문의 하기 <span aria-hidden="true">→</span></a>
+  <p class="lp-md-note">제휴 방식과 단가는 도입문의로 안내해 드립니다.</p>
+ </div>
+</div>
+
+<div class="lp-md" id="m-law" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="m-law-h">
+ <div class="lp-md-bg" data-close></div>
+ <div class="lp-md-box" role="document">
+  <button type="button" class="lp-md-close" data-close aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="lp-md-ico"><svg viewBox="0 0 24 24"><path d="M12 4v16M8 20h8M5 7h14M5 7l-3 6a3 2 0 0 0 6 0zM19 7l-3 6a3 2 0 0 0 6 0z"/></svg></div>
+  <h3 id="m-law-h">현행 법령 기준 검토</h3>
+  <p class="lead">입력한 표시사항을 현행 식품 표시 법령과 식약처 고시에 비춰 항목별로 확인합니다. 각 결과에는 판단의 근거가 함께 남습니다.</p>
+  <div class="lp-mock">
+   <div class="lp-mock-bar"><span class="dot"></span>검토 근거 예시</div>
+   <div class="lp-mock-bd">
+    <div class="lp-mrow"><span>알레르기 유발물질 표시</span><span class="lp-badge lp-b-r">위반</span></div>
+    <div class="lp-rep"><div class="t">근거</div><div class="ln"><b>식품등의 표시기준</b> · 알레르기 유발물질은 원재료명과 별도로 표시<br><b>참고</b> · 표시 위반 시 과태료 부과 대상</div></div>
+   </div>
+  </div>
+  <h4>검토 기준 법령 · 고시</h4>
+  <div class="lp-chips"><span class="lp-chip">식품 표시·광고에 관한 법률</span><span class="lp-chip">같은 법 시행규칙(알레르기 별표)</span><span class="lp-chip">식품등의 표시기준</span><span class="lp-chip">원산지 표시법</span><span class="lp-chip">자원재활용법·분리배출 지침</span><span class="lp-chip">식품위생법</span></div>
+  <a class="lp-md-cta" href="/service">서비스 자세히 보기 <span aria-hidden="true">→</span></a>
+  <p class="lp-md-note">근거는 검토 시점 기준이며, 결과는 법적 적합성을 보증하지 않습니다.</p>
+ </div>
+</div>
+
+<div class="lp-md" id="m-items" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="m-items-h">
+ <div class="lp-md-bg" data-close></div>
+ <div class="lp-md-box" role="document">
+  <button type="button" class="lp-md-close" data-close aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="lp-md-ico"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8 9h8M8 13h5M8 17h3"/><path d="m14 16 1.5 1.5L18 15"/></svg></div>
+  <h3 id="m-items-h">17개 항목 자동 판정</h3>
+  <p class="lead">원재료명 순서부터 알레르기·원산지·영양강조·분리배출까지, 17개 검토 규칙이 입력값을 통과·주의·위반으로 판정합니다.</p>
+  <div class="lp-mock">
+   <div class="lp-mock-bar"><span class="dot"></span>딸기잼 표시사항 검토 · 예시</div>
+   <div class="lp-mock-bd">
+    <div class="lp-stat3"><div class="lp-stat lp-b-g">통과<b>12</b></div><div class="lp-stat lp-b-a">주의<b>3</b></div><div class="lp-stat lp-b-r">위반<b>2</b></div></div>
+    <div class="lp-mrow"><span>제품명 표시</span><span class="lp-badge lp-b-g">통과</span></div>
+    <div class="lp-mrow"><span>원재료명 순서</span><span class="lp-badge lp-b-a">주의</span></div>
+    <div class="lp-mrow"><span>알레르기 표시</span><span class="lp-badge lp-b-r">위반</span></div>
+   </div>
+  </div>
+  <h4>검토하는 대표 항목</h4>
+  <div class="lp-chips"><span class="lp-chip">원재료명·함량</span><span class="lp-chip">알레르기</span><span class="lp-chip">원산지</span><span class="lp-chip">영양강조</span><span class="lp-chip">소비기한·보관</span><span class="lp-chip">분리배출</span></div>
+  <a class="lp-md-cta" href="/creator">무료 검사 시작 <span aria-hidden="true">→</span></a>
+  <p class="lp-md-note">통과·주의·위반 개수는 무료로 먼저 확인할 수 있습니다.</p>
+ </div>
+</div>
+
+<div class="lp-md" id="m-report" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="m-report-h">
+ <div class="lp-md-bg" data-close></div>
+ <div class="lp-md-box" role="document">
+  <button type="button" class="lp-md-close" data-close aria-label="닫기"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+  <div class="lp-md-ico"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg></div>
+  <h3 id="m-report-h">근거가 남는 리포트</h3>
+  <p class="lead">전문 검토는 항목마다 관련 조항·과태료 참고·수정 방법을 정리해 PDF 리포트로 남깁니다. 거래처 공유와 단속 대비 기록으로 쓸 수 있습니다.</p>
+  <div class="lp-mock">
+   <div class="lp-mock-bar"><span class="dot"></span>검토 리포트 · 예시</div>
+   <div class="lp-mock-bd">
+    <div class="lp-rep">
+     <div class="t">R03 · 원재료명 순서 <span class="lp-badge lp-b-a" style="margin-left:auto">주의</span></div>
+     <div class="ln"><b>수정 방법</b> · 함량이 높은 순서로 원재료를 나열하세요.<br><b>근거</b> · 식품등의 표시기준<br><b>과태료 참고</b> · 위반 시 부과 대상</div>
+    </div>
+   </div>
+  </div>
+  <h4>전문 검토에 포함</h4>
+  <div class="lp-chips"><span class="lp-chip">검토 리포트 PDF</span><span class="lp-chip">신고 입력 가이드</span><span class="lp-chip">분리배출 마크</span><span class="lp-chip">30일 내 재검토 1회</span></div>
+  <a class="lp-md-cta" href="/pricing">요금 자세히 보기 <span aria-hidden="true">→</span></a>
+  <p class="lp-md-note">리포트는 사업자 자율 점검 기록이며, 법적 효력을 갖지 않습니다.</p>
+ </div>
+</div>
+
 </main>
 
 <footer class="footer">
@@ -502,6 +659,41 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
  tabs.forEach(function(t,i){
   t.addEventListener('click',function(){sel(i);play()});
   t.addEventListener('keydown',function(e){var k=e.key;if(k==='ArrowDown'||k==='ArrowRight'){e.preventDefault();sel((i+1)%tabs.length,true)}if(k==='ArrowUp'||k==='ArrowLeft'){e.preventDefault();sel((i+tabs.length-1)%tabs.length,true)}});
+ });
+})();
+</script>
+<script>
+(function(){
+ var open=null, lastFocus=null;
+ function openMd(id){
+  var m=document.getElementById(id); if(!m) return;
+  lastFocus=document.activeElement; open=m;
+  m.setAttribute('aria-hidden','false');
+  document.body.style.overflow='hidden';
+  var f=m.querySelector('.lp-md-close'); if(f) f.focus();
+  if(window.gtag) window.gtag('event','view_modal',{modal_id:id});
+ }
+ function closeMd(){
+  if(!open) return;
+  open.setAttribute('aria-hidden','true');
+  document.body.style.overflow='';
+  if(lastFocus&&lastFocus.focus) lastFocus.focus();
+  open=null;
+ }
+ document.addEventListener('click',function(e){
+  var t=e.target.closest('[data-modal]');
+  if(t){e.preventDefault();openMd(t.getAttribute('data-modal'));return;}
+  if(e.target.closest('[data-close]')) closeMd();
+ });
+ document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'&&open) closeMd();
+  if(e.key==='Tab'&&open){
+   var f=open.querySelectorAll('a[href],button:not([disabled])');
+   if(!f.length) return;
+   var a=f[0], b=f[f.length-1];
+   if(e.shiftKey&&document.activeElement===a){e.preventDefault();b.focus();}
+   else if(!e.shiftKey&&document.activeElement===b){e.preventDefault();a.focus();}
+  }
  });
 })();
 </script>
