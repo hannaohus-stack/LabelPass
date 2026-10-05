@@ -13,7 +13,7 @@ import { recordPayment } from '../lib/supabase'
 import { RECYCLING_FILE_MAP, addRecyclingMarks } from '../utils/recycling'
 import { buildSheetModel } from '../utils/labelSheet'
 import { kstStamp, safePdfName } from '../utils/pdfCore'
-import { trackPurchase } from '../lib/analytics'
+import { trackPurchase, trackPurchaseMeta } from '../lib/analytics'
 import {
   PAYMENT_STATE_KEY, SERVICE, countResults, fmtDate, kindOf, readSession, saveReviewOnce, whyText,
   type PaymentState, type ResultKind, type ServiceType,
@@ -140,6 +140,8 @@ export default function PaymentComplete() {
     saveReviewOnce(state, results, service, { paidAt: new Date().toISOString(), testMode: !realPayment })
     if (realPayment && state.reviewId) {
       trackPurchase(state.reviewId, SERVICE[service].price, 'KRW')
+      // Meta Pixel Purchase — 결제 확정 후 주문당 1회 (부가세 포함 결제금액)
+      trackPurchaseMeta(SERVICE[service].price, state.reviewId)
       recordPayment({ orderId: state.reviewId, amount: SERVICE[service].price, tier: SERVICE[service].tier, productName: state.metadata.productName })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

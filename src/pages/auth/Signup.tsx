@@ -5,6 +5,7 @@ import { AuthTitle, GateBanner, AuthField, AuthSubmitBtn, KakaoBtn, AuthDivider,
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../lib/useAuth'
 import { safeNext, rememberNext } from '../../lib/next'
+import { trackCompleteRegistration } from '../../lib/analytics'
 
 const BoxIcon = () => (
   <span className="lp-bx"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></span>
@@ -58,6 +59,8 @@ export default function Signup() {
       }
       return
     }
+    // 가입 성공 확정 → Meta Pixel CompleteRegistration (사용자당 1회)
+    if (data.user) trackCompleteRegistration(data.user.id)
     // 이메일 인증 OFF → 바로 로그인 상태 / ON → 인증 안내 화면
     if (data.session) navigate(next ?? '/dashboard', { replace: true })
     else { rememberNext(next); navigate('/verify-email', { state: { email } }) }

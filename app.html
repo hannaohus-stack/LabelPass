@@ -102,6 +102,23 @@
       })();
     </script>
 
+    <!-- ── Meta Pixel ─────────────────────────────────────────────────── -->
+    <!-- Pixel ID는 VITE_META_PIXEL_ID로 분리. 없으면 기본 ID 사용(공개 식별자). -->
+    <!-- 퍼널 이벤트(CompleteRegistration·Purchase)는 src/lib/analytics.ts에서 성공 후 호출 -->
+    <script type="module">
+      (function () {
+        var id = import.meta.env.VITE_META_PIXEL_ID || '1604818514160277';
+        if (!id || id.trim() === '') return;
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,
+        'script','https://connect.facebook.net/en_US/fbevents.js');
+        window.fbq('init', id);
+        window.fbq('track', 'PageView');
+      })();
+    </script>
+
     <!-- ── Fonts ──────────────────────────────────────────────────────── -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -110,6 +127,8 @@
       <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body>
+    <noscript><img height="1" width="1" style="display:none" alt=""
+      src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1" /></noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script src="/site/policies.js" defer></script>
