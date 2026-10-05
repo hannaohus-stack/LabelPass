@@ -100,14 +100,16 @@ Deno.serve(async (req: Request) => {
       안녕하세요, 라벨패스 베타 파트너님! 👋
     </h1>
     <p style="font-size:14px; color:rgba(10,10,11,0.65); line-height:1.7; margin:0 0 28px;">
-      사용해보셨나요? 딱 3분이면 되는 후기 설문이에요.<br>
-      써보신 느낌을 솔직하게 들려주세요.
+      식품 라벨 검토, 사용해보셨나요?<br>
+      라벨패스가 파트너님의 사업과 실무에 도움이 되었기를 바랍니다.<br><br>
+      더 쓸모 있는 서비스를 만들기 위해, 딱 3분짜리 후기 설문을 부탁드립니다.<br>
+      써보신 느낌 그대로, 솔직하게 들려주세요.
     </p>
     <a href="${npsUrl}" style="display:block; background:#3358EE; color:#fff; text-decoration:none; border-radius:10px; padding:14px 0; text-align:center; font-size:14.5px; font-weight:600; margin-bottom:28px;">
       👉 설문 참여하기
     </a>
     <p style="font-size:12px; color:rgba(10,10,11,0.4); line-height:1.6; margin:0;">
-      감사합니다.<br>라벨패스 한나 드림
+      감사합니다.<br>라벨패스 나나 드림
     </p>
   </div>
 </body>
