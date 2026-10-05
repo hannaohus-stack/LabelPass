@@ -86,7 +86,7 @@ Deno.serve(async (req: Request) => {
         const { error: sendError } = await resend.emails.send({
           from:    Deno.env.get('MAIL_FROM') ?? '라벨패스 LabelPass <noreply@labelpass.kr>',
           to:      row.email,
-          subject: '[라벨패스] 3분이면 돼요 — 솔직한 한마디 부탁드려요 🙏',
+          subject: '[라벨패스] 식품 라벨 검토, 어떠셨나요? (3분 설문)',
           html: `
 <!DOCTYPE html>
 <html lang="ko">
