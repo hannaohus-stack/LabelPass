@@ -10,7 +10,7 @@ import { analyzeRegulations, type Metadata } from './ReviewResult'
 import type { CreatorData } from './creator/types'
 import { TEST_MODE } from './Payment'
 import { recordPayment } from '../lib/supabase'
-import { RECYCLING_FILE_MAP, materialSlug } from '../utils/recycling'
+import { RECYCLING_FILE_MAP, addRecyclingMarks } from '../utils/recycling'
 import { buildSheetModel } from '../utils/labelSheet'
 import { kstStamp, safePdfName } from '../utils/pdfCore'
 import { trackPurchase } from '../lib/analytics'
@@ -203,10 +203,7 @@ export default function PaymentComplete() {
   const dlRecycling = async () => {
     const JSZip = (await import('jszip')).default
     const zip = new JSZip()
-    await Promise.all(materials.map(async mat => {
-      const res = await fetch(RECYCLING_FILE_MAP[mat])
-      zip.file(`분리배출마크_${materialSlug(mat)}.svg`, await res.text())
-    }))
+    await addRecyclingMarks(zip, '', materials)
     downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_분리배출마크_${safeName}_${kstStamp()}.zip`)
   }
   const dlAll = async () => {
@@ -222,10 +219,7 @@ export default function PaymentComplete() {
       const { createCertPDFArtifact } = await import('../utils/generateCertPDF')
       zip.file(`04_검토리포트_${safeName}_${stamp}.pdf`, (await createCertPDFArtifact(creatorData, paidTier, ctx)).blob)
       zip.file(`05_신고입력가이드_${safeName}_${stamp}.pdf`, (await createReportPDFArtifact(creatorData, paidTier, ctx)).blob)
-      await Promise.all(materials.map(async mat => {
-        const res = await fetch(RECYCLING_FILE_MAP[mat])
-        zip.file(`06_분리배출마크/분리배출마크_${materialSlug(mat)}.svg`, await res.text())
-      }))
+      await addRecyclingMarks(zip, '06_분리배출마크/', materials)
     }
     downloadBlob(await zip.generateAsync({ type: 'blob' }), `LabelPass_${isPro ? '전문' : '기본'}_${safeName}_${stamp}.zip`)
   }
