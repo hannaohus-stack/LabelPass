@@ -472,6 +472,44 @@ export class PdfWriter {
     }
   }
 
+  /** 관련 링크 목록 — 제목 + 눌러서 열 수 있는 주소 (주소가 길면 글자 단위로 줄바꿈) */
+  links(items: Array<{ label: string; url: string; note?: string }>, o: { size?: number } = {}) {
+    const size = o.size ?? 8.4
+    const lh = this.lineH(size, 1.45)
+    const urlSize = size - 0.8
+    const urlLh = this.lineH(urlSize, 1.4)
+    for (const it of items) {
+      // 주소를 한 줄 폭에 맞게 자른다
+      const chunks: string[] = []
+      let cur = ''
+      // 눈에 보이는 주소는 읽기 쉽게 한글로 풀어 쓰고, 링크는 원래 주소로 건다
+      let shown = it.url
+      try { shown = decodeURI(it.url) } catch { /* 그대로 */ }
+      for (const ch of shown) {
+        if (cur && this.measure(cur + ch, urlSize) > this.contentW - 6) { chunks.push(cur); cur = '' }
+        cur += ch
+      }
+      if (cur) chunks.push(cur)
+      const noteLines = it.note ? this.wrap(it.note, this.contentW - 6, urlSize) : []
+      this.ensure(lh + chunks.length * urlLh + noteLines.length * urlLh + 2)
+      this.setFont(size, true, C.text)
+      this.doc.text(it.label, this.ml + 1, this.y + size * PT * 0.95)
+      this.y += lh
+      for (const chunk of chunks) {
+        this.setFont(urlSize, false, C.blue)
+        this.doc.text(chunk, this.ml + 4, this.y + urlSize * PT * 0.95)
+        this.doc.link(this.ml + 4, this.y, this.measure(chunk, urlSize), urlLh, { url: it.url })
+        this.y += urlLh
+      }
+      for (const line of noteLines) {
+        this.setFont(urlSize, false, C.faint)
+        this.doc.text(line, this.ml + 4, this.y + urlSize * PT * 0.95)
+        this.y += urlLh
+      }
+      this.y += 1.6
+    }
+  }
+
   /** 번호 단계 목록 (①②③… 대신 숫자 원) */
   steps(items: string[], o: { size?: number } = {}) {
     const size = o.size ?? 9.2
