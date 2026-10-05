@@ -2,7 +2,7 @@
  * 라벨 검토 리포트 — PDF (결과물 디자인 v1, 2026-10-05)
  *
  * - 17개 항목을 모두 싣는다 (내용이 길면 여러 장).
- * - 전문: 항목마다 수정 방법 · 근거 · 과태료 참고. 기본: 결과와 사유만.
+ * - 전문: 항목마다 수정 방법 · 근거 · 제재 참고. 기본: 결과와 사유만.
  * - 번호는 화면과 같은 검토번호(reviewId)를 쓴다. 결과(results)도 화면에서 계산한 것을 그대로 받는다.
  * 파일명: LabelPass_검토리포트_{제품명}_{YYYYMMDD}.pdf (한국 시간)
  */
@@ -20,7 +20,7 @@ export interface ReportCtx extends SheetCtx {
   results?: RegulationResult[]
 }
 
-const FOOTER = '라벨패스 검토 리포트는 입력한 내용을 기준으로 한 사업자 자율 점검 기록입니다. 행정기관의 판단이나 법적 효력을 대신하지 않으며, 최종 표시 책임은 영업자에게 있습니다.'
+const FOOTER = '라벨패스 검토 리포트는 입력한 내용을 기준으로 한 사업자 자율 점검 기록이에요. 행정기관의 판단이나 법적 효력을 대신하지 않고, 최종 표시 책임은 영업자에게 있어요.'
 
 /** "왜 확인이 필요한가요" 본문 — 근거·과태료·수정방법 줄은 따로 보여주므로 뺀다 */
 function why(detail: string): string {
@@ -139,7 +139,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
         w.text('권장 표시 문구', { size: 8, bold: true, color: C.blue, after: 0.3, keep: 12 })
         w.note(r.recommendedLabelText, { size: 8.8, color: C.ink })
       }
-      const basis = [r.regulation || r.legalBasis, r.penaltyRange && `과태료 참고: ${r.penaltyRange}`].filter(Boolean) as string[]
+      const basis = [r.regulation || r.legalBasis, r.sanction && `제재 참고: ${r.sanction}`].filter(Boolean) as string[]
       if (basis.length) {
         w.text('근거 · 참고', { size: 8, bold: true, color: C.faint, after: 0.3, keep: 10 })
         w.bullets(basis, { size: 8.5, color: C.faint })
@@ -149,7 +149,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
     w.rule()
   }
   if (!isPro) {
-    w.note('수정 방법 · 권장 표시 문구 · 근거 법령 · 과태료 참고는 전문 서비스(19,900원)에서 제공해요. 마이페이지에서 같은 제품으로 전문 서비스를 받을 수 있어요.', {
+    w.note('수정 방법 · 권장 표시 문구 · 근거 법령 · 제재 참고는 전문 서비스(19,900원)에서 제공해요. 마이페이지에서 같은 제품으로 전문 서비스를 받을 수 있어요.', {
       bg: C.paper, border: C.line, color: C.faint, size: 8.6,
     })
   }
@@ -171,7 +171,7 @@ export async function createCertPDFArtifact(data: CreatorData, tier: ServiceTier
   w.bullets([
     '검토는 입력한 내용만을 대상으로 해요. 실제 라벨 시안의 글자 크기·배치·색은 포함되지 않아요.',
     '법령과 고시는 바뀔 수 있어요. 리포트의 근거는 검토 시점 기준이에요.',
-    '과태료 금액은 참고용 범위이며, 위반 횟수와 사안에 따라 달라져요.',
+    '제재 참고는 1차 위반 기준이에요. 위반 횟수와 사안에 따라 달라질 수 있어요.',
     '판단이 어려운 항목은 관할 시·군·구 위생 담당 부서나 식품안전나라(foodsafetykorea.go.kr)에서 확인해 주세요.',
   ], { size: 8.6, color: C.faint })
 

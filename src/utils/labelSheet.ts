@@ -7,6 +7,8 @@
  */
 import type { CreatorData } from '../pages/creator/types'
 import { CATEGORY_OFFICIAL } from './tierUtils'
+import { usedInProductName } from './productName'
+import { ALLERGEN_LIST, LEGAL_ALLERGEN_IDS } from './data/allergens'
 
 export interface SheetCtx {
   reviewId?: string
@@ -90,10 +92,14 @@ export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetMod
 
   // 알레르기 유발물질: 자동 감지 결과가 있으면 그것을, 없으면 직접 표시한 원재료를 쓴다 (화면 복사 텍스트와 같은 기준)
   const detected = (data.detectedAllergens ?? []).map(a => a.name)
-  const allergens = [...new Set(detected.length ? detected : sorted.filter(i => i.isAllergen).map(i => i.name))]
+  const allAllergens = [...new Set(detected.length ? detected : sorted.filter(i => i.isAllergen).map(i => i.name))]
+  // 법정 표시 대상(19종류)과 자율 표시(법정 아님)를 나눈다. 목록에 없는 이름(직접 표시한 원재료)은 법정 대상으로 본다.
+  const isVoluntary = (n: string) => ALLERGEN_LIST.some(a => a.name === n && !LEGAL_ALLERGEN_IDS.has(a.id))
+  const allergens = allAllergens.filter(n => !isVoluntary(n))
+  const voluntaryAllergens = allAllergens.filter(isVoluntary)
 
   // 원재료명: 배합비율 순. 함량(%)은 원재료를 제품명 또는 제품명의 일부로 쓴 경우에만 표시한다 (식품 등의 표시기준 제4조 제8호)
-  const inProductName = (name: string) => !!name.trim() && data.productName.replace(/\s/g, '').includes(name.replace(/\s/g, ''))
+  const inProductName = (name: string) => usedInProductName(data.productName, name)
   const ingredientText = sorted.map(i => {
     const pct = total > 0 && inProductName(i.name) ? ` ${(num(i.weight) / total * 100).toFixed(1)}%` : ''
     return `${i.name}${i.origin ? `(${i.origin})` : ''}${pct}`
@@ -163,7 +169,7 @@ export function buildSheetModel(data: CreatorData, ctx: SheetCtx = {}): SheetMod
     mk({ k: '식품유형', v: foodType }),
     mk({ k: '내용량', v: amount }),
     mk({ k: '원재료명', v: ingredientText, sub: sorted.length ? (sorted.some(i => inProductName(i.name)) ? '배합비율 높은 순 · 제품명에 쓴 원재료는 함량(%)을 함께 적었어요' : '배합비율 높은 순 · 제품명에 쓴 원재료가 있으면 그 함량(%)을 함께 표시해야 해요') : undefined }),
-    mk({ k: '알레르기 유발물질', v: allergens.length ? `${allergens.join(', ')} 함유` : '', sub: allergens.length ? '원재료명과 별도로 알아보기 쉽게 표시해요' : '입력한 원재료에서는 알레르기 유발물질이 감지되지 않았어요. 원재료를 직접 한 번 더 확인해 주세요.', missing: allergens.length === 0 }),
+    mk({ k: '알레르기 유발물질', v: allergens.length ? `${allergens.join(', ')} 함유` : '', sub: [allergens.length ? '원재료명과 별도로 알아보기 쉽게 표시해요' : '입력한 원재료에서는 알레르기 유발물질이 감지되지 않았어요. 원재료를 직접 한 번 더 확인해 주세요.', voluntaryAllergens.length ? `자율 표시(법정 대상 아님): ${voluntaryAllergens.join(', ')} — 원하면 라벨에 적을 수 있어요` : ''].filter(Boolean).join(' · '), missing: allergens.length === 0 }),
     mk({ k: '원산지', v: originText, sub: originMissing.length ? `원산지 미입력: ${originMissing.join(', ')}` : undefined }, { check: originMissing.length > 0 }),
     mk({ k: '소비기한', v: expiry }),
     mk({ k: '보관방법', v: data.storage }),

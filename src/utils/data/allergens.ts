@@ -1,5 +1,7 @@
 export const ALLERGEN_LIST = [
-  // 식약처 지정 27개 알레르기 유발 물질 + alias 매핑
+  // A01~A19: 식품 등의 표시·광고에 관한 법률 시행규칙 별표 2에서 정한 법정 알레르기 유발물질(19종류, 조개류에 굴·전복·홍합 포함)
+  // A20~A27: 법정 표시 대상이 아닌 해외 기준 물질 — 자율 표시로만 안내한다
+  // alias 매핑 포함
   { id: "A01", name: "난류", aliases: ["계란", "달걀", "egg", "전란", "난황", "난백", "메추리알"] },
   { id: "A02", name: "우유", aliases: ["milk", "유크림", "버터", "치즈", "생크림", "탈지분유", "전지분유", "유청", "카제인", "락토스"] },
   { id: "A03", name: "메밀", aliases: ["buckwheat", "메밀가루", "메밀분"] },
@@ -30,3 +32,8 @@ export const ALLERGEN_LIST = [
 ];
 
 export type Allergen = typeof ALLERGEN_LIST[number];
+
+/** 법정 알레르기 유발물질 id (A01~A19). 그 외는 자율 표시 */
+export const LEGAL_ALLERGEN_IDS: ReadonlySet<string> = new Set(ALLERGEN_LIST.slice(0, 19).map(a => a.id));
+export const isLegalAllergenName = (name: string): boolean =>
+  ALLERGEN_LIST.some(a => a.name === name && LEGAL_ALLERGEN_IDS.has(a.id));

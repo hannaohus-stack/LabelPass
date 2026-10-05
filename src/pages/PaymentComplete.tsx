@@ -294,11 +294,11 @@ export default function PaymentComplete() {
                           <>
                             <div className="row"><b>이렇게 고치세요</b><p>{r.suggestion}</p></div>
                             <div className="row"><b>근거 · 참고</b>
-                              <div className="law"><span>{r.regulation}</span>{r.penaltyRange && <span>과태료 참고 {r.penaltyRange}</span>}</div>
+                              <div className="law"><span>{r.regulation}</span>{r.sanction && <span>제재 참고 {r.sanction}</span>}</div>
                             </div>
                           </>
                         ) : (
-                          <div className="row lock">🔒 수정 방법 · 근거 법령 · 과태료는 전문 서비스에서 제공돼요.</div>
+                          <div className="row lock">🔒 수정 방법 · 근거 법령 · 제재 참고는 전문 서비스에서 제공돼요.</div>
                         )}
                       </div>
                     )}
