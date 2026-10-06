@@ -204,6 +204,15 @@ export default function Creator() {
         </div>
       )}
 
+      <nav className="lp-stepbar" aria-label="입력 단계">
+        {STEPS.map(st => (
+          <button key={st.id} type="button" className={st.id === step ? 'on' : ''} aria-current={st.id === step ? 'step' : undefined}
+            disabled={st.id !== step && !canReach(st.id)} onClick={() => goTo(st.id)}>
+            STEP {st.id}<small>{st.label}</small>
+          </button>
+        ))}
+      </nav>
+
       <main className="lp-page" style={{ paddingBottom: 180 }}>
         <div className="lp-ph">
           <div>
@@ -224,15 +233,6 @@ export default function Creator() {
           <aside className="lp-pv lp-pv-col" aria-label="라벨 미리보기"><LabelPreview data={data} /></aside>
         </div>
       </main>
-
-      <nav className="lp-stepbar" aria-label="입력 단계">
-        {STEPS.map(st => (
-          <button key={st.id} type="button" className={st.id === step ? 'on' : ''} aria-current={st.id === step ? 'step' : undefined}
-            disabled={st.id !== step && !canReach(st.id)} onClick={() => goTo(st.id)}>
-            STEP {st.id}<small>{st.label}</small>
-          </button>
-        ))}
-      </nav>
 
       <div className="lp-bar">
         <div className="lp-bar-in">

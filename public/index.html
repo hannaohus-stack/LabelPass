@@ -214,9 +214,14 @@ h2{font-size:40px;line-height:1.3;font-weight:800}
  .nav-menu,.nav-util{display:none}
  .nav-toggle{display:flex}
  .nav.open .nav-menu,.nav.open .nav-util{display:flex}
- .nav.open .nav-in{flex-wrap:wrap;height:auto;padding:16px 0 20px;row-gap:16px}
- .nav.open .nav-menu{order:3;width:100%;flex-direction:column;gap:14px}
- .nav.open .nav-util{order:4;width:100%;margin:0;flex-wrap:wrap}
+ .nav-toggle{width:44px;height:44px;margin-right:-6px}
+ .nav.open{background:#fff;box-shadow:0 16px 32px rgba(24,33,54,.12)}
+ .nav.open .nav-in{flex-wrap:wrap;height:auto;padding:16px 20px 20px;row-gap:4px}
+ .nav.open .nav-menu{order:3;width:100%;flex-direction:column;gap:0;font-size:17px;margin-top:8px}
+ .nav.open .nav-menu a,.nav.open .nav-util a[href="/login"]{display:flex;align-items:center;min-height:52px;border-bottom:1px solid var(--line)}
+ .nav.open .nav-util{order:4;width:100%;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:17px;color:var(--navy)}
+ .nav.open .nav-util a[href="/login"]{grid-column:1/-1;margin:0 0 10px!important}
+ .nav.open .nav-util .btn{height:48px;font-size:15px}
  .hero{min-height:max(88vh,560px)}
  .rot{font-size:17px;gap:10px}
  .rot .dash{width:18px}

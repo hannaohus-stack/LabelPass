@@ -184,7 +184,7 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
 .lp-ing-h{height:42px;background:var(--soft);font-size:13px;font-weight:700;color:var(--ink-3)}
 .lp-ing-r{min-height:64px;border-top:1px solid var(--line)}
 .lp-ing-r .no{font-size:13px;font-weight:700;color:var(--ink-3);text-align:center}
-.lp-ing-r .lp-in{height:44px;font-size:15px}
+.lp-ing-r .lp-in{height:44px;font-size:16px}
 .lp-ing-r .nm{position:relative}
 .lp-ing-r .badge{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:800;border-radius:6px;padding:3px 7px;pointer-events:none}
 .lp-b-al{background:var(--red-50);color:var(--red)}
@@ -430,14 +430,14 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
 .lp-db-law .more{margin-left:auto;font-size:14px;font-weight:700;color:#A9BCFF;white-space:nowrap}
 .lp-db-law .x{color:rgba(255,255,255,.5);font-size:20px;padding:0 4px;line-height:1}
 .lp-db-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:24px;align-items:start}
-.lp-db-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.lp-db-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
 .lp-db-stats>div{background:#fff;border:1px solid var(--line);border-radius:18px;padding:18px 20px}
 .lp-db-stats span{font-size:14px;font-weight:600;color:var(--ink-3)}
 .lp-db-stats b{display:block;font-size:30px;font-weight:800;letter-spacing:-0.04em;margin-top:2px}
 .lp-db-stats b small{font-size:15px;font-weight:700;color:var(--ink-3);margin-left:2px}
 .lp-db-grid .lp-card{padding:24px 26px;scroll-margin-top:92px}
 .lp-db-srch{display:flex;align-items:center;gap:8px;height:40px;border:1.5px solid var(--line);border-radius:10px;padding:0 12px;width:220px}
-.lp-db-srch input{border:0;outline:0;font-size:14px;width:100%;background:none}
+.lp-db-srch input{border:0;outline:0;font-size:16px;width:100%;background:none}
 .lp-db-srch svg{width:16px;height:16px;stroke:var(--ink-3);fill:none;stroke-width:2;stroke-linecap:round;flex-shrink:0}
 .lp-db-tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin:0 -26px 6px;padding:0 26px}
 .lp-db-tabs button{white-space:nowrap;flex-shrink:0;height:44px;padding:0 12px;font-size:15px;font-weight:700;color:var(--ink-3);border-bottom:2px solid transparent!important;margin-bottom:-1px}
@@ -487,7 +487,7 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
 .lp-db-empty .steps3 b{display:block;color:var(--blue);font-size:13px}
 
 @media (max-width:1024px){
-  .lp-rv-grid,.lp-py-grid,.lp-rs-grid,.lp-db-grid{grid-template-columns:1fr}
+  .lp-rv-grid,.lp-py-grid,.lp-rs-grid,.lp-db-grid{grid-template-columns:minmax(0,1fr)}
   .lp-rv-svc,.lp-py-box,.lp-rs-side{position:static}
   .lp-rv-cnt{grid-template-columns:repeat(3,1fr)}
   .lp-rv-cnt .c-t{grid-column:1/-1}
@@ -574,9 +574,13 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
   .lp-bar-in{padding:12px 16px;flex-wrap:wrap}
   .lp-bar .left{width:100%;margin:0}
   .lp-bar .lp-btn{flex:1;padding:0 12px}
-  .lp-bar .lp-btn-blue{min-width:0}
-  .lp-stepbar{bottom:150px}
-  .lp-stepbar button{padding:4px 9px!important}
+  .lp-bar .lp-btn-blue{min-width:auto}
+  .lp-rs-txt textarea{font-size:16px}
+  .lp-stepbar{position:sticky;top:60px;left:auto;bottom:auto;transform:none;z-index:29;border-radius:0;padding:6px 16px;gap:4px;background:#fff;border-bottom:1px solid var(--line);box-shadow:none}
+  .lp-stepbar button{flex:1;min-width:0;min-height:44px;justify-content:center;font-size:12px;padding:4px 2px!important;color:var(--ink-3)!important}
+  .lp-stepbar button small{font-size:11.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+  .lp-stepbar button:hover:not(:disabled){color:var(--navy)!important}
+  .lp-stepbar button.on{background:var(--navy)!important;color:#fff!important}
   .lp-nx-t{display:none}
   .lp-unit{flex-wrap:wrap}
 }
@@ -584,5 +588,4 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
   .lp-ah-in{gap:8px;padding:0 12px}
   .lp-ah-logo img{height:26px}
   .lp-flow .n{width:22px;height:22px}
-  .lp-stepbar button{padding:4px 6px!important}
 }
