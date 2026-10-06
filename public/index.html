@@ -739,6 +739,8 @@ src="https://www.facebook.com/tr?id=1604818514160277&ev=PageView&noscript=1"
 <script>
 (function(){
 var $=function(i){return document.getElementById(i)},pop=$('betaPop'),nav=$('nav'),bar=$('betaBar'),KEY='lp_beta_pop',closed=false;
+// ── 광고 UTM 승계: index 유입 UTM을 저장하고 팝업 CTA(/beta)에 그대로 전달 ──
+(function(){try{var keys=['utm_source','utm_medium','utm_campaign','utm_content'],q=new URLSearchParams(location.search),u={},has=false;keys.forEach(function(k){var v=q.get(k);if(v){u[k]=v.slice(0,100);has=true}});if(has){sessionStorage.setItem('lp_beta_utm',JSON.stringify(u));var cta=$('popCta');if(cta)cta.setAttribute('href','/beta?'+new URLSearchParams(u).toString())}}catch(e){}})();
 function seen(){try{return sessionStorage.getItem(KEY)==='1'}catch(e){return false}}
 function mark(){try{sessionStorage.setItem(KEY,'1')}catch(e){}}
 function open(){pop.style.display='flex'}
