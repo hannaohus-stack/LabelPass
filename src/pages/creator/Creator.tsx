@@ -159,7 +159,15 @@ export default function Creator() {
     setShowDraftPrompt(false)
   }
 
-  const goTo = (n: number) => { setStep(n); window.scrollTo(0, 0) }
+  const goTo = (n: number) => setStep(n)
+  // 단계가 바뀌면 키보드를 닫고 맨 위부터 보여 준다 (렌더 뒤에 실행해야 iOS에서 위치가 유지됨)
+  useEffect(() => {
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    const top = () => window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+    top()
+    const t = window.setTimeout(top, 80) // iOS: 키보드가 닫히며 위치가 되돌아오는 경우 대비
+    return () => window.clearTimeout(t)
+  }, [step])
   const goNext = () => {
     if (step === STEPS.length) {
       const reviewState = { ...convertToCheckerState(data), creatorData: data }

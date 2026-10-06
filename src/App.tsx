@@ -1,6 +1,6 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import type React from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { HelmetProvider } from 'react-helmet-async'
 import { useAuth } from './lib/useAuth'
 
@@ -17,6 +17,17 @@ const ResetPassword = lazy(() => import('./pages/auth/ResetPassword'))
 const AuthCallback = lazy(() => import('./pages/auth/AuthCallback'))
 const BetaApply = lazy(() => import('./pages/beta/BetaApply'))
 const BetaNps = lazy(() => import('./pages/beta/BetaNps'))
+
+// ─── 화면이 바뀌면 맨 위부터 보이게 (해시 이동은 제외) ─────────────────────────
+function ScrollToTop() {
+  const { pathname, hash } = useLocation()
+  useEffect(() => {
+    if (hash) return
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur()
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior })
+  }, [pathname, hash])
+  return null
+}
 
 // ─── ProtectedRoute ────────────────────────────────────────────────────────────
 const DEV_BYPASS = false
@@ -56,6 +67,7 @@ export default function App() {
   return (
     <HelmetProvider>
     <BrowserRouter>
+      <ScrollToTop />
       <Suspense fallback={null}>
       <Routes>
         {/* 공개 라우트 */}

@@ -6,7 +6,7 @@
   --blue:#3358EE;--blue-50:#EEF2FF;--blue-100:#DCE4FF;--navy:#182136;--ink-2:#4B5873;--ink-3:#8A94A8;
   --line:#E4E8F0;--soft:#F4F6FB;--green:#1F9D6B;--green-50:#E8F6EF;--amber:#C98200;--amber-50:#FFF4DC;
   --red:#E0413A;--red-50:#FDECEA;--kakao:#FEE500;--r:20px;
-  min-height:100vh;background:var(--soft);color:var(--navy);
+  min-height:100vh;min-height:100dvh;background:var(--soft);color:var(--navy);
   font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Noto Sans KR",sans-serif;
   font-size:16px;line-height:1.6;letter-spacing:-0.01em;word-break:keep-all;-webkit-font-smoothing:antialiased
 }
@@ -74,6 +74,9 @@
 .lp-in.bad{border-color:var(--red)}
 .lp-in:disabled{background:var(--soft);color:var(--ink-3)}
 textarea.lp-in{height:auto;min-height:88px;padding:12px 14px;resize:vertical}
+input[type=date].lp-in{-webkit-appearance:none;appearance:none;min-width:0;display:flex;align-items:center;text-align:left;color:var(--navy)}
+input[type=date].lp-in::-webkit-date-and-time-value{text-align:left;margin:0}
+input[type=date].lp-in::-webkit-calendar-picker-indicator{opacity:.6}
 select.lp-in{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A94A8' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") right 12px center/20px no-repeat;padding-right:40px}
 .lp-err{margin:6px 0 0;font-size:13px;font-weight:600;color:var(--red)}
 .lp-help{margin:8px 0 0;font-size:13px;color:var(--ink-3)}
@@ -104,7 +107,7 @@ select.lp-in{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmln
 .lp-callout.green b{color:var(--green)}
 
 /* ── 인증 ── */
-.lp-auth{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100vh;background:#fff}
+.lp-auth{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100vh;min-height:100dvh;background:#fff}
 .lp-auth-side{position:sticky;top:0;height:100vh;overflow:hidden;color:#fff;background:#05070f;display:flex;flex-direction:column;justify-content:space-between;padding:40px 56px 48px}
 .lp-auth-side .bg{position:absolute;inset:0;background:url("/site/hero_bg.jpg") center/cover no-repeat}
 .lp-auth-side .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,5,14,.88) 0%,rgba(3,5,14,.7) 50%,rgba(10,22,80,.78) 100%),radial-gradient(80% 60% at 90% 100%,rgba(51,88,238,.5),transparent 70%)}
@@ -117,7 +120,7 @@ select.lp-in{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmln
 .lp-pts i{width:28px;height:28px;border-radius:50%;background:rgba(51,88,238,.35);border:1px solid rgba(143,168,255,.4);display:grid;place-items:center;flex-shrink:0}
 .lp-pts i svg{width:14px;height:14px;stroke:#BFD0FF;fill:none;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
 .lp-auth-side .foot{font-size:13px;color:rgba(255,255,255,.45)}
-.lp-auth-main{display:flex;flex-direction:column;min-height:100vh}
+.lp-auth-main{display:flex;flex-direction:column;min-height:100vh;min-height:100dvh}
 .lp-auth-top{display:flex;justify-content:space-between;align-items:center;height:76px;padding:0 40px}
 .lp-auth-top .m-logo{display:none}
 .lp-auth-top .m-logo img{height:34px;width:auto;display:block}
@@ -576,7 +579,10 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
   .lp-bar .lp-btn{flex:1;padding:0 12px}
   .lp-bar .lp-btn-blue{min-width:auto}
   .lp-rs-txt textarea{font-size:16px}
-  .lp-stepbar{position:sticky;top:60px;left:auto;bottom:auto;transform:none;z-index:29;border-radius:0;padding:6px 16px;gap:4px;background:#fff;border-bottom:1px solid var(--line);box-shadow:none}
+  .lp-stepbar{position:static;left:auto;bottom:auto;transform:none;border-radius:0;padding:6px 16px;gap:4px;background:#fff;border-bottom:1px solid var(--line);box-shadow:none}
+  .lp-bar,.lp-mbar{backdrop-filter:none;-webkit-backdrop-filter:none;background:#fff;transition:transform .2s ease}
+  .lp-bar-in,.lp-mbar{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+  .lp:has(.lp-in:focus,textarea:focus,select:focus) .lp-bar{transform:translateY(110%)}
   .lp-stepbar button{flex:1;min-width:0;min-height:44px;justify-content:center;font-size:12px;padding:4px 2px!important;color:var(--ink-3)!important}
   .lp-stepbar button small{font-size:11.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
   .lp-stepbar button:hover:not(:disabled){color:var(--navy)!important}
