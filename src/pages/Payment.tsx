@@ -16,7 +16,12 @@ const LS_VARIANT: Record<ServiceType, string> = {
 const LS_CHECKOUT_FN = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/lemonsqueezy-checkout`
 
 // ─── TEST MODE: 결제창 없이 결과 화면으로 (Live 전환 시 false) ────────────────
-export const TEST_MODE = true
+// 2026-10-06: 베타 자체 쿠폰 도입으로 비활성화. 무료는 쿠폰(전문)으로만 제공.
+export const TEST_MODE = false
+
+// 베타 쿠폰 검증 Edge Function · 세션 키(App.tsx CaptureCoupon 과 동일)
+const COUPON_FN = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/redeem-coupon`
+const COUPON_KEY = 'lp_beta_coupon'
 
 const INCLUDES: Record<ServiceType, { i: string; t: string; s: string }[]> = {
   basic: [
@@ -41,6 +46,9 @@ export default function Payment() {
   const [agreed, setAgreed] = useState(false)
   const [paying, setPaying] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [coupon, setCoupon] = useState(() => { try { return sessionStorage.getItem(COUPON_KEY) ?? '' } catch { return '' } })
+  const [redeeming, setRedeeming] = useState(false)
+  const [couponMsg, setCouponMsg] = useState<string | null>(null)
 
   const state = (location.state ?? readSession<PaymentState>(PAYMENT_STATE_KEY)) as PaymentState | null
   const paid = usePaidReview(state?.reviewId)
@@ -105,6 +113,40 @@ export default function Payment() {
     }
   }
 
+  // ─── 베타 쿠폰 사용 — 서버 검증 후 전문(pro) 결과 무료 제공 ──────────────────
+  const handleRedeem = async () => {
+    const code = coupon.trim()
+    if (redeeming || !code) return
+    setRedeeming(true); setCouponMsg(null)
+    try {
+      const res = await fetch(COUPON_FN, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}` },
+        body: JSON.stringify({ code }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (data?.ok) {
+        try { sessionStorage.removeItem(COUPON_KEY) } catch { /* noop */ }
+        const paid: PaymentState = { ...state, service: 'pro' }
+        writeSession(PAYMENT_STATE_KEY, paid)
+        navigate('/payment/complete', { replace: true, state: { ...paid, success: true, via: 'coupon' } })
+        return
+      }
+      const err = data?.error as string | undefined
+      setCouponMsg(
+        err === 'used' ? '이미 사용된 쿠폰이에요.'
+        : err === 'expired' ? '유효기간이 지난 쿠폰이에요.'
+        : err === 'ineligible' ? '사용할 수 없는 쿠폰이에요.'
+        : err === 'not_found' ? '쿠폰 코드를 다시 확인해주세요.'
+        : '쿠폰 확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.'
+      )
+    } catch {
+      setCouponMsg('쿠폰 확인 중 오류가 났어요. 잠시 후 다시 시도해주세요.')
+    } finally {
+      setRedeeming(false)
+    }
+  }
+
   return (
     <div className="lp">
       <AppHeader mode="flow" current={3} />
@@ -153,6 +195,25 @@ export default function Payment() {
             <div className="ln"><span>{cfg.name} 서비스 · 1제품</span><span>{won(cfg.price)}원</span></div>
             <div className="ln tot"><span>총 결제 금액</span><b>{won(cfg.price)}<small>원</small></b></div>
             <div className="vat">1회 결제 · 구독 없음</div>
+            {/* 베타 쿠폰 — 전문(pro) 결과물 무료 */}
+            <div style={{ marginTop: 14, padding: '14px', border: '1.5px dashed rgba(43,108,246,0.35)', borderRadius: 12, background: '#F5F8FF' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#1B2A4A', marginBottom: 2 }}>🎁 베타 쿠폰이 있으신가요?</div>
+              <div style={{ fontSize: 12, color: '#5B6B86', marginBottom: 10, lineHeight: 1.5 }}>코드를 입력하면 <b>전문 서비스</b>를 무료로 받을 수 있어요.</div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  value={coupon}
+                  onChange={e => { setCoupon(e.target.value.toUpperCase()); setCouponMsg(null) }}
+                  placeholder="예: LPB2A7D…"
+                  maxLength={32}
+                  style={{ flex: 1, minWidth: 0, height: 44, borderRadius: 10, border: '1px solid #D7DEEA', padding: '0 12px', fontSize: 14, letterSpacing: '0.02em', textTransform: 'uppercase' }}
+                />
+                <button type="button" onClick={handleRedeem} disabled={redeeming || !coupon.trim()}
+                  style={{ height: 44, padding: '0 16px', borderRadius: 10, border: 0, background: '#2B6CF6', color: '#fff', fontSize: 14, fontWeight: 700, cursor: redeeming || !coupon.trim() ? 'default' : 'pointer', opacity: redeeming || !coupon.trim() ? 0.5 : 1, whiteSpace: 'nowrap' }}>
+                  {redeeming ? '확인중…' : '무료 사용'}
+                </button>
+              </div>
+              {couponMsg && <div style={{ marginTop: 8, fontSize: 12.5, color: '#C0392B' }}>{couponMsg}</div>}
+            </div>
             {/* 결제 전 환불 고지 (전자상거래법 제17조 제2항 — 디지털 콘텐츠 청약철회 제한 사전 안내) */}
             <div className="rf">
               <h3>결제 전 환불 안내</h3>

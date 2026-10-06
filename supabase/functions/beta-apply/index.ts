@@ -147,8 +147,9 @@ Deno.serve(async (req) => {
   // 대상 외 / 대기자 — 쿠폰 없음
   if (r.status === 'ineligible' || r.status === 'waitlist') return json({ ok: true, status: r.status, coupon: null });
 
-  const checkoutBase = Deno.env.get('LEMONSQUEEZY_BETA_CHECKOUT_URL') ?? DEFAULT_CHECKOUT;
-  const withCode = (code: string) => `${checkoutBase}?checkout[discount_code]=${encodeURIComponent(code)}`;
+  // 자체 쿠폰: LS 체크아웃 대신 앱 내부(/creator)로 유도. 코드는 결제 화면에서 검증·소진된다.
+  const appBase = (origin && ALLOWED.some((r) => r.test(origin))) ? origin : 'https://labelpass.kr';
+  const withCode = (code: string) => `${appBase}/creator?coupon=${encodeURIComponent(code)}`;
 
   // 이미 발급된 코드가 있는 중복 신청 → 같은 코드를 다시 보여준다 (새 코드 발급 금지)
   if (r.status === 'duplicate' && r.coupon_code) {
@@ -158,7 +159,8 @@ Deno.serve(async (req) => {
   // 신규 접수(accepted) 또는 발급 실패 후 재신청(duplicate, 코드 없음) → 코드 발급
   try {
     const expiresAt = new Date(Date.now() + num('BETA_COUPON_DAYS', 14) * 86400_000);
-    const code = await createLsDiscount(r.application_id, expiresAt);
+    // 자체 발급 코드 (LS API 미사용). 결제 화면에서 redeem-coupon 으로 검증·1회 소진.
+    const code = randomCode();
     const { error: upErr } = await supabase.from('beta_applications')
       .update({ coupon_code: code, coupon_issued: true, coupon_expires_at: expiresAt.toISOString() })
       .eq('id', r.application_id);

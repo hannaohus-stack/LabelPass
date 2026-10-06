@@ -29,6 +29,21 @@ function ScrollToTop() {
   return null
 }
 
+// ─── 베타 쿠폰 코드 가로채기 ──────────────────────────────────────────────────
+// 신청 완료 메일/화면의 링크(/creator?coupon=CODE)로 들어오면 코드를 세션에 저장.
+// 결제 화면에서 이 값을 자동으로 불러와 검증·사용한다. (로그인 리다이렉트에도 보존)
+export const COUPON_KEY = 'lp_beta_coupon'
+function CaptureCoupon() {
+  const { search } = useLocation()
+  useEffect(() => {
+    try {
+      const c = new URLSearchParams(search).get('coupon')
+      if (c) sessionStorage.setItem(COUPON_KEY, c.trim().slice(0, 32))
+    } catch { /* noop */ }
+  }, [search])
+  return null
+}
+
 // ─── ProtectedRoute ────────────────────────────────────────────────────────────
 const DEV_BYPASS = false
 
@@ -68,6 +83,7 @@ export default function App() {
     <HelmetProvider>
     <BrowserRouter>
       <ScrollToTop />
+      <CaptureCoupon />
       <Suspense fallback={null}>
       <Routes>
         {/* 공개 라우트 */}
