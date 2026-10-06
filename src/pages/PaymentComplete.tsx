@@ -11,6 +11,7 @@ import { analyzeRegulations, type Metadata } from './ReviewResult'
 import type { CreatorData } from './creator/types'
 import { TEST_MODE } from './Payment'
 import { recordPayment } from '../lib/supabase'
+import { markPaid, readPaid } from '../lib/usePaidReview'
 import { RECYCLING_FILE_MAP, addRecyclingMarks } from '../utils/recycling'
 import { buildSheetModel } from '../utils/labelSheet'
 import { kstStamp, safePdfName } from '../utils/pdfCore'
@@ -138,8 +139,11 @@ export default function PaymentComplete() {
   useEffect(() => {
     if (!state || !success || state.fromRecord) return
     const realPayment = paidRedirect && !TEST_MODE
-    saveReviewOnce(state, results, service, { paidAt: new Date().toISOString(), testMode: !realPayment })
-    if (realPayment && state.reviewId) {
+    const alreadyPaid = readPaid(state.reviewId)   // 새로고침·주소 재진입이면 이미 표시가 있음
+    const paidAtIso = alreadyPaid?.paidAt ?? new Date().toISOString()
+    saveReviewOnce(state, results, service, { paidAt: paidAtIso, testMode: !realPayment })
+    markPaid(state.reviewId, { service, paidAt: paidAtIso })
+    if (realPayment && state.reviewId && !alreadyPaid) {
       trackPurchase(state.reviewId, SERVICE[service].price, 'KRW')
       // Meta Pixel Purchase — 결제 확정 후 주문당 1회 (부가세 포함 결제금액)
       trackPurchaseMeta(SERVICE[service].price, state.reviewId)

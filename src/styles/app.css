@@ -327,6 +327,11 @@ input:focus-visible+.lp-bx{box-shadow:0 0 0 3px var(--blue-100)}
 .lp-rv-opt li b{font-weight:800}
 .lp-rv-pay{height:56px;font-size:17px;font-weight:800;border-radius:14px;margin-top:6px}
 .lp-rv-note{margin:12px 0 0;text-align:center;font-size:13px;color:var(--ink-3)}
+.lp-paid-box{background:var(--green-50);border-radius:16px;padding:18px 16px 14px;margin-top:4px}
+.lp-paid-box>b{display:block;color:var(--green);font-size:16px;margin-bottom:6px}
+.lp-paid-box>p:first-of-type{margin:0 0 14px;font-size:14px;color:var(--ink-2);line-height:1.6}
+.lp-paid-page .ck{background:var(--green-50)!important;color:var(--green)!important}
+.lp-paid-page .ck svg{stroke:var(--green)!important}
 .lp-rv-note a{text-decoration:underline;text-underline-offset:2px}
 .lp-rv-more{display:block;text-align:center;margin-top:14px;font-size:14px;font-weight:700;color:var(--ink-2)}
 .lp-rv-more:hover{color:var(--blue)}
