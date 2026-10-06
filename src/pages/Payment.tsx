@@ -6,6 +6,7 @@ import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import AppHeader from '../components/lp/AppHeader'
 import { categoryText } from '../utils/tierUtils'
 import { PAYMENT_STATE_KEY, SERVICE, readSession, won, writeSession, type PaymentState, type ServiceType } from '../lib/review'
+import { usePaidReview } from '../lib/usePaidReview'
 
 // ─── Lemon Squeezy Variant IDs (공개 OK — API Key 아님) ───────────────────────
 const LS_VARIANT: Record<ServiceType, string> = {
@@ -42,12 +43,34 @@ export default function Payment() {
   const [error, setError] = useState<string | null>(null)
 
   const state = (location.state ?? readSession<PaymentState>(PAYMENT_STATE_KEY)) as PaymentState | null
+  const paid = usePaidReview(state?.reviewId)
   if (!state?.ingredients || !state?.metadata) return <Navigate to="/creator" replace />
 
   const service: ServiceType = state.service === 'basic' ? 'basic' : 'pro'
   const cfg = SERVICE[service]
   const m = state.metadata
   const back = () => navigate('/review', { state })
+
+  // 이미 결제한 검토(뒤로 가기·주소 직접 입력)는 결제 대신 결과 화면으로 안내 — 중복 결제 방지
+  if (paid) {
+    const goResult = () => navigate('/payment/complete', { replace: true, state: { ...state, service: paid.service, success: true, fromRecord: true, paidAt: paid.paidAt } })
+    return (
+      <div className="lp">
+        <AppHeader mode="flow" current={3} />
+        <main className="lp-page">
+          <div className="lp-rs-fail lp-paid-page">
+            <div className="ck"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" /></svg></div>
+            <h1>이미 결제한 검토예요</h1>
+            <p>{m.productName || '이름 없는 제품'} · {SERVICE[paid.service].name} 서비스로 결제됐어요.<br />다시 결제하지 않아도 결과와 파일을 받을 수 있어요.</p>
+            <div className="acts">
+              <button type="button" className="lp-btn lp-btn-blue" onClick={goResult}>결과 · 파일 보기</button>
+              <Link className="lp-btn lp-btn-line" to="/dashboard">마이페이지</Link>
+            </div>
+          </div>
+        </main>
+      </div>
+    )
+  }
 
   const handlePay = async () => {
     if (paying || !agreed) return
@@ -73,7 +96,8 @@ export default function Payment() {
       })
       if (!res.ok) throw new Error('checkout_failed')
       const { checkoutUrl } = await res.json()
-      window.location.href = checkoutUrl
+      // 결제창을 '이동'이 아닌 '교체'로 열어 완료 후 뒤로 가기에 결제창이 남지 않게
+      window.location.replace(checkoutUrl)
     } catch (e) {
       console.error('[LemonSqueezy] 결제 요청 실패', e)
       setError('결제창을 열지 못했어요. 잠시 후 다시 시도해 주세요.')

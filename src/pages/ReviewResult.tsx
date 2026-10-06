@@ -9,6 +9,7 @@ import {
   type PaymentState, type ReviewState, type ServiceType,
 } from '../lib/review'
 import { trackBeginCheckout, trackCheckerResultView } from '../lib/analytics'
+import { usePaidReview } from '../lib/usePaidReview'
 import type { Ingredient } from '../utils/parsing'
 import regulationsData from '../utils/data/regulations.json'
 
@@ -404,6 +405,7 @@ export default function ReviewResult() {
   )
   const counts = countResults(results)
   const [service, setService] = useState<ServiceType>(() => (counts.need + counts.warn === 0 ? 'basic' : 'pro'))
+  const paid = usePaidReview(state?.reviewId)
 
   useEffect(() => {
     if (!state) return
@@ -435,7 +437,13 @@ export default function ReviewResult() {
   const pct = (n: number) => `${((n / Math.max(total, 1)) * 100).toFixed(1)}%`
   const pick = SERVICE[service]
 
+  /** 이미 결제한 검토 → 결제 대신 결과·파일 화면으로 */
+  const goResult = () => {
+    if (!paid) return
+    navigate('/payment/complete', { state: { ...state, service: paid.service, success: true, fromRecord: true, paidAt: paid.paidAt } })
+  }
   const goPay = () => {
+    if (paid) { goResult(); return }
     trackBeginCheckout(pick.price, 'KRW', service)
     const payState: PaymentState = { ...state, service }
     writeSession(PAYMENT_STATE_KEY, payState)
@@ -517,6 +525,14 @@ export default function ReviewResult() {
             <div className="lp-card">
               <h2 id="rv-svc">서비스 선택</h2>
               <p className="lp-desc">이 제품 1건 기준 · 한 번만 결제해요</p>
+              {paid ? (
+                <div className="lp-paid-box">
+                  <b>✓ 결제 완료 · {SERVICE[paid.service].name}</b>
+                  <p>이 검토는 이미 결제됐어요. 다시 결제하지 않아도 결과와 파일을 받을 수 있어요.</p>
+                  <button type="button" className="lp-btn lp-btn-blue lp-btn-block lp-rv-pay" onClick={goResult}>결과 · 파일 보기</button>
+                  <p className="lp-rv-note">마이페이지에서도 언제든 다시 받을 수 있어요</p>
+                </div>
+              ) : (<>
               {counts.need + counts.warn > 0 && (
                 <div className="lp-rv-rec">
                   <span>💡</span>
@@ -544,14 +560,20 @@ export default function ReviewResult() {
               </button>
               <p className="lp-rv-note">구독 없음 · 결제 전 <a href="/#refund">환불 안내</a>를 확인해 주세요</p>
               <a className="lp-rv-more" href="/pricing" target="_blank" rel="noopener">무료 · 기본 · 전문 한눈에 비교 →</a>
+              </>)}
             </div>
           </aside>
         </div>
       </main>
 
       <div className="lp-mbar">
-        <span>선택한 서비스<b>{pick.name} {won(pick.price)}원</b></span>
-        <button type="button" className="lp-btn lp-btn-blue" onClick={goPay}>결제하기</button>
+        {paid ? (<>
+          <span>결제 완료<b>{SERVICE[paid.service].name}</b></span>
+          <button type="button" className="lp-btn lp-btn-blue" onClick={goResult}>결과 · 파일 보기</button>
+        </>) : (<>
+          <span>선택한 서비스<b>{pick.name} {won(pick.price)}원</b></span>
+          <button type="button" className="lp-btn lp-btn-blue" onClick={goPay}>결제하기</button>
+        </>)}
       </div>
     </div>
   )
